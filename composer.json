@@ -28,7 +28,9 @@
     "workerman/webman-framework": "^2.1",
     "monolog/monolog": "^2.0",
     "webman/database": "^2.1",
-    "webman/captcha": "^1.0"
+    "webman/captcha": "^1.0",
+    "phpoption/phpoption": "^1.9",
+    "vlucas/phpdotenv": "^5.6"
   },
   "suggest": {
     "ext-event": "For better performance. "
@@ -38,7 +40,10 @@
       "": "./",
       "app\\": "./app",
       "App\\": "./app",
-      "app\\View\\Components\\": "./app/view/components"
+      "app\\View\\Components\\": "./app/view/components",
+      "lib\\": "./lib",
+      "Lib\\": "./lib",
+      "backend\\": "./backend"
     }
   },
   "scripts": {
