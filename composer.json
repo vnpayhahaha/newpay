@@ -41,8 +41,6 @@
       "app\\": "./app",
       "App\\": "./app",
       "app\\View\\Components\\": "./app/view/components",
-      "lib\\": "./lib",
-      "Lib\\": "./lib",
       "backend\\": "./backend"
     }
   },
