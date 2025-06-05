@@ -2,8 +2,8 @@
 
 namespace backend\controller;
 
-use lib\Router\Annotations\GetMapping;
-use lib\Router\Annotations\RestController;
+use app\lib\Router\Annotations\GetMapping;
+use app\lib\Router\Annotations\RestController;
 
 #[RestController("/haha")]
 class IndexController

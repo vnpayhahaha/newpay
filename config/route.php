@@ -1,4 +1,4 @@
 <?php
 
 
-\lib\Router\AnnotationProvider::start();
+\app\lib\Router\AnnotationProvider::start();

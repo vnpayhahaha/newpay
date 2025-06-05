@@ -2,19 +2,19 @@
 
 declare (strict_types=1);
 
-namespace lib\Router;
+namespace app\lib\Router;
 
 use ReflectionClass;
 use ReflectionMethod;
-use lib\Router\Annotations\DeleteMapping;
-use lib\Router\Annotations\GetMapping;
-use lib\Router\Annotations\Middleware;
-use lib\Router\Annotations\MiddlewareIgnore;
-use lib\Router\Annotations\PostMapping;
-use lib\Router\Annotations\PutMapping;
-use lib\Router\Annotations\RequestMapping;
-use lib\Router\Annotations\ResourceMapping;
-use lib\Router\Annotations\RestController;
+use app\lib\Router\Annotations\DeleteMapping;
+use app\lib\Router\Annotations\GetMapping;
+use app\lib\Router\Annotations\Middleware;
+use app\lib\Router\Annotations\MiddlewareIgnore;
+use app\lib\Router\Annotations\PostMapping;
+use app\lib\Router\Annotations\PutMapping;
+use app\lib\Router\Annotations\RequestMapping;
+use app\lib\Router\Annotations\ResourceMapping;
+use app\lib\Router\Annotations\RestController;
 use Webman\Route;
 
 class AnnotationProvider

@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace lib\Router\Annotations;
+namespace app\lib\Router\Annotations;
 
 abstract class Mapping
 {
