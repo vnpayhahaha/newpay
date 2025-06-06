@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\lib\traits\HasContainer;
 use app\repository\IRepository;
 use Illuminate\Support\Collection;
 
@@ -11,7 +12,7 @@ use Illuminate\Support\Collection;
  */
 abstract class IService
 {
-
+    use HasContainer;
     public function count(array $params): int
     {
         return $this->repository->count($params);
