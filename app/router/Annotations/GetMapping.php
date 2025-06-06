@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace app\lib\Router\Annotations;
+namespace app\router\Annotations;
 
 /**
  * @Annotation
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
-class PostMapping extends Mapping
+class GetMapping extends Mapping
 {
     public function __construct(...$value)
     {
@@ -17,6 +17,6 @@ class PostMapping extends Mapping
 
     public function getMethods()
     {
-        return 'post';
+        return 'get';
     }
 }

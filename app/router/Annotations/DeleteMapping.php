@@ -2,21 +2,24 @@
 
 declare(strict_types=1);
 
-namespace app\lib\Router\Annotations;
+namespace app\router\Annotations;
 
 /**
  * @Annotation
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
-class PutMapping extends Mapping
+class DeleteMapping extends Mapping
 {
     public function __construct(...$value)
     {
         $this->path = $value[0]['value'] ?? '';
     }
 
-    public function getMethods()
+    /**
+     * @return string
+     */
+    public function getMethods(): string
     {
-        return 'put';
+        return 'delete';
     }
 }
