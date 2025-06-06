@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
  */
 abstract class IService
 {
-    use HasContainer;
     public function count(array $params): int
     {
         return $this->repository->count($params);

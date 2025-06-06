@@ -3,6 +3,7 @@
 namespace app\repository;
 
 use app\model\ModelAttachment;
+use DI\Annotation\Inject;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
@@ -11,12 +12,11 @@ use Illuminate\Support\Arr;
  */
 final class AttachmentRepository extends IRepository
 {
-    public function __construct(
-        protected readonly ModelAttachment $model
-    )
-    {
-    }
-
+    /**
+     * @Inject
+     * @var ModelAttachment
+     */
+    protected  ModelAttachment $model;
     public function findByHash(string $hash): ?ModelAttachment
     {
         return $this->model->newQuery()->where('hash', $hash)->first();

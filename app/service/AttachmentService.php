@@ -3,12 +3,15 @@
 namespace app\service;
 
 use app\repository\AttachmentRepository;
+use DI\Annotation\Inject;
 
 final class AttachmentService extends IService
 {
-    public function __construct(
-        protected readonly AttachmentRepository $repository,
-    ) {}
+    /**
+     * @Inject
+     * @var AttachmentRepository
+     */
+    protected  AttachmentRepository $repository;
 
     public function getRepository(): AttachmentRepository
     {
