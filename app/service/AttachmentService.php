@@ -5,15 +5,13 @@ namespace app\service;
 use app\lib\attribute\DataScope;
 use app\model\enums\ScopeType;
 use app\repository\AttachmentRepository;
-use DI\Annotation\Inject;
+use DI\Attribute\Inject;
+
 
 final class AttachmentService extends IService
 {
-    /**
-     * @Inject
-     * @var AttachmentRepository
-     */
-    protected  AttachmentRepository $repository;
+    #[Inject]
+    protected AttachmentRepository $repository;
 
     public function getRepository(): AttachmentRepository
     {

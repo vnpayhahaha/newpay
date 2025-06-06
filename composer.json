@@ -37,7 +37,7 @@
     "league/flysystem-aws-s3-v3": "^3.29",
     "hyperf/constants": "3.1.*",
     "psr/container": "^1.1.1",
-    "php-di/php-di": "^6.3",
+    "php-di/php-di": "^7.0",
     "doctrine/annotations": "^1.14",
     "illuminate/pagination": "^12.17",
     "illuminate/events": "^12.17",

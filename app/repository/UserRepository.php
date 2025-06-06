@@ -3,7 +3,7 @@
 namespace app\repository;
 
 use app\model\ModelUser;
-use DI\Annotation\Inject;
+use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -13,10 +13,7 @@ use Illuminate\Support\Arr;
  */
 final class UserRepository extends IRepository
 {
-    /**
-     * @Inject
-     * @var ModelUser
-     */
+    #[Inject]
     protected  ModelUser $model;
 
     public function handleSearch(Builder $query, array $params): Builder

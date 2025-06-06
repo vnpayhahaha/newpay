@@ -13,7 +13,10 @@
  */
 
 $builder = new \DI\ContainerBuilder();
+$builder->useAttributes(true);
+
+// 启用 PHP 8 属性
+$builder->enableCompilation(ini_get('open_basedir') ? null : __DIR__ . '/../var/cache');
 $builder->addDefinitions(config('dependence', []));
 $builder->useAutowiring(true);
-$builder->useAnnotations(true);
 return $builder->build();

@@ -5,17 +5,15 @@ namespace app\service;
 use app\lib\attribute\DataScope;
 use app\model\enums\ScopeType;
 use app\repository\UserRepository;
-use DI\Annotation\Inject;
+use DI\Attribute\Inject;
+
 
 /**
  * @extends IService<UserRepository>
  */
 final class UserService extends IService
 {
-    /**
-     * @Inject
-     * @var UserRepository
-     */
+    #[Inject]
     protected  UserRepository $repository;
 
     #[DataScope(

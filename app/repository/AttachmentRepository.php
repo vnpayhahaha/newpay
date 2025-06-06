@@ -3,7 +3,8 @@
 namespace app\repository;
 
 use app\model\ModelAttachment;
-use DI\Annotation\Inject;
+
+use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -12,10 +13,7 @@ use Illuminate\Support\Arr;
  */
 final class AttachmentRepository extends IRepository
 {
-    /**
-     * @Inject
-     * @var ModelAttachment
-     */
+    #[Inject]
     protected  ModelAttachment $model;
     public function findByHash(string $hash): ?ModelAttachment
     {
