@@ -5,7 +5,8 @@ namespace app\repository;
 use app\lib\abstracts\AbstractPaginator;
 use app\lib\traits\HasContainer;
 use app\repository\Traits\BootTrait;
-use Illuminate\Database\Query\Builder;
+
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -49,6 +50,8 @@ abstract class IRepository
     {
         return $this->perQuery($this->getQuery(), $params)->count();
     }
+
+    // Error: Class "Illuminate\Pagination\Paginator
 
     public function handlePage(\Illuminate\Pagination\LengthAwarePaginator $paginator): array
     {

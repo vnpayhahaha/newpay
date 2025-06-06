@@ -30,7 +30,7 @@ class ModelPolicy extends Model
      *
      * @var string
      */
-    protected $table = 'user_login_log';
+    protected $table = 'data_permission_policy';
 
     /**
      * The primary key associated with the table.

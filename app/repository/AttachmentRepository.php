@@ -4,7 +4,7 @@ namespace app\repository;
 
 use app\model\ModelAttachment;
 use DI\Annotation\Inject;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
 /**
