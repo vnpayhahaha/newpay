@@ -22,7 +22,7 @@ use Webman\Http\Request;
  * Class StaticFile
  * @package app\middleware
  */
-class StaticFile implements MiddlewareInterface
+class StaticFileMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, callable $handler): Response
     {

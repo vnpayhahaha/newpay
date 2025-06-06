@@ -41,7 +41,11 @@
     "doctrine/annotations": "^1.14",
     "illuminate/pagination": "^12.17",
     "illuminate/events": "^12.17",
-    "saithink/laravelorm-log": "^1.0"
+    "saithink/laravelorm-log": "^1.0",
+    "webman-tech/laravel-validation": "^12.0",
+    "webman-tech/laravel-http": "^12.0",
+    "webman-tech/laravel-translation": "^12.0",
+    "symfony/translation": "^7.2"
   },
   "suggest": {
     "ext-event": "For better performance. "
