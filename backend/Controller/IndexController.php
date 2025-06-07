@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\controller;
+namespace backend\Controller;
 
 use app\controller\BasicController;
 use app\Router\Annotations\GetMapping;

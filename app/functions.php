@@ -16,7 +16,7 @@ if (!function_exists('validate')) {
     {
         $request = \request();
         $lang = $request->header('accept-language', 'zh_cn');
-        $factory = \app\factory\ValidatorFactory::getInstance($lang);
+        $factory = \app\lib\factory\ValidatorFactory::getInstance($lang);
         if (func_num_args() === 0) {
             return $factory;
         }

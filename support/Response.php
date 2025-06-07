@@ -14,11 +14,37 @@
 
 namespace support;
 
+use app\http\ResultCode;
+use Hyperf\Contract\Arrayable;
+
 /**
  * Class Response
  * @package support
  */
-class Response extends \Webman\Http\Response
+class Response extends \Webman\Http\Response  implements Arrayable
 {
+    /**
+     * @template T
+     */
+    public function __construct(
+        public ResultCode $code = ResultCode::SUCCESS,
+        public ?string    $message = null,
+        public mixed      $data = [],
+        public int        $httpStatus = 200
+    )
+    {
+        if ($this->message === null) {
+            $this->message = ResultCode::getMessage($this->code->value);
+        }
+        parent::__construct($httpStatus,  ['Content-Type' => 'application/json'], json_encode($this->toArray()));
+    }
 
+    public function toArray(): array
+    {
+        return [
+            'code'    => $this->code->value,
+            'message' => $this->message,
+            'data'    => $this->data,
+        ];
+    }
 }

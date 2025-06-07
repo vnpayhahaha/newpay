@@ -2,6 +2,7 @@
 
 namespace app\repository;
 
+use app\model\enums\UserType;
 use app\model\ModelUser;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +16,14 @@ final class UserRepository extends IRepository
 {
     #[Inject]
     protected  ModelUser $model;
-
+    public function findByUnameType(string $username, UserType $userType = UserType::SYSTEM): ModelUser|null
+    {
+        // @phpstan-ignore-next-line
+        return $this->model->newQuery()
+            ->where('username', $username)
+            ->where('user_type', $userType)
+            ->first();
+    }
     public function handleSearch(Builder $query, array $params): Builder
     {
         return $query

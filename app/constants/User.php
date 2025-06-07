@@ -18,9 +18,9 @@ class User
 
     // 用户类型：(100系统用户 200测试用户)
     public const TYPE_SYSTEM = 100;
-    public const TYPE_TEST   = 200;
+    public const TYPE_GUEST   = 200;
     public static array $type_list = [
         self::TYPE_SYSTEM => '系统用户',
-        self::TYPE_TEST   => '测试用户',
+        self::TYPE_GUEST   => '测试用户',
     ];
 }

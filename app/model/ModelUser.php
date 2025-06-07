@@ -2,8 +2,8 @@
 
 namespace app\model;
 
-use app\model\enums\Status;
-use app\model\enums\UserType;
+
+use app\model\enums\UserStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,7 +19,7 @@ use support\Model;
  * @property string $email 用户邮箱
  * @property string $avatar 用户头像
  * @property string $signed 个人签名
- * @property int $status 状态 (1正常 2停用)
+ * @property UserStatus $status 状态 (1正常 2停用)
  * @property string $login_ip 最后登陆IP
  * @property string $login_time 最后登陆时间
  * @property array $backend_setting 后台设置数据

@@ -12,15 +12,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-namespace support;
-
-use app\lib\traits\ClientOsTrait;
-
-/**
- * Class Request
- * @package support
- */
-class Request extends \Webman\Http\Request
-{
-    use ClientOsTrait;
-}
+return [
+    Webman\Event\BootStrap::class,
+];

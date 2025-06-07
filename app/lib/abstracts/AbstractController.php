@@ -11,16 +11,12 @@ abstract class AbstractController
     protected function success(mixed $data = [], ?string $message = null): Response
     {
 
-        return new Response(200, ['Content-Type' => 'application/json'], json_encode(new Result(ResultCode::SUCCESS, $message, $data)));
+        return new Response(ResultCode::SUCCESS, $message, $data);
     }
 
-    protected function error(?string $message = null, mixed $data = [], int $httpStatus = 500): Response
+    protected function error(ResultCode $code = ResultCode::FAIL, ?string $message = null, mixed $data = [], int $httpStatus = 500): Response
     {
-        return new Response($httpStatus, ['Content-Type' => 'application/json'], json_encode(new Result(ResultCode::FAIL, $message, $data)));
+        return new Response($code, $message, $data);
     }
 
-    protected function json(ResultCode $code, mixed $data = [], ?string $message = null, int $httpStatus = 200): Response
-    {
-        return new Response($httpStatus, ['Content-Type' => 'application/json'], json_encode(new Result($code, $message, $data)));
-    }
 }

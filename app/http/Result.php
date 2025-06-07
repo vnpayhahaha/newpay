@@ -29,4 +29,5 @@ class Result implements Arrayable
             'data'    => $this->data,
         ];
     }
+
 }
