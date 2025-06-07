@@ -1,6 +1,6 @@
 <?php
 
-namespace app\factorys;
+namespace app\factory;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Validation\Factory;

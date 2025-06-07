@@ -1,0 +1,48 @@
+<?php
+
+namespace app\model;
+
+use support\Model;
+
+/**
+* @property int $id 主键
+* @property string $ptype
+* @property string $v0
+* @property string $v1
+* @property string $v2
+* @property string $v3
+* @property string $v4
+* @property string $v5
+* @property \Carbon\Carbon $created_at
+* @property \Carbon\Carbon $updated_at
+*/
+final class ModelRules extends Model
+{
+    /**
+     * The table associated with the model.
+     * @var string
+     */
+    protected $table = 'rules';
+
+    /**
+     * The primary key associated with the table.
+     * @var string
+     */
+    protected $primaryKey = 'id';
+    
+    /**
+     * The attributes that are mass assignable.
+     * @var array
+     */
+    protected $fillable = [
+        'ptype',
+        'v0',
+        'v1',
+        'v2',
+        'v3',
+        'v4',
+        'v5',
+        'created_at',
+        'updated_at'
+    ];
+}
