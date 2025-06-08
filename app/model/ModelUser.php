@@ -3,7 +3,9 @@
 namespace app\model;
 
 
+use app\lib\JwtAuth\user\AuthorizationUserInterface;
 use app\model\enums\UserStatus;
+use app\model\enums\UserType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,7 +37,7 @@ use support\Model;
  * @property Collection|ModelDepartment[] $dept_leader 部门领导
  * @property Collection|ModelPosition[] $position 岗位
  */
-final class ModelUser extends Model
+final class ModelUser extends Model implements AuthorizationUserInterface
 {
     /**
      * The table associated with the model.
@@ -82,6 +84,22 @@ final class ModelUser extends Model
         'updated_at',
         'remark',
     ];
+
+    protected $casts = [
+        'id'              => 'integer',
+        'status'          => UserStatus::class,
+        'user_type'       => UserType::class,
+        'created_by'      => 'integer',
+        'updated_by'      => 'integer',
+        'created_at'      => 'datetime',
+        'updated_at'      => 'datetime',
+        'backend_setting' => 'json',
+    ];
+
+    public function getUserById($id): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|array|ModelUser|null
+    {
+        return $this->find($id);
+    }
 
     public function roles(): BelongsToMany
     {

@@ -3,6 +3,8 @@
  * Here is your custom functions.
  */
 
+use app\lib\JwtAuth\JwtAuth;
+
 if (!function_exists('validate')) {
     /**
      * Laravel 验证器
@@ -22,5 +24,14 @@ if (!function_exists('validate')) {
         }
 
         return $factory->make($data, $rules, $messages, $customAttributes);
+    }
+}
+if (! function_exists('user')) {
+    /**
+     * 获取当前登录用户实例.
+     */
+    function user(string $scene = 'default'): JwtAuth
+    {
+        return new JwtAuth($scene);
     }
 }

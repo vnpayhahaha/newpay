@@ -3,14 +3,12 @@
 namespace app\model\enums;
 
 use app\constants\User;
-use Hyperf\Constants\Annotation\Constants;
-use Hyperf\Constants\Annotation\Message;
-use Hyperf\Constants\EnumConstantsTrait;
+use app\lib\traits\ConstantsTrait;
+use app\lib\attribute\Message;
 
-#[Constants]
 enum UserStatus: int
 {
-    use EnumConstantsTrait;
+    use ConstantsTrait;
 
     #[Message('user.enums.status.1')]
     case Normal = User::STATUS_NORMAL;

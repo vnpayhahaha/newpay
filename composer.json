@@ -35,7 +35,6 @@
     "qcloud/cos-sdk-v5": "^2.6",
     "qiniu/php-sdk": "^7.14",
     "league/flysystem-aws-s3-v3": "^3.29",
-    "hyperf/constants": "3.1.*",
     "psr/container": "^1.1.1",
     "php-di/php-di": "^7.0",
     "doctrine/annotations": "^1.14",
@@ -49,7 +48,11 @@
     "webman/console": "^2.1",
     "illuminate/database": "^12.17",
     "hyperf/aop-integration": "^1.2",
-    "webman/event": "^1.0"
+    "webman/event": "^1.0",
+    "lcobucci/jwt": "^5.5",
+    "nesbot/carbon": "^3.9",
+    "ramsey/uuid": "^4.8",
+    "webman/redis": "^2.1"
   },
   "suggest": {
     "ext-event": "For better performance. "

@@ -14,6 +14,7 @@
 
 return [
     '' => [
-        \app\middleware\LangMiddleware::class
+        \app\middleware\LangMiddleware::class,
+        \app\middleware\RequestIdMiddleware::class,
     ]
 ];

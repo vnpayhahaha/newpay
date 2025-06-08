@@ -39,19 +39,14 @@ class PassportController extends BasicController
         $password = (string)$validatedData['password'];
         $browser = $request->header('User-Agent') ?: 'unknown';
         $os = $request->os();
-
-        try {
-            $result = $this->passportService->login(
-                $username,
-                $password,
-                UserType::SYSTEM,
-                $request->getRealIp(false),
-                $browser,
-                $os
-            );
-        } catch (\RuntimeException $e) {
-            return $this->error(ResultCode::tryFrom($e->getCode()), $e->getMessage());
-        }
+        $result = $this->passportService->login(
+            $username,
+            $password,
+            UserType::SYSTEM,
+            $request->getRealIp(false),
+            $browser,
+            $os
+        );
 
         return $this->success($result);
     }

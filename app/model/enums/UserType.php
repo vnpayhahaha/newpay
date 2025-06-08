@@ -3,14 +3,12 @@
 namespace app\model\enums;
 
 use app\constants\User;
-use Hyperf\Constants\Annotation\Constants;
-use Hyperf\Constants\Annotation\Message;
-use Hyperf\Constants\EnumConstantsTrait;
+use app\lib\traits\ConstantsTrait;
+use app\lib\attribute\Message;
 
-#[Constants]
 enum UserType: int
 {
-    use EnumConstantsTrait;
+    use ConstantsTrait;
 
     #[Message('user.enums.type.100')]
     case SYSTEM = User::TYPE_SYSTEM;

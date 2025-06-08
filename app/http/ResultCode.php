@@ -2,11 +2,9 @@
 
 namespace app\http;
 
-use Hyperf\Constants\Annotation\Constants;
-use Hyperf\Constants\Annotation\Message;
-use Hyperf\Constants\ConstantsTrait;
+use app\lib\attribute\Message;
+use app\lib\traits\ConstantsTrait;
 
-#[Constants]
 enum ResultCode: int
 {
     use ConstantsTrait;

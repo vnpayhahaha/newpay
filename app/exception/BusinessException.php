@@ -2,33 +2,24 @@
 
 namespace app\exception;
 
-use app\http\Result;
 use app\http\ResultCode;
-use Webman\Http\Request;
-use Webman\Http\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class BusinessException extends \RuntimeException
+class BusinessException extends HttpException
 {
-    private Result $response;
 
+    protected mixed $data;
     public function __construct(ResultCode $code = ResultCode::FAIL, ?string $message = null, mixed $data = [])
     {
-        $this->response = new Result($code, $message, $data);
-    }
-
-    public function getResponse(): Result
-    {
-        return $this->response;
-    }
-
-    public function render(Request $request): ?Response
-    {
-        // json请求返回json数据
-        if ($request->expectsJson()) {
-            return json(['code' => $this->getCode() ?: 500, 'message' => $this->response->message]);
+        $this->code = $code->value;
+        $this->message = $message;
+        if ($message === null) {
+            var_dump('==s=s=');
+            $this->message = ResultCode::getMessage($code->value);
         }
-        // 非json请求则返回一个页面
-        return new Response(200, [], $this->getMessage());
+        $this->data = $data;
+        parent::__construct(500, $this->message,null,  [],$this->code);
     }
+
 }
 

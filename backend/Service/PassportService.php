@@ -3,14 +3,16 @@
 namespace backend\Service;
 
 
+use app\exception\BusinessException;
 use app\http\ResultCode;
+use app\lib\JwtAuth\JwtAuth;
 use app\model\enums\UserType;
 use app\repository\UserRepository;
 use app\service\IService;
 use backend\Event\UserLoginEvent;
 use DI\Attribute\Inject;
 use JetBrains\PhpStorm\ArrayShape;
-use support\exception\BusinessException;
+
 use Webman\Event\Event;
 
 class PassportService extends IService
@@ -22,7 +24,7 @@ class PassportService extends IService
     /**
      * @var string jwt场景
      */
-    private string $jwt = 'default';
+    private string $jwt = 'admin';
 
     /**
      * @param string $username
@@ -33,26 +35,36 @@ class PassportService extends IService
      * @param string $os
      * @return array
      */
-    #[ArrayShape(['access_token' => "string", 'refresh_token' => "string", 'expire_at' => "int"])]
+
     public function login(string $username, string $password, UserType $userType = UserType::SYSTEM, string $ip = '0.0.0.0', string $browser = 'unknown', string $os = 'unknown'): array
     {
         $user = $this->repository->findByUnameType($username, $userType);
         if (!filled($user)) {
-            throw new BusinessException(trans('password_error', [], 'auth'), ResultCode::UNPROCESSABLE_ENTITY->value);
+            throw new BusinessException(ResultCode::UNPROCESSABLE_ENTITY);
         }
         if (!$user->verifyPassword($password)) {
+            var_dump('密码错误');
             Event::dispatch('backend.user.login', new UserLoginEvent($user, $ip, $os, $browser, false));
-            throw new BusinessException(trans('password_error',[], 'auth'), ResultCode::UNPROCESSABLE_ENTITY->value);
+            throw new BusinessException(ResultCode::UNPROCESSABLE_ENTITY, trans('password_error', [], 'auth'));
         }
+        var_dump('密码正确');
         if ($user->status->isDisable()) {
-            throw new BusinessException('', ResultCode::DISABLED->value);
+            var_dump('用户被禁用');
+            throw new BusinessException(ResultCode::DISABLED);
         }
-        Event::dispatch('backend.user.login', new UserLoginEvent($user, $ip, $os, $browser));
 
+        var_dump('用户登录成功');
+        $jwt = user('admin');
+       // Event::dispatch('backend.user.login', $jwt->token($user->id));
+        $config = $jwt->getConfig('admin');
+        var_dump('==admin==');
+        $token = $jwt->token($user->id)->toString();
         return [
-            'access_token'  => 'access_token',
-            'refresh_token' => 'refresh_token',
-            'expire_at'     => 'expire_at',
+            'access_token'  => $token,
+            'token_type'    => $config->getType(),
+//            'refresh_token' => $jwt->refresh(),
+            'expire_at'     => $config->getExpires(),
+            'refresh_at'    => $config->getRefreshTTL(),
         ];
     }
 
@@ -60,6 +72,6 @@ class PassportService extends IService
     // 记录登录日志
     public function loginLog(UserLoginEvent $event): void
     {
-        var_dump('记录登录日志== run ==', $event);
+        var_dump('记录登录日志== run ==');
     }
 }
