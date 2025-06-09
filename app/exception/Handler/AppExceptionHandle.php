@@ -13,13 +13,10 @@ class AppExceptionHandle extends Handler
 {
     public function render(Request $request, Throwable $e): Response
     {
-        var_dump('AppExceptionHandle===run==');
         // 判断异常类型，进行不同的处理
         if ($e instanceof HttpException) {
-            var_dump('AppExceptionHandle===HttpException==');
             return $this->renderHttpException($request, $e);
         } else {
-            var_dump('AppExceptionHandle===OtherException==');
             return $this->renderOtherException($request, $e);
         }
     }
@@ -29,12 +26,13 @@ class AppExceptionHandle extends Handler
         $statusCode = $e->getStatusCode();
         $data = [
             'request_id' => $request->requestId,
+            'path'       => $request->path(),
         ];
         return new \support\Response(ResultCode::from($e->getCode()), $e->getMessage(), $data, $statusCode);
     }
 
     protected function renderOtherException(Request $request, Throwable $e): Response
     {
-        return new \support\Response(ResultCode::FAIL, $e->getMessage(), [$e], 500);
+        return new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), [$e], 500);
     }
 }

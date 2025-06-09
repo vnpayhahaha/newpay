@@ -10,5 +10,5 @@ declare(strict_types=1);
  * @license  https://github.com/mineadmin/MineAdmin/blob/master/LICENSE
  */
 return [
-    'password_error' => 'password error',
+    'password_error' => 'The account or password is incorrect',
 ];

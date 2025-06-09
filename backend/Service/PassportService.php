@@ -4,6 +4,7 @@ namespace backend\Service;
 
 
 use app\exception\BusinessException;
+use app\exception\UnprocessableEntityException;
 use app\http\ResultCode;
 use app\lib\JwtAuth\JwtAuth;
 use app\model\enums\UserType;
@@ -40,12 +41,12 @@ class PassportService extends IService
     {
         $user = $this->repository->findByUnameType($username, $userType);
         if (!filled($user)) {
-            throw new BusinessException(ResultCode::UNPROCESSABLE_ENTITY);
+            throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('password_error', [], 'auth'));
         }
         if (!$user->verifyPassword($password)) {
             var_dump('密码错误');
             Event::dispatch('backend.user.login', new UserLoginEvent($user, $ip, $os, $browser, false));
-            throw new BusinessException(ResultCode::UNPROCESSABLE_ENTITY, trans('password_error', [], 'auth'));
+            throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('password_error', [], 'auth'));
         }
         var_dump('密码正确');
         if ($user->status->isDisable()) {
@@ -55,16 +56,16 @@ class PassportService extends IService
 
         var_dump('用户登录成功');
         $jwt = user('admin');
-       // Event::dispatch('backend.user.login', $jwt->token($user->id));
+        // Event::dispatch('backend.user.login', $jwt->token($user->id));
         $config = $jwt->getConfig('admin');
         var_dump('==admin==');
         $token = $jwt->token($user->id)->toString();
         return [
-            'access_token'  => $token,
-            'token_type'    => $config->getType(),
-//            'refresh_token' => $jwt->refresh(),
-            'expire_at'     => $config->getExpires(),
-            'refresh_at'    => $config->getRefreshTTL(),
+            'access_token' => $token,
+            'token_type'   => $config->getType(),
+            //            'refresh_token' => $jwt->refresh(),
+            'expire_at'    => $config->getExpires(),
+            'refresh_at'   => $config->getRefreshTTL(),
         ];
     }
 

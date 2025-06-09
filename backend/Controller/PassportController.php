@@ -24,9 +24,6 @@ class PassportController extends BasicController
     #[PostMapping('/login')]
     public function login(Request $request): Response
     {
-        $params = $request->all();
-        var_dump('===all===', $params);
-
         $validator = validate($request->post(), [
             'username' => 'required|string',
             'password' => 'required|string',

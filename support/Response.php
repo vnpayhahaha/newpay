@@ -21,7 +21,7 @@ use Hyperf\Contract\Arrayable;
  * Class Response
  * @package support
  */
-class Response extends \Webman\Http\Response  implements Arrayable
+class Response extends \Webman\Http\Response implements Arrayable
 {
     /**
      * @template T
@@ -36,12 +36,13 @@ class Response extends \Webman\Http\Response  implements Arrayable
         if ($this->message === null) {
             $this->message = ResultCode::getMessage($this->code->value);
         }
-        parent::__construct($httpStatus,  ['Content-Type' => 'application/json'], json_encode($this->toArray()));
+        parent::__construct($httpStatus, ['Content-Type' => 'application/json'], json_encode($this->toArray()));
     }
 
     public function toArray(): array
     {
         return [
+            'success' => $this->code->value === ResultCode::SUCCESS->value,
             'code'    => $this->code->value,
             'message' => $this->message,
             'data'    => $this->data,
