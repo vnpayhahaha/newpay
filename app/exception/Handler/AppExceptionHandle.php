@@ -24,15 +24,21 @@ class AppExceptionHandle extends Handler
     protected function renderHttpException(Request $request, HttpException $e): Response
     {
         $statusCode = $e->getStatusCode();
-        $data = [
-            'request_id' => $request->requestId,
-            'path'       => $request->path(),
-        ];
+        $data = config('app.debug') ? [
+            'file'  => $e->getFile(),
+            'line'  => $e->getLine(),
+            'trace' => $e->getTrace(),
+        ] : [];
         return new \support\Response(ResultCode::from($e->getCode()), $e->getMessage(), $data, $statusCode);
     }
 
     protected function renderOtherException(Request $request, Throwable $e): Response
     {
-        return new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), [$e], 500);
+        $data = config('app.debug') ? [
+            'file'  => $e->getFile(),
+            'line'  => $e->getLine(),
+            'trace' => $e->getTrace(),
+        ] : [];
+        return new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), $data, 500);
     }
 }

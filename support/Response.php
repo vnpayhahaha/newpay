@@ -16,6 +16,7 @@ namespace support;
 
 use app\http\ResultCode;
 use Hyperf\Contract\Arrayable;
+use Webman\Http\Request;
 
 /**
  * Class Response
@@ -23,6 +24,7 @@ use Hyperf\Contract\Arrayable;
  */
 class Response extends \Webman\Http\Response implements Arrayable
 {
+
     /**
      * @template T
      */
@@ -41,11 +43,17 @@ class Response extends \Webman\Http\Response implements Arrayable
 
     public function toArray(): array
     {
-        return [
-            'success' => $this->code->value === ResultCode::SUCCESS->value,
-            'code'    => $this->code->value,
-            'message' => $this->message,
-            'data'    => $this->data,
+        $request = Context::get(Request::class);
+        $result =  [
+            'request_id' => $request->requestId,
+            'path'       => $request->path(),
+            'success'    => $this->code->value === ResultCode::SUCCESS->value,
+            'code'       => $this->code->value,
+            'message'    => $this->message,
         ];
+        if (filled($this->data)) {
+            $result['data'] = $this->data;
+        }
+        return $result;
     }
 }
