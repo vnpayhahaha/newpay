@@ -14,6 +14,7 @@ use app\router\Annotations\RestController;
 use DI\Attribute\Inject;
 use http\backend\Service\PassportService;
 use Illuminate\Support\Arr;
+use support\Context;
 use support\Request;
 use support\Response;
 
@@ -52,6 +53,22 @@ class PassportController extends BasicController
         return $this->success($result);
     }
 
+    #[PostMapping('/logout')]
+    #[Middleware(AccessTokenMiddleware::class)]
+    public function logout(Request $request): Response
+    {
+
+        $token = Context::get('token');
+        if (!$token) {
+            return $this->error(ResultCode::FAIL, 'Logout failed');
+        }
+        $isLogout = $this->passportService->logout($token);
+        if (!$isLogout) {
+            return $this->error(ResultCode::FAIL, 'Logout failed');
+        }
+        return $this->success();
+    }
+
     #[GetMapping('/getInfo')]
     #[Middleware(AccessTokenMiddleware::class)]
     public function getInfo(Request $request): Response
@@ -62,4 +79,16 @@ class PassportController extends BasicController
             ['username', 'nickname', 'avatar', 'signed', 'backend_setting', 'phone', 'email']
         ));
     }
+
+    #[PostMapping('/refresh')]
+    public function refresh(Request $request): Response
+    {
+        return $this->success([
+            'access_token' => JwtAuth::refresh(),
+            'token_type'   => JwtAuth::getConfig('backend')->getType(),
+            'expire_at'    => JwtAuth::getConfig('backend')->getExpires(),
+            'refresh_at'   => JwtAuth::getConfig('backend')->getRefreshTTL(),
+        ]);
+    }
+
 }

@@ -5,6 +5,7 @@ namespace app\middleware;
 use app\lib\JwtAuth\exception\JwtException;
 use app\lib\JwtAuth\facade\JwtAuth;
 use app\lib\JwtAuth\handle\RequestToken;
+use support\Context;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -26,6 +27,7 @@ class AccessTokenMiddleware implements MiddlewareInterface
             $token = $requestToken->get($handel);
             JwtAuth::verify($token);
             $request->user = JwtAuth::getUser();
+            Context::set('token',$token);
             return $next($request);
         } catch (JwtException $e) {
             throw new JwtException($e->getMessage(), $e->getCode());

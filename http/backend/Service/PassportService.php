@@ -66,6 +66,10 @@ class PassportService extends IService
         ];
     }
 
+    public function logout(string $token): bool
+    {
+        return user('backend')->logout($token);
+    }
 
     // 记录登录日志
     public function loginLog(UserLoginEvent $event): void

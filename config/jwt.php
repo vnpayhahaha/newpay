@@ -18,7 +18,7 @@ return [
         'default' => [],
         // 多应用
         'backend'   => [
-            'login_type'    => env('JWT_LOGIN_TYPE', 'sso'),  //  登录方式，sso为单点登录，mpo为多点登录
+            'login_type'    => env('JWT_LOGIN_TYPE', 'mpo'),  //  登录方式，sso为单点登录，mpo为多点登录
             'signer_key'    => 'c7d801beaf719d2552c0c933254695c764056df482e883fb2d71092195a2da3e',
             'public_key'    => 'file://path/public.key',
             'private_key'   => 'file://path/private.key',
