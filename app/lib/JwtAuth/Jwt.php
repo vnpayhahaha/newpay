@@ -199,10 +199,12 @@ class Jwt
 
     /**
      * 刷新token
+     * @param string $token
      * @return Token
      */
-    public function refreshToken()
+    public function refreshToken(string $token): Token
     {
+        $this->token = $this->parseToken($token);
         try {
             $claims = $this->token->claims()->all();
             $jti = explode(':', $claims['jti']);

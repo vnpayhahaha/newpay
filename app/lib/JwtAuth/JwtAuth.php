@@ -171,11 +171,12 @@ class JwtAuth
 
     /**
      * 刷新token
+     * @param string $token
      * @return Token
      */
-    public function refresh()
+    public function refresh(string $token): Token
     {
-        return $this->jwt->refreshToken();
+        return $this->jwt->refreshToken($token);
     }
 
 

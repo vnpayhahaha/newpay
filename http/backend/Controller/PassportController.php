@@ -81,10 +81,12 @@ class PassportController extends BasicController
     }
 
     #[PostMapping('/refresh')]
+    #[Middleware(AccessTokenMiddleware::class)]
     public function refresh(Request $request): Response
     {
+        $token = Context::get('token');
         return $this->success([
-            'access_token' => JwtAuth::refresh(),
+            'access_token' => JwtAuth::refresh($token)->toString(),
             'token_type'   => JwtAuth::getConfig('backend')->getType(),
             'expire_at'    => JwtAuth::getConfig('backend')->getExpires(),
             'refresh_at'   => JwtAuth::getConfig('backend')->getRefreshTTL(),
