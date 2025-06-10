@@ -47,4 +47,22 @@ abstract class IService
     {
         return $this->repository->updateById($id, $data);
     }
+
+    public function deleteById(mixed $id): int
+    {
+        return $this->repository->deleteById($id);
+    }
+
+    /**
+     * @return null|T
+     */
+    public function findById(mixed $id): mixed
+    {
+        return $this->repository->findById($id);
+    }
+
+    public function existsById(mixed $id): bool
+    {
+        return $this->repository->existsById($id);
+    }
 }

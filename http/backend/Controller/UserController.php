@@ -6,8 +6,11 @@ use app\controller\BasicController;
 use app\lib\enum\ResultCode;
 use app\middleware\AccessTokenMiddleware;
 use app\model\enums\PolicyType;
+use app\model\ModelRole;
+use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\Middleware;
+use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\UserService;
@@ -93,6 +96,7 @@ class UserController extends BasicController
      * 重置密码
      * @param Request $request
      * @return Response
+     * @throws \Illuminate\Validation\ValidationException
      */
     #[PutMapping('/user/password')]
     public function resetPassword(Request $request): Response
@@ -107,5 +111,76 @@ class UserController extends BasicController
         return $this->userService->resetPassword($validatedData['id'])
             ? $this->success()
             : $this->error();
+    }
+
+    // create
+    #[PostMapping('/user')]
+    public function create(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'username'              => 'required|string|max:20',
+            'user_type'             => 'required|integer',
+            'nickname'              => ['required', 'string', 'max:60', 'regex:/^[^\s]+$/'],
+            'password'              => 'required|confirmed',
+            'password_confirmation' => 'required| min:6 | max:20',
+            'phone'                 => 'sometimes|string|max:12',
+            'email'                 => 'sometimes|string|max:60|email:rfc,dns',
+            'avatar'                => 'sometimes|string|max:255|url',
+        ]);
+        if ($validator->fails()) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $this->userService->create(array_merge(
+            $validatedData,
+            [
+                'created_by' => $request->user->id,
+            ]
+        ));
+        return $this->success();
+    }
+
+    // save
+    #[PutMapping('/user/{userId}')]
+    public function save(Request $request, int $userId): Response
+    {
+        $validator = validate($request->all(), [
+            'username'  => 'required|string|max:20',
+            'user_type' => 'required|integer',
+            'nickname'  => ['required', 'string', 'max:60', 'regex:/^[^\s]+$/'],
+            'phone'     => 'sometimes|string|max:12',
+            'email'     => 'sometimes|string|max:60|email:rfc,dns',
+            'avatar'    => 'sometimes|string|max:255|url',
+        ]);
+        if ($validator->fails()) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $this->userService->updateById($userId, array_merge(
+            $validatedData,
+            [
+                'updated_by' => $request->user->id,
+            ]
+        ));
+        return $this->success();
+    }
+
+    // delete
+    #[DeleteMapping('/user')]
+    public function delete(Request $request): Response
+    {
+        $this->userService->deleteById($request->all());
+        return $this->success();
+    }
+
+    // 获取用户角色列表
+    #[GetMapping('/user/{userId}/roles')]
+    public function getUserRoles(int $userId): Response
+    {
+        return $this->success($this->userService->getUserRoles($userId)->map(static fn(ModelRole $role) => $role->only([
+            'id',
+            'code',
+            'name',
+        ])));
     }
 }

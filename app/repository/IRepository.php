@@ -119,4 +119,9 @@ abstract class IRepository
     {
         return $this->getQuery()->whereKey($id)->first();
     }
+
+    public function existsById(mixed $id): bool
+    {
+        return (bool) $this->getQuery()->whereKey($id)->exists();
+    }
 }

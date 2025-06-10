@@ -59,7 +59,7 @@ final class ModelUser extends Model implements AuthorizationUserInterface
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $hidden = ['password'];
 
@@ -84,6 +84,7 @@ final class ModelUser extends Model implements AuthorizationUserInterface
         'created_at',
         'updated_at',
         'remark',
+        'password'
     ];
 
     protected $casts = [

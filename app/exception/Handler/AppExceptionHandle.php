@@ -28,7 +28,7 @@ class AppExceptionHandle extends Handler
             'file'  => $e->getFile(),
             'line'  => $e->getLine(),
             'trace' => $e->getTrace(),
-        ] : [];
+        ] : null;
         return new \support\Response(ResultCode::from($e->getCode()), $e->getMessage(), $data, $statusCode);
     }
 
@@ -38,7 +38,7 @@ class AppExceptionHandle extends Handler
             'file'  => $e->getFile(),
             'line'  => $e->getLine(),
             'trace' => $e->getTrace(),
-        ] : [];
+        ] : null;
 
         $getCode = intval($e->getCode());
         $statusCode = 500;

@@ -31,7 +31,7 @@ class Response extends \Webman\Http\Response implements Arrayable
     public function __construct(
         public ResultCode $code = ResultCode::SUCCESS,
         public ?string    $message = null,
-        public mixed      $data = [],
+        public mixed      $data = null,
         public int        $httpStatus = 200
     )
     {
@@ -44,14 +44,14 @@ class Response extends \Webman\Http\Response implements Arrayable
     public function toArray(): array
     {
         $request = Context::get(Request::class);
-        $result =  [
+        $result = [
             'request_id' => $request->requestId,
             'path'       => $request->path(),
             'success'    => $this->code->value === ResultCode::SUCCESS->value,
             'code'       => $this->code->value,
             'message'    => $this->message,
         ];
-        if (filled($this->data)) {
+        if ($this->data !== null) {
             $result['data'] = $this->data;
         }
         return $result;
