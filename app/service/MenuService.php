@@ -9,7 +9,7 @@ use DI\Attribute\Inject;
 /**
  * @extends IService<MenuRepository>
  */
-class MenuService extends IService
+final class MenuService extends IService
 {
     #[Inject]
     protected  MenuRepository $repository;

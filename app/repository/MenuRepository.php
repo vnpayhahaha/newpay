@@ -9,6 +9,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
+/**
+ * Class MenuRepository.
+ * @extends IRepository<ModelMenu>
+ */
 final class MenuRepository extends IRepository
 {
     #[Inject]

@@ -112,4 +112,11 @@ abstract class IRepository
         return (bool) $this->getQuery()->whereKey($id)->first()?->update($data);
     }
 
+    /**
+     * @return null|T
+     */
+    public function findById(mixed $id): mixed
+    {
+        return $this->getQuery()->whereKey($id)->first();
+    }
 }
