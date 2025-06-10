@@ -2,7 +2,7 @@
 
 namespace app\exception;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 
 /**
  * 服务器理解了客户端的请求，但无法完成请求，因为数据格式有误或不符合要求

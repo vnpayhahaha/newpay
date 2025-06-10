@@ -2,7 +2,7 @@
 
 namespace app\exception;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 
 /**
  * 请求内容大小超过限制

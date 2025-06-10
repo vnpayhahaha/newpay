@@ -14,7 +14,7 @@
 
 namespace support;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 use Hyperf\Contract\Arrayable;
 use Webman\Http\Request;
 

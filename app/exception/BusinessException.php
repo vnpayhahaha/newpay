@@ -2,7 +2,7 @@
 
 namespace app\exception;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**

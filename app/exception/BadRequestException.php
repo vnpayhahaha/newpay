@@ -2,7 +2,7 @@
 
 namespace app\exception;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 
 /**
  * 非法请求异常,请求失败

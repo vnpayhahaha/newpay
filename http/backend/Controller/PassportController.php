@@ -1,16 +1,14 @@
 <?php
 
-namespace backend\Controller;
+namespace http\backend\Controller;
 
 use app\controller\BasicController;
-use app\exception\BusinessException;
-use app\http\Result;
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 use app\model\enums\UserType;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
-use backend\Service\PassportService;
 use DI\Attribute\Inject;
+use http\backend\Service\PassportService;
 use support\Request;
 use support\Response;
 

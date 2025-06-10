@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\Event;
+namespace http\backend\Event;
 
 /**
  * @template T

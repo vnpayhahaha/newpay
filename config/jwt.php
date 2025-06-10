@@ -1,7 +1,7 @@
 <?php
 
 use app\model\ModelUser;
-use backend\Event\UserEvent;
+use http\backend\Event\UserEvent;
 
 return [
     'enable'  => true,

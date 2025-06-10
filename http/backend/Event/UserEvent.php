@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\Event;
+namespace http\backend\Event;
 
 use app\lib\JwtAuth\event\EventHandler;
 use Lcobucci\JWT\Token;

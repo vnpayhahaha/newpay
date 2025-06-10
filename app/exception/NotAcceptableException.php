@@ -2,7 +2,7 @@
 
 namespace app\exception;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 
 /**
  * 访问方式不可接受

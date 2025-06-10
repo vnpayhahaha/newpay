@@ -63,7 +63,7 @@
       "app\\": "./app",
       "App\\": "./app",
       "app\\View\\Components\\": "./app/view/components",
-      "backend\\": "./backend"
+      "http\\": "./http"
     }
   },
   "scripts": {

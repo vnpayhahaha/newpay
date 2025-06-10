@@ -2,8 +2,7 @@
 
 namespace app\lib\abstracts;
 
-use app\http\Result;
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 use support\Response;
 
 abstract class AbstractController

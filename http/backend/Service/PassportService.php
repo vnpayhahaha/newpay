@@ -1,19 +1,16 @@
 <?php
 
-namespace backend\Service;
+namespace http\backend\Service;
 
 
 use app\exception\BusinessException;
 use app\exception\UnprocessableEntityException;
-use app\http\ResultCode;
-use app\lib\JwtAuth\JwtAuth;
+use app\lib\enum\ResultCode;
 use app\model\enums\UserType;
 use app\repository\UserRepository;
 use app\service\IService;
-use backend\Event\UserLoginEvent;
 use DI\Attribute\Inject;
-use JetBrains\PhpStorm\ArrayShape;
-
+use http\backend\Event\UserLoginEvent;
 use Webman\Event\Event;
 
 class PassportService extends IService

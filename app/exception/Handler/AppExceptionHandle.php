@@ -2,7 +2,7 @@
 
 namespace app\exception\Handler;
 
-use app\http\ResultCode;
+use app\lib\enum\ResultCode;
 use support\exception\Handler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;

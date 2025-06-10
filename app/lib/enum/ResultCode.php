@@ -1,6 +1,6 @@
 <?php
 
-namespace app\http;
+namespace app\lib\enum;
 
 use app\lib\attribute\Message;
 use app\lib\traits\ConstantsTrait;
