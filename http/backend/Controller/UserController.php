@@ -13,6 +13,7 @@ use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
+use app\service\RoleService;
 use app\service\UserService;
 use DI\Attribute\Inject;
 use Illuminate\Support\Arr;
@@ -27,6 +28,9 @@ class UserController extends BasicController
 
     #[Inject]
     protected UserService $userService;
+
+    #[Inject]
+    protected RoleService $roleService;
 
     #[GetMapping('/user/list')]
     public function pageList(Request $request): Response
@@ -190,7 +194,14 @@ class UserController extends BasicController
     {
         $validator = validate($request->all(), [
             'role_codes'   => 'required|array',
-            'role_codes.*' => 'string',
+            'role_codes.*' => [
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!$this->roleService->repository->getModel()->where('code', $value)->exists()) {
+                        $fail(trans('exists', [':attribute' => $attribute], 'validation'));
+                    }
+                },
+            ],
         ]);
 
         if ($validator->fails()) {
