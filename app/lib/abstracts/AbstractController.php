@@ -18,4 +18,9 @@ abstract class AbstractController
         return new Response($code, $message, $data);
     }
 
+    protected function getRequest(): \support\Request|\Webman\Http\Request|null
+    {
+        return \request();
+    }
+
 }

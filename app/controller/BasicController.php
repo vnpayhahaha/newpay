@@ -6,8 +6,18 @@ use app\lib\abstracts\AbstractController;
 
 class BasicController extends AbstractController
 {
-    public function validate(array $rules)
+    protected function getCurrentPage(): int
     {
+        return (int) $this->getRequest()->input('page', 1);
+    }
 
+    protected function getPageSize(): int
+    {
+        return (int) $this->getRequest()->input('page_size', 10);
+    }
+
+    protected function getRequestData(): array
+    {
+        return $this->getRequest()->all();
     }
 }
