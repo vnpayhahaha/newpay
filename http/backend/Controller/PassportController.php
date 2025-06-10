@@ -4,15 +4,20 @@ namespace http\backend\Controller;
 
 use app\controller\BasicController;
 use app\lib\enum\ResultCode;
+use app\lib\JwtAuth\facade\JwtAuth;
+use app\middleware\AccessTokenMiddleware;
 use app\model\enums\UserType;
+use app\router\Annotations\GetMapping;
+use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use DI\Attribute\Inject;
 use http\backend\Service\PassportService;
+use Illuminate\Support\Arr;
 use support\Request;
 use support\Response;
 
-#[RestController("/backend")]
+#[RestController("/backend/passport")]
 class PassportController extends BasicController
 {
 
@@ -45,5 +50,16 @@ class PassportController extends BasicController
         );
 
         return $this->success($result);
+    }
+
+    #[GetMapping('/getInfo')]
+    #[Middleware(AccessTokenMiddleware::class)]
+    public function getInfo(Request $request): Response
+    {
+        $user = $request->user;
+        return $this->success(Arr::only(
+            $user?->toArray() ?: [],
+            ['username', 'nickname', 'avatar', 'signed', 'backend_setting', 'phone', 'email']
+        ));
     }
 }

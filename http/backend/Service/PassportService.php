@@ -52,9 +52,9 @@ class PassportService extends IService
         }
 
         var_dump('用户登录成功');
-        $jwt = user('admin');
+        $jwt = user('backend');
         // Event::dispatch('backend.user.login', $jwt->token($user->id));
-        $config = $jwt->getConfig('admin');
+        $config = $jwt->getConfig('backend');
         var_dump('==admin==');
         $token = $jwt->token($user->id)->toString();
         return [

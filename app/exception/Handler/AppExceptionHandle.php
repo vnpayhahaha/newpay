@@ -39,6 +39,18 @@ class AppExceptionHandle extends Handler
             'line'  => $e->getLine(),
             'trace' => $e->getTrace(),
         ] : [];
-        return new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), $data, 500);
+        $statusCode = $e->getCode() ?? 500;
+        return match ($statusCode) {
+            400 => new \support\Response(ResultCode::BAD_REQUEST, $e->getMessage(), $data, $statusCode),
+            401 => new \support\Response(ResultCode::UNAUTHORIZED, $e->getMessage(), $data, $statusCode),
+            403 => new \support\Response(ResultCode::FORBIDDEN, $e->getMessage(), $data, $statusCode),
+            404 => new \support\Response(ResultCode::NOT_FOUND, $e->getMessage(), $data, $statusCode),
+            405 => new \support\Response(ResultCode::METHOD_NOT_ALLOWED, $e->getMessage(), $data, $statusCode),
+            406 => new \support\Response(ResultCode::NOT_ACCEPTABLE, $e->getMessage(), $data, $statusCode),
+            408 => new \support\Response(ResultCode::REQUEST_TIMEOUT, $e->getMessage(), $data, $statusCode),
+            409 => new \support\Response(ResultCode::CONFLICT, $e->getMessage(), $data, $statusCode),
+            422 => new \support\Response(ResultCode::UNPROCESSABLE_ENTITY, $e->getMessage(), $data, $statusCode),
+            default => new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), $data, $statusCode),
+        };
     }
 }
