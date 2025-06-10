@@ -59,4 +59,8 @@ enum ResultCode: int
     // 用户模块 201xxx
     #[Message('result.user_login_failed')]
     case USER_LOGIN_FAILED = 201001;
+
+    // USER_NOT_FOUND
+    #[Message('result.user_not_exist')]
+    case USER_NOT_EXIST = 201002;
 }

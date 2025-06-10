@@ -26,5 +26,6 @@ return [
     'disabled'             => 'Account disabled',
 
     // 用户模块
-    'user_login_failed'    => 'User login failed'
+    'user_login_failed'    => 'User login failed',
+    'user_not_exist'       => 'User not exist',
 ];

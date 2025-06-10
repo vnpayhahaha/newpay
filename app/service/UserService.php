@@ -2,7 +2,9 @@
 
 namespace app\service;
 
+use app\exception\UnprocessableEntityException;
 use app\lib\attribute\DataScope;
+use app\lib\enum\ResultCode;
 use app\model\enums\ScopeType;
 use app\repository\UserRepository;
 use DI\Attribute\Inject;
@@ -23,6 +25,19 @@ final class UserService extends IService
     public function page(array $params, int $page = 1, int $pageSize = 10): array
     {
         return parent::page($params, $page, $pageSize);
+    }
+
+    public function resetPassword(?int $id): bool
+    {
+        if ($id === null) {
+            return false;
+        }
+        $entity = $this->repository->findById($id);
+        if ($entity === null) {
+            throw new UnprocessableEntityException(ResultCode::USER_NOT_EXIST);
+        }
+        $entity->resetPassword();
+        return $entity->save();
     }
 
 }

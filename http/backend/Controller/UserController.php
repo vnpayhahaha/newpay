@@ -88,4 +88,24 @@ class UserController extends BasicController
         $this->userService->updateById($request->user->id, Arr::except($validatedData, ['password']));
         return $this->success();
     }
+
+    /**
+     * 重置密码
+     * @param Request $request
+     * @return Response
+     */
+    #[PutMapping('/user/password')]
+    public function resetPassword(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'id' => 'required|integer|between:1,4294967295',
+        ]);
+        if ($validator->fails()) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        return $this->userService->resetPassword($validatedData['id'])
+            ? $this->success()
+            : $this->error();
+    }
 }
