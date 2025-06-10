@@ -17,7 +17,7 @@ use Illuminate\Support\Arr;
 use support\Request;
 use support\Response;
 
-#[RestController("/backend/passport")]
+#[RestController("/admin/passport")]
 class PassportController extends BasicController
 {
 

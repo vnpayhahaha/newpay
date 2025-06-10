@@ -11,7 +11,7 @@ use app\service\UserService;
 use DI\Attribute\Inject;
 use support\Request;
 
-#[RestController("/haha")]
+#[RestController("/admin")]
 final class IndexController extends BasicController
 {
     #[Inject]

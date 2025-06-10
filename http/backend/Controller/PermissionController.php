@@ -15,7 +15,7 @@ use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
-#[RestController("/backend/permission")]
+#[RestController("/admin/permission")]
 #[Middleware(AccessTokenMiddleware::class)]
 class PermissionController extends BasicController
 {
