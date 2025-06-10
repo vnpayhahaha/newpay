@@ -52,8 +52,7 @@
     "lcobucci/jwt": "^5.5",
     "nesbot/carbon": "^3.9",
     "ramsey/uuid": "^4.8",
-    "webman/redis": "^2.1",
-    "illuminate/validation": "^12.18"
+    "webman/redis": "^2.1"
   },
   "suggest": {
     "ext-event": "For better performance. "
