@@ -30,4 +30,10 @@ return [
         'cache' => 'is cached',
         'link' => 'link',
     ],
+    'Enums' => [
+        'Status' => [
+            1 => 'Normal',
+            2 => 'Deactivated',
+        ],
+    ],
 ];

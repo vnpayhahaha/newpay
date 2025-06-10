@@ -4,6 +4,7 @@ namespace app\model;
 
 
 use app\lib\JwtAuth\user\AuthorizationUserInterface;
+use app\model\enums\RoleStatus;
 use app\model\enums\UserStatus;
 use app\model\enums\UserType;
 use Carbon\Carbon;
@@ -108,6 +109,8 @@ final class ModelUser extends Model implements AuthorizationUserInterface
             ModelRole::class,
             // @phpstan-ignore-next-line
             'user_belongs_role',
+            'user_id',
+            'role_id',
         );
     }
 
@@ -134,7 +137,7 @@ final class ModelUser extends Model implements AuthorizationUserInterface
     public function getRoles(array $fields): Collection
     {
         return $this->roles()
-            ->where('status', Status::Normal)
+            ->where('status', RoleStatus::Normal)
             ->select($fields)
             ->get();
     }

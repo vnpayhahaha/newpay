@@ -75,7 +75,7 @@ class BlackList
         // 如果当前时间小于等于过期时间，则缓存时间为两个的差值
         if ($nowTime->lte( $expTime )) {
             // 加1秒防止临界时间缓存问题
-            return (int)($expTime->diffInSeconds($nowTime) + 1);
+            return (int)($nowTime->diffInSeconds($expTime) + 1);
         }
 
         return 0;

@@ -27,7 +27,7 @@ final class ModelMenuMeta extends Model
 {
     public $incrementing = false;
 
-    protected $fillable =  [
+    protected $fillable = [
         'title',
         'i18n',
         'badge',
@@ -45,5 +45,25 @@ final class ModelMenuMeta extends Model
         'auth',
         'role',
         'user',
+    ];
+
+    protected $casts = [
+        'affix'            => 'boolean',
+        'hidden'           => 'boolean',
+        'cache'            => 'boolean',
+        'copyright'        => 'boolean',
+        'breadcrumbEnable' => 'boolean',
+        'title'            => 'string',
+        'componentPath'    => 'string',
+        'componentSuffix'  => 'string',
+        'i18n'             => 'string',
+        'badge'            => 'string',
+        'icon'             => 'string',
+        'type'             => 'string',
+        'link'             => 'string',
+        'activeName'       => 'string',
+        'auth'             => 'array',
+        'role'             => 'array',
+        'user'             => 'array',
     ];
 }

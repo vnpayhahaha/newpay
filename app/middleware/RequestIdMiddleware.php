@@ -5,9 +5,10 @@ namespace app\middleware;
 
 
 use Ramsey\Uuid\Uuid;
-use support\Response;
+
 use Webman\Http\Request;
 
+use Webman\Http\Response;
 use Webman\MiddlewareInterface;
 
 class RequestIdMiddleware implements MiddlewareInterface

@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\model\enums\RoleStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
@@ -12,7 +13,7 @@ use support\Model;
  * @property string $name 角色名称
  * @property string $code 角色代码
  * @property int $data_scope 数据范围（1：全部数据权限 2：自定义数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：本人数据权限）
- * @property int $status 状态 (1正常 2停用)
+ * @property RoleStatus $status 状态 (1正常 2停用)
  * @property int $sort 排序
  * @property int $created_by 创建者
  * @property int $updated_by 更新者
@@ -61,6 +62,17 @@ final class ModelRole extends Model
         'created_at',
         'updated_at',
         'remark',
+    ];
+
+    protected $casts = [
+        'id'         => 'integer',
+        'data_scope' => 'integer',
+        'status'     => RoleStatus::class,
+        'sort'       => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

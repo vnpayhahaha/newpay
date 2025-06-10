@@ -106,4 +106,10 @@ abstract class IRepository
     {
         return $this->model;
     }
+
+    public function updateById(mixed $id, array $data): bool
+    {
+        return (bool) $this->getQuery()->whereKey($id)->first()?->update($data);
+    }
+
 }

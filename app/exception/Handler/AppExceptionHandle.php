@@ -39,7 +39,12 @@ class AppExceptionHandle extends Handler
             'line'  => $e->getLine(),
             'trace' => $e->getTrace(),
         ] : [];
-        $statusCode = $e->getCode() ?? 500;
+
+        $getCode = intval($e->getCode());
+        $statusCode = 500;
+        if (in_array($getCode, [500, 501, 502, 503, 400, 401, 403, 404, 405, 406, 408, 409, 422])) {
+            $statusCode = $getCode;
+        }
         return match ($statusCode) {
             400 => new \support\Response(ResultCode::BAD_REQUEST, $e->getMessage(), $data, $statusCode),
             401 => new \support\Response(ResultCode::UNAUTHORIZED, $e->getMessage(), $data, $statusCode),

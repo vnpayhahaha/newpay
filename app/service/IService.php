@@ -42,4 +42,9 @@ abstract class IService
     {
         return $this->create($data);
     }
+
+    public function updateById(mixed $id, array $data): mixed
+    {
+        return $this->repository->updateById($id, $data);
+    }
 }

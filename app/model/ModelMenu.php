@@ -3,6 +3,8 @@
 namespace app\model;
 
 use app\constants\Menu;
+use app\model\casts\MetaCast;
+use app\model\enums\MenuStatus;
 use app\model\fieldExpansion\ModelMenuMeta;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,7 +18,7 @@ use support\Model;
  * @property string $component 组件路径
  * @property string $redirect 跳转地址
  * @property string $path 地址
- * @property int $status 状态 (1正常 2停用)
+ * @property MenuStatus $status 状态 (1正常 2停用)
  * @property ModelMenuMeta $meta 附加属性
  * @property int $sort 排序
  * @property int $created_by 创建者
@@ -71,6 +73,22 @@ final class ModelMenu extends Model
     ];
 
     /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'id'         => 'integer',
+        'parent_id'  => 'integer',
+        'status'     => MenuStatus::class,
+        'sort'       => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'meta'       => MetaCast::class,
+        'path'       => 'string',
+    ];
+
+    /**
      * 通过中间表获取角色.
      */
     public function roles(): BelongsToMany
@@ -88,7 +106,7 @@ final class ModelMenu extends Model
         // @phpstan-ignore-next-line
         return $this
             ->hasMany(self::class, 'parent_id', 'id')
-            ->where('status', Menu::STATUS_NORMAL)
+            ->where('status', MenuStatus::Normal)
             ->orderBy('sort')
             ->with('children');
     }

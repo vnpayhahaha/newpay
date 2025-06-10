@@ -12,7 +12,7 @@ class Menu
     public const STATUS_NORMAL  = 1;
     public const STATUS_DISABLE = 2;
     public static array $status_list = [
-        self::STATUS_NORMAL  => '正常',
-        self::STATUS_DISABLE => '停用',
+        self::STATUS_NORMAL  => 'menu.enums.status.1',
+        self::STATUS_DISABLE => 'menu.enums.status.2',
     ];
 }
