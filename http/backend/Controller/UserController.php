@@ -183,4 +183,21 @@ class UserController extends BasicController
             'name',
         ])));
     }
+
+    // 批量授权用户角色
+    #[PutMapping('/user/{userId}/roles')]
+    public function batchGrantUserRoles(Request $request, int $userId): Response
+    {
+        $validator = validate($request->all(), [
+            'role_codes'   => 'required|array',
+            'role_codes.*' => 'string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $this->userService->batchGrantRoleForUser($userId, $validatedData['role_codes']);
+        return $this->success();
+    }
 }

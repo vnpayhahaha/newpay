@@ -7,7 +7,9 @@ use app\exception\UnprocessableEntityException;
 use app\lib\attribute\DataScope;
 use app\lib\enum\ResultCode;
 use app\model\enums\ScopeType;
+use app\model\ModelRole;
 use app\model\ModelUser;
+use app\repository\RoleRepository;
 use app\repository\UserRepository;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,6 +23,9 @@ final class UserService extends IService
 {
     #[Inject]
     protected UserRepository $repository;
+
+    #[Inject]
+    protected RoleRepository $roleRepository;
 
     #[DataScope(
         scopeType: ScopeType::CREATED_BY,
@@ -87,5 +92,18 @@ final class UserService extends IService
     public function getUserRoles(int $id): Collection
     {
         return $this->repository->findById($id)->roles()->get();
+    }
+
+    public function batchGrantRoleForUser(int $id, array $roleCodes): void
+    {
+        $this->repository->findById($id)
+            ->roles()
+            ->sync(
+                $this->roleRepository->list([
+                    'code' => $roleCodes,
+                ])->map(static function (ModelRole $role) {
+                    return $role->id;
+                })
+            );
     }
 }

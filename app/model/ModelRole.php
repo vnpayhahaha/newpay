@@ -3,6 +3,7 @@
 namespace app\model;
 
 use app\model\enums\RoleStatus;
+use app\model\observer\RoleObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
@@ -99,4 +100,11 @@ final class ModelRole extends Model
             'user_id'
         );
     }
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelRole::observe(RoleObserver::class);
+    }
+
 }
