@@ -104,7 +104,10 @@ final class ModelRole extends Model
     public static function boot()
     {
         parent::boot();
-        ModelRole::observe(RoleObserver::class);
+        ModelRole::deleting(function (ModelRole $role){
+            $role->users()->detach();
+            $role->menus()->detach();
+        });
     }
 
 }

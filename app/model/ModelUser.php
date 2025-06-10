@@ -7,6 +7,7 @@ use app\lib\JwtAuth\user\AuthorizationUserInterface;
 use app\model\enums\RoleStatus;
 use app\model\enums\UserStatus;
 use app\model\enums\UserType;
+use app\model\observer\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -127,6 +128,7 @@ final class ModelUser extends Model implements AuthorizationUserInterface
 
     public function resetPassword(): void
     {
+        var_dump('---setPasswordAttribute--');
         $this->password = 123456;
     }
 
@@ -192,5 +194,20 @@ final class ModelUser extends Model implements AuthorizationUserInterface
             }
         }
         return null;
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelUser::creating(function (ModelUser $model) {
+            // isDirty 方法是 Laravel Eloquent 模型中的一个方法，用于检查模型或其指定属性是否已被修改。它通常用于在保存模型之前检查是否有任何属性被更改。
+            if (!$model->isDirty('password')) {
+                $model->resetPassword();
+            }
+        });
+        ModelUser::created(function (ModelUser $model) {
+            $model->roles()->detach();
+            $model->policy()->delete();
+        });
     }
 }

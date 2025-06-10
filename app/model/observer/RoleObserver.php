@@ -17,4 +17,5 @@ class RoleObserver
         $role->users()->detach();
         $role->menus()->detach();
     }
+
 }
