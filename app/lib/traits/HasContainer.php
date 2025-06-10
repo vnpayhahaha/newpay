@@ -2,11 +2,11 @@
 
 namespace app\lib\traits;
 
-use Hyperf\Context\ApplicationContext;
-use Hyperf\Contract\ConnectionInterface;
+
 use Illuminate\Database\ConnectionResolverInterface;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Webman\Context;
 
 trait HasContainer
 {
@@ -27,6 +27,6 @@ trait HasContainer
 
     protected function getContainer(): ContainerInterface
     {
-        return ApplicationContext::getContainer();
+        return Context::getContainer();
     }
 }

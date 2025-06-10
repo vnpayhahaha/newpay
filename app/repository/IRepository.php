@@ -3,7 +3,6 @@
 namespace app\repository;
 
 use app\lib\abstracts\AbstractPaginator;
-use app\lib\traits\HasContainer;
 use app\repository\Traits\BootTrait;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +15,6 @@ use Illuminate\Support\Collection;
 abstract class IRepository
 {
     use BootTrait;
-    use HasContainer;
 
     public const PER_PAGE_PARAM_NAME = 'per_page';
 

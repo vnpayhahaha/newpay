@@ -2,7 +2,6 @@
 
 namespace app\service;
 
-use app\lib\traits\HasContainer;
 use app\repository\IRepository;
 use Illuminate\Support\Collection;
 

@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 final class RoleService extends IService
 {
     #[Inject]
-    protected RoleRepository $repository;
+    public RoleRepository $repository;
     #[Inject]
     protected MenuRepository $menuRepository;
 
