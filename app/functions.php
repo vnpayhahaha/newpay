@@ -26,7 +26,7 @@ if (!function_exists('validate')) {
         return $factory->make($data, $rules, $messages, $customAttributes);
     }
 }
-if (! function_exists('user')) {
+if (!function_exists('user')) {
     /**
      * 获取当前登录用户实例.
      */
@@ -34,4 +34,23 @@ if (! function_exists('user')) {
     {
         return new JwtAuth($scene);
     }
+}
+
+if (!function_exists('formatBytes')) {
+    /**
+     * 根据字节计算大小
+     *
+     * @param string|int $bytes
+     *
+     * @return string
+     */
+    function formatBytes(string|int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        for ($i = 0; $bytes > 1024; $i++) {
+            $bytes /= 1024;
+        }
+        return round($bytes, 2) . ' ' . $units[$i];
+    }
+
 }

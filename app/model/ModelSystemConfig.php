@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 /**
@@ -21,6 +22,8 @@ use support\Model;
 */
 final class ModelSystemConfig extends Model
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      * @var string
@@ -32,7 +35,9 @@ final class ModelSystemConfig extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
+    public $timestamps = true;
+
     /**
      * The attributes that are mass assignable.
      * @var array
@@ -51,4 +56,61 @@ final class ModelSystemConfig extends Model
         'deleted_at',
         'remark'
     ];
+
+    /**
+     * 分组代码-搜索器
+     *
+     * @param $query
+     * @param $value
+     */
+    public function scopeGroupCode($query, $value)
+    {
+        if (!empty($value)) {
+            $queryMethod = is_array($value) ? 'whereIn' : 'where';
+            $query->$queryMethod('group_code', $value);
+        }
+    }
+
+
+    /**
+     * 配置名称-搜索器
+     *
+     * @param $query
+     * @param $value
+     */
+    public function scopeName($query, $value)
+    {
+        if (!empty($value)) {
+            $queryMethod = is_array($value) ? 'whereIn' : 'where';
+            $query->$queryMethod('name', $value);
+        }
+    }
+
+    /**
+     * 唯一编码-搜索器
+     *
+     * @param $query
+     * @param $value
+     */
+    public function scopeCode($query, $value)
+    {
+        if (!empty($value)) {
+            $queryMethod = is_array($value) ? 'whereIn' : 'where';
+            $query->$queryMethod('code', $value);
+        }
+    }
+
+    /**
+     * 状态-搜索器
+     *
+     * @param $query
+     * @param $value
+     */
+    public function scopeEnable($query, $value)
+    {
+        if ($value !== '') {
+            $queryMethod = is_array($value) ? 'whereIn' : 'where';
+            $query->$queryMethod('enable', $value);
+        }
+    }
 }

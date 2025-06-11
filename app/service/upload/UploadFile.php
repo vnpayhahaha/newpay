@@ -2,8 +2,9 @@
 
 namespace app\service\upload;
 
-use app\service\AttachmentService;
+
 use app\exception\UploadException;
+use app\service\SystemConfigService;
 use support\Container;
 
 /**
@@ -39,8 +40,8 @@ class UploadFile
      */
     public static function getConfig(string $name = ''): ?array
     {
-        $systemConfigService = Container::make(AttachmentService::class);
-        $config              = $systemConfigService->getConfigContentValue($name);
+        $systemConfigService = Container::make(SystemConfigService::class);
+        $config = $systemConfigService->getConfigContentValue($name);
         return $config ?? [];
     }
 
@@ -51,8 +52,8 @@ class UploadFile
      */
     public static function getDefaultConfig(): array
     {
-        $systemConfigService = Container::make(AttachmentService::class);
-        $basicConfig         = $systemConfigService->getConfig('basic_upload_setting');
+        $systemConfigService = Container::make(SystemConfigService::class);
+        $basicConfig = $systemConfigService->getConfig('basic_upload_setting');
         if (empty($basicConfig)) {
             return [
                 'mode'         => 'local',
@@ -71,10 +72,10 @@ class UploadFile
         self::init();
         $defaultConfig = self::getDefaultConfig();
         if (empty($storage)) {
-            $adapter       = $defaultConfig['mode'];
+            $adapter = $defaultConfig['mode'];
             $adapterConfig = self::getConfig($adapter);
         } else {
-            $adapter       = $storage;
+            $adapter = $storage;
             $adapterConfig = self::getConfig($storage);
         }
         if (!in_array($adapter, self::$allowStorage)) {

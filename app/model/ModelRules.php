@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
 use support\Model;
 
 /**
@@ -13,8 +14,8 @@ use support\Model;
 * @property string $v3
 * @property string $v4
 * @property string $v5
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
+* @property Carbon $created_at
+* @property Carbon $updated_at
 */
 final class ModelRules extends Model
 {
@@ -29,7 +30,9 @@ final class ModelRules extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
+    public $timestamps = true;
+
     /**
      * The attributes that are mass assignable.
      * @var array

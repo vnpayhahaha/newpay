@@ -12,6 +12,7 @@ use support\Model;
  * @property string $object_name 新文件名
  * @property string $hash 文件hash
  * @property string $mime_type 资源类型
+ * @property string $base_path 基础存储路径
  * @property string $storage_path 存储目录
  * @property string $suffix 文件后缀
  * @property int $size_byte 字节数
@@ -44,7 +45,7 @@ final class ModelAttachment extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id',
@@ -53,6 +54,7 @@ final class ModelAttachment extends Model
         'object_name',
         'hash',
         'mime_type',
+        'base_path',
         'storage_path',
         'suffix',
         'size_byte',
@@ -64,4 +66,18 @@ final class ModelAttachment extends Model
         'updated_at',
         'remark',
     ];
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'id'           => 'integer',
+        'storage_mode' => 'integer',
+        'size_byte'    => 'integer',
+        'created_by'   => 'integer',
+        'updated_by'   => 'integer',
+        'created_at'   => 'datetime',
+        'updated_at'   => 'datetime'
+    ];
+
 }
