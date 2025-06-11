@@ -34,7 +34,7 @@ class DepartmentController extends BasicController
     }
 
     // create
-    #[PostMapping('/department/create')]
+    #[PostMapping('/department')]
     public function create(Request $request): Response
     {
         $validator = validate($request->post(), [
@@ -45,7 +45,7 @@ class DepartmentController extends BasicController
                 //  'unique:department,name',
                 function ($attribute, $value, $fail) {
                     if ($this->service->repository->getModel()->where('name', $value)->exists()) {
-                        $fail(trans('exists', [':attribute' => $attribute], 'validation'));
+                        $fail(trans('unique', [':attribute' => $attribute], 'validation'));
                     }
                 },
             ],
