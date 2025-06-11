@@ -63,4 +63,8 @@ enum ResultCode: int
     // USER_NOT_FOUND
     #[Message('result.user_not_exist')]
     case USER_NOT_EXIST = 201002;
+
+    // role_not_exist
+    #[Message('result.role_not_exist')]
+    case ROLE_NOT_EXIST = 201003;
 }

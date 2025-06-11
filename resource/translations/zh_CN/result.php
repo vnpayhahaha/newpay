@@ -28,4 +28,5 @@ return [
     // 用户模块
     'user_login_failed'    => '用户登录失败',
     'user_not_exist'       => '用户不存在',
+    'role_not_exist'       => '角色不存在',
 ];

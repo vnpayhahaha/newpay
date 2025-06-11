@@ -2,6 +2,7 @@
 
 namespace app\lib\JwtAuth;
 
+use app\lib\enum\ResultCode;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use DateTimeImmutable;
@@ -13,6 +14,7 @@ use app\lib\JwtAuth\exception\TokenExpiredException;
 use app\lib\JwtAuth\exception\TokenInvalidException;
 use app\lib\JwtAuth\exception\TokenRefreshExpiredException;
 use app\lib\JwtAuth\support\Utils;
+use support\Response;
 
 class Jwt
 {
@@ -234,12 +236,12 @@ class Jwt
         $refreshAt = $this->config->getRefreshTTL();
 
         $this->token = $token;
-
-        return response()->withHeaders([
+        return (new Response(ResultCode::SUCCESS))->withHeaders([
             'Access-Control-Expose-Headers'     => 'Automatic-Renewal-Token,Automatic-Renewal-Token-RefreshAt',
             'Automatic-Renewal-Token'           => $token->toString(),
             'Automatic-Renewal-Token-RefreshAt' => $refreshAt
         ]);
+
     }
 
     /**
