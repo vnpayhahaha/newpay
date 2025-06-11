@@ -3,7 +3,6 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
-use app\exception\BusinessException;
 use app\exception\UnprocessableEntityException;
 use app\lib\enum\ResultCode;
 use app\middleware\AccessTokenMiddleware;
