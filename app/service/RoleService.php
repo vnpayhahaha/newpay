@@ -14,6 +14,7 @@ final class RoleService extends IService
 {
     #[Inject]
     public RoleRepository $repository;
+
     #[Inject]
     protected MenuRepository $menuRepository;
 

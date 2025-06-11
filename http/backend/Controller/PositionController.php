@@ -3,66 +3,84 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
-use app\exception\BusinessException;
-use app\exception\UnprocessableEntityException;
 use app\lib\enum\ResultCode;
 use app\middleware\AccessTokenMiddleware;
-use app\model\ModelMenu;
+use app\model\enums\PolicyType;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
-use app\service\RoleService;
+use app\service\PositionService;
 use DI\Attribute\Inject;
-use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
 #[Middleware(AccessTokenMiddleware::class)]
-class RoleController extends BasicController
+class PositionController extends BasicController
 {
-
     #[Inject]
-    protected RoleService $service;
+    protected PositionService $service;
 
-
-    #[GetMapping('/role/list')]
+    #[GetMapping('/position/list')]
     public function pageList(Request $request): Response
     {
         return $this->success(
-            data: $this->service->page(
+            $this->service->page(
                 $request->all(),
                 $this->getCurrentPage(),
-                $this->getPageSize(),
+                $this->getPageSize()
             )
         );
     }
 
+    // batchDataPermission
+    #[PutMapping('/position/{id}/data_permission')]
+    public function dataPermissionListForPosition(Request $request, int $id): Response
+    {
+        $validator = validate($request->all(), [
+            'policy_type' => [
+                'required',
+                'string',
+                Rule::enum(PolicyType::class),
+            ],
+            'value'       => [
+                'sometimes',
+                'array',
+                'min:1',
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $this->service->batchDataPermission($id, $validatedData);
+        return $this->success();
+    }
+
     // create
-    #[PostMapping('/role')]
+    #[PostMapping('/position')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'name'   => 'required|string|max:60',
-            'code'   => [
+            'name'    => [
                 'required',
                 'string',
                 'max:60',
-                'regex:/^[a-zA-Z0-9_]+$/',
+                //'unique:position,name',
                 function ($attribute, $value, $fail) {
                     if ($this->service->repository->getModel()->where($attribute, $value)->exists()) {
                         $fail(trans('unique', [':attribute' => $attribute], 'validation'));
                     }
                 }
-            ],
-            'status' => 'sometimes|integer|in:1,2',
-            'sort'   => 'required|integer',
-            'remark' => 'nullable|string|max:255',
-        ]);
 
+            ],
+            'dept_id' => 'required|integer|exists:department,id',
+        ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
@@ -77,16 +95,15 @@ class RoleController extends BasicController
     }
 
     // save
-    #[PutMapping('/role/{id}')]
+    #[PutMapping('/position/{id}')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'name' => 'required|string|max:60',
-            'code' => [
+            'name' => [
                 'required',
                 'string',
                 'max:60',
-                'regex:/^[a-zA-Z0-9_]+$/',
+                //'unique:position,name',
                 function ($attribute, $value, $fail) use ($id) {
                     if ($this->service->repository->getModel()->where($attribute, $value)->where('id', '<>', $id)->exists()) {
                         $fail(trans('unique', [':attribute' => $attribute], 'validation'));
@@ -108,39 +125,11 @@ class RoleController extends BasicController
     }
 
     // delete
-    #[DeleteMapping('/role')]
+    #[DeleteMapping('position')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());
         return $this->success();
     }
 
-    // 获取角色权限列表
-    #[GetMapping('/role/{id}/permission')]
-    public function permissionListForRole(int $id): Response
-    {
-        return $this->success($this->service->getRolePermission($id)->map(static fn(ModelMenu $menu) => $menu->only([
-            'id', 'name',
-        ]))->toArray());
-    }
-
-    // 赋予角色权限
-    #[PutMapping('/role/{id}/permission')]
-    public function batchGrantPermissionsForRole(Request $request, int $id): Response
-    {
-        if (!$this->service->existsById($id)) {
-            throw new UnprocessableEntityException(code: ResultCode::ROLE_NOT_EXIST);
-        }
-        $validator = validate($request->all(), [
-            'permissions'   => 'sometimes|array',
-            'permissions.*' => 'string|exists:menu,name',
-        ]);
-        if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
-        }
-        $validatedData = $validator->validate();
-        $permissionsCode = Arr::get($validatedData, 'permissions', []);
-        $this->service->batchGrantPermissionsForRole($id, $permissionsCode);
-        return $this->success();
-    }
 }
