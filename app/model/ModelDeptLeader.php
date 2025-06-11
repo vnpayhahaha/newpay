@@ -2,38 +2,56 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 /**
-* @property int $dept_id
-* @property int $user_id
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
-* @property \Carbon\Carbon $deleted_at
-*/
-final class ModelDeptLeader extends Model
+ * @property int $user_id 用户ID
+ * @property int $dept_id 部门ID
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon $deleted_at
+ * @property null|ModelDepartment $department
+ * @property null|ModelUser $user
+ */
+class ModelDeptLeader extends Model
 {
+    use SoftDeletes;
+
+    public $incrementing = false;
     /**
      * The table associated with the model.
+     *
      * @var string
      */
     protected $table = 'dept_leader';
 
     /**
-     * The primary key associated with the table.
-     * @var string
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
      */
-    protected $primaryKey = 'id';
-    
+    public $timestamps = true;
+
     /**
      * The attributes that are mass assignable.
-     * @var array
      */
     protected $fillable = [
-        'dept_id',
         'user_id',
+        'dept_id',
         'created_at',
         'updated_at',
-        'deleted_at'
     ];
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(ModelDepartment::class, 'dept_id', 'id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(ModelUser::class, 'user_id', 'id');
+    }
 }

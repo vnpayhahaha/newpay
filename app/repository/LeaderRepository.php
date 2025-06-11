@@ -2,25 +2,25 @@
 
 namespace app\repository;
 
-use app\model\ModelLeader;
+use app\model\ModelDeptLeader;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class RoleRepository.
- * @extends IRepository<ModelLeader>
+ * @extends IRepository<ModelDeptLeader>
  */
 final class LeaderRepository extends IRepository
 {
     #[Inject]
-    protected ModelLeader $model;
+    protected ModelDeptLeader $model;
 
 
     public function create(array $data): mixed
     {
         foreach ($data['user_id'] as $id) {
-            ModelLeader::query()->where('dept_id', $data['dept_id'])->where('user_id', $id)->forceDelete();
-            ModelLeader::create(['dept_id' => $data['dept_id'], 'user_id' => $id, 'created_at' => date('Y-m-d H:i:s')]);
+            ModelDeptLeader::query()->where('dept_id', $data['dept_id'])->where('user_id', $id)->forceDelete();
+            ModelDeptLeader::create(['dept_id' => $data['dept_id'], 'user_id' => $id, 'created_at' => date('Y-m-d H:i:s')]);
         }
         // @phpstan-ignore-next-line
         return null;
@@ -28,7 +28,7 @@ final class LeaderRepository extends IRepository
 
     public function deleteByDoubleKey(int $dept_id, array $user_ids): void
     {
-        ModelLeader::query()->where('dept_id', $dept_id)->whereIn('user_id', $user_ids)->forceDelete();
+        ModelDeptLeader::query()->where('dept_id', $dept_id)->whereIn('user_id', $user_ids)->forceDelete();
     }
 
     public function handleSearch(Builder $query, array $params): Builder

@@ -44,7 +44,7 @@ class ModelDepartment extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable. 字段扩展
@@ -57,6 +57,27 @@ class ModelDepartment extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'id'         => 'integer',
+        'parent_id'  => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelDepartment::deleted(function (ModelDepartment $model) {
+            $model->positions()->delete();
+            $model->department_users()->detach();
+            $model->leader()->detach();
+        });
+    }
 
     public function positions(): HasMany
     {
