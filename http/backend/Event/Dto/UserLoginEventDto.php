@@ -1,11 +1,11 @@
 <?php
 
-namespace http\backend\Event;
+namespace http\backend\Event\Dto;
 
 /**
  * @template T
  */
-final class UserLoginEvent
+final class UserLoginEventDto
 {
     /**
      * @param T $user

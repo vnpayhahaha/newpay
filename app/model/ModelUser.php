@@ -7,7 +7,6 @@ use app\lib\JwtAuth\user\AuthorizationUserInterface;
 use app\model\enums\RoleStatus;
 use app\model\enums\UserStatus;
 use app\model\enums\UserType;
-use app\model\observer\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;

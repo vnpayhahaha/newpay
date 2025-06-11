@@ -65,6 +65,7 @@ class ModelUserLoginLog extends Model
 
     public static function boot()
     {
+        parent::boot();
         ModelUserLoginLog::creating(function (ModelUserLoginLog $event) {
             if ($event->login_time === null) {
                 $event->login_time = Carbon::now();

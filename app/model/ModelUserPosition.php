@@ -2,14 +2,15 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
 use support\Model;
 
 /**
 * @property int $user_id
 * @property int $position_id
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
-* @property \Carbon\Carbon $deleted_at
+* @property Carbon $created_at
+* @property Carbon $updated_at
+* @property Carbon $deleted_at
 */
 final class ModelUserPosition extends Model
 {
@@ -24,7 +25,7 @@ final class ModelUserPosition extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array
