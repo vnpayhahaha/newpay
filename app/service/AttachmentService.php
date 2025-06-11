@@ -5,15 +5,11 @@ namespace app\service;
 use app\exception\UploadException;
 use app\lib\attribute\DataScope;
 use app\model\enums\ScopeType;
-use app\model\ModelAttachment;
 use app\repository\AttachmentRepository;
 use app\service\upload\UploadFile;
-use app\service\upload\UploadFileInterface;
 use DI\Attribute\Inject;
-use Illuminate\Http\UploadedFile;
 use support\Container;
 use support\Db;
-use Symfony\Component\Finder\SplFileInfo;
 
 
 final class AttachmentService extends IService
@@ -21,8 +17,7 @@ final class AttachmentService extends IService
     #[Inject]
     protected AttachmentRepository $repository;
 
-    #[Inject]
-    protected UploadFileInterface $upload;
+
 
     public function getRepository(): AttachmentRepository
     {
@@ -84,10 +79,10 @@ final class AttachmentService extends IService
                 $path = str_replace('\\', '/', $data['save_path']);
 
                 // 检查文件是否已存在
-                if ($filesInfo = $this->repository->getModel()->where(['hash' => $hash])->get()) {
-                    return $filesInfo;
-                }
-
+//                if ($filesInfo = $this->repository->getModel()->where(['hash' => $hash])->get()) {
+//                    return $filesInfo;
+//                }
+var_dump($data);
                 $inData = [
                     'storage_mode' => $type,
                     'origin_name'  => $data['origin_name'] ?? '',
@@ -101,7 +96,7 @@ final class AttachmentService extends IService
                     'url'          => $url,
                     'storage_path' => $path,
                 ];
-                return $this->repository->getModel()->save($inData);
+                return $this->repository->getModel()->create($inData);
             });
         } catch (\Exception $e) {
             throw new UploadException($e->getMessage());

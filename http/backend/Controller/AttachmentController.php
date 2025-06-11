@@ -38,8 +38,8 @@ class AttachmentController extends BasicController
     #[PostMapping('/attachment/upload')]
     public function upload(Request $request): Response
     {
-        $result = $this->service->upload('file');
-        return $this->success($result);
+        $this->service->upload('file');
+        return $this->success();
     }
 
     // delete

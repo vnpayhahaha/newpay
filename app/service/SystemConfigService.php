@@ -35,7 +35,7 @@ class SystemConfigService extends IService
     public function getConfigContentValue(string $groupCode): mixed
     {
         $map1 = ['group_code' => $groupCode, 'enabled' => 1];
-        $data = $this->repository->getModel()->where($map1)->pluck('content', 'code');
+        $data = $this->repository->getModel()->where($map1)->pluck('content', 'code')->toArray();
         if (empty($data)) {
             $data = $this->transformToKeyValue($this->template($groupCode));
         }
