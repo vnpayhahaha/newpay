@@ -53,4 +53,22 @@ class ModelUserLoginLog extends Model
         'login_time',
         'remark',
     ];
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'id'         => 'integer',
+        'status'     => 'integer',
+        'login_time' => 'datetime'
+    ];
+
+    public static function boot()
+    {
+        ModelUserLoginLog::creating(function (ModelUserLoginLog $event) {
+            if ($event->login_time === null) {
+                $event->login_time = Carbon::now();
+            }
+        });
+    }
 }

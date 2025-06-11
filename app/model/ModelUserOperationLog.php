@@ -37,7 +37,7 @@ class ModelUserOperationLog extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -53,4 +53,16 @@ class ModelUserOperationLog extends Model
         'updated_at',
         'remark',
     ];
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'id'         => 'integer',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
 }
