@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
@@ -21,6 +22,7 @@ class MenuController extends BasicController
     protected MenuService $service;
 
     #[GetMapping('/menu/list')]
+    #[Permission(code: 'permission:menu:index')]
     public function pageList(Request $request): Response
     {
         return $this->success(data: $this->service->getRepository()->list([
@@ -31,6 +33,7 @@ class MenuController extends BasicController
 
     // create
     #[PostMapping('/menu')]
+    #[Permission(code: 'permission:menu:create')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -74,6 +77,7 @@ class MenuController extends BasicController
 
     // save
     #[PutMapping('/menu/{id}')]
+    #[Permission(code: 'permission:menu:save')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -116,6 +120,7 @@ class MenuController extends BasicController
 
     // delete
     #[DeleteMapping('/menu')]
+    #[Permission(code: 'permission:menu:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());

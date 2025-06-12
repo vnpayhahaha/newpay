@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\model\enums\PolicyType;
 use app\router\Annotations\DeleteMapping;
@@ -23,6 +24,7 @@ class PositionController extends BasicController
     protected PositionService $service;
 
     #[GetMapping('/position/list')]
+    #[Permission(code: 'permission:position:index')]
     public function pageList(Request $request): Response
     {
         return $this->success(
@@ -36,6 +38,7 @@ class PositionController extends BasicController
 
     // batchDataPermission
     #[PutMapping('/position/{id}/data_permission')]
+    #[Permission(code: 'permission:position:data_permission')]
     public function dataPermissionListForPosition(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -61,6 +64,7 @@ class PositionController extends BasicController
 
     // create
     #[PostMapping('/position')]
+    #[Permission(code: 'permission:position:save')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -93,6 +97,7 @@ class PositionController extends BasicController
 
     // save
     #[PutMapping('/position/{id}')]
+    #[Permission(code: 'permission:position:update')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -123,6 +128,7 @@ class PositionController extends BasicController
 
     // delete
     #[DeleteMapping('position')]
+    #[Permission(code: 'permission:position:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());

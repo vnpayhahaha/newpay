@@ -30,7 +30,7 @@ class RoleController extends BasicController
 
     #[GetMapping('/role/list')]
     #[OperationLog('获取角色')]
-    #[Permission('permission:leader:delete')]
+    #[Permission(code: 'permission:role:index')]
     public function pageList(Request $request): Response
     {
         return $this->success(
@@ -44,6 +44,7 @@ class RoleController extends BasicController
 
     // create
     #[PostMapping('/role')]
+    #[Permission(code: 'permission:role:save')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -79,6 +80,7 @@ class RoleController extends BasicController
 
     // save
     #[PutMapping('/role/{id}')]
+    #[Permission(code: 'permission:role:update')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -110,6 +112,7 @@ class RoleController extends BasicController
 
     // delete
     #[DeleteMapping('/role')]
+    #[Permission(code: 'permission:role:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());
@@ -118,6 +121,7 @@ class RoleController extends BasicController
 
     // 获取角色权限列表
     #[GetMapping('/role/{id}/permission')]
+    #[Permission(code: 'permission:role:getMenu')]
     public function permissionListForRole(int $id): Response
     {
         return $this->success($this->service->getRolePermission($id)->map(static fn(ModelMenu $menu) => $menu->only([
@@ -127,6 +131,7 @@ class RoleController extends BasicController
 
     // 赋予角色权限
     #[PutMapping('/role/{id}/permission')]
+    #[Permission(code: 'permission:role:setMenu')]
     public function batchGrantPermissionsForRole(Request $request, int $id): Response
     {
         if (!$this->service->existsById($id)) {

@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
@@ -22,6 +23,7 @@ class DepartmentController extends BasicController
     protected DepartmentService $service;
 
     #[GetMapping('/department/list')]
+    #[Permission(code: 'permission:department:index')]
     public function pageList(Request $request): Response
     {
         return $this->success(
@@ -32,6 +34,7 @@ class DepartmentController extends BasicController
 
     // create
     #[PostMapping('/department')]
+    #[Permission(code: 'permission:department:save')]
     public function create(Request $request): Response
     {
         $validator = validate($request->post(), [
@@ -63,6 +66,7 @@ class DepartmentController extends BasicController
 
     // save
     #[PutMapping('/department/{id}')]
+    #[Permission(code: 'permission:department:update')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->post(), [
@@ -94,6 +98,7 @@ class DepartmentController extends BasicController
 
     // delete
     #[DeleteMapping('/department')]
+    #[Permission(code: 'permission:department:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());

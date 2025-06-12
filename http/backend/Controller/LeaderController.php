@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
@@ -21,6 +22,7 @@ class LeaderController extends BasicController
     protected LeaderService $service;
 
     #[GetMapping('/leader/list')]
+    #[Permission(code: 'permission:leader:index')]
     public function pageList(Request $request): Response
     {
         return $this->success(data: $this->service->page(
@@ -32,6 +34,7 @@ class LeaderController extends BasicController
 
     // create
     #[PostMapping('/leader')]
+    #[Permission(code: 'permission:leader:save')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -52,6 +55,7 @@ class LeaderController extends BasicController
     }
 
     #[DeleteMapping('/leader')]
+    #[Permission(code: 'permission:leader:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteByDoubleKey($request->all());

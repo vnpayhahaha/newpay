@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\model\enums\PolicyType;
 use app\model\ModelRole;
@@ -30,6 +31,7 @@ class UserController extends BasicController
     protected RoleService $roleService;
 
     #[GetMapping('/user/list')]
+    #[Permission(code: 'permission:user:index')]
     public function pageList(Request $request): Response
     {
 
@@ -43,6 +45,7 @@ class UserController extends BasicController
     }
 
     #[PutMapping('/user')]
+    #[Permission(code: 'permission:user:update')]
     public function updateInfo(Request $request): Response
     {
         $validator = validate($request->post(), [
@@ -100,6 +103,7 @@ class UserController extends BasicController
      * @throws \Illuminate\Validation\ValidationException
      */
     #[PutMapping('/user/password')]
+    #[Permission(code: 'permission:user:password')]
     public function resetPassword(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -116,6 +120,7 @@ class UserController extends BasicController
 
     // create
     #[PostMapping('/user')]
+    #[Permission(code: 'permission:user:save')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -143,6 +148,7 @@ class UserController extends BasicController
 
     // save
     #[PutMapping('/user/{userId}')]
+    #[Permission(code: 'permission:user:update')]
     public function save(Request $request, int $userId): Response
     {
         $validator = validate($request->all(), [
@@ -168,6 +174,7 @@ class UserController extends BasicController
 
     // delete
     #[DeleteMapping('/user')]
+    #[Permission(code: 'permission:user:delete')]
     public function delete(Request $request): Response
     {
         $this->userService->deleteById($request->all());
@@ -176,6 +183,7 @@ class UserController extends BasicController
 
     // 获取用户角色列表
     #[GetMapping('/user/{userId}/roles')]
+    #[Permission(code: 'permission:user:getRole')]
     public function getUserRoles(int $userId): Response
     {
         return $this->success($this->userService->getUserRoles($userId)->map(static fn(ModelRole $role) => $role->only([
@@ -187,6 +195,7 @@ class UserController extends BasicController
 
     // 批量授权用户角色
     #[PutMapping('/user/{userId}/roles')]
+    #[Permission(code: 'permission:user:setRole')]
     public function batchGrantUserRoles(Request $request, int $userId): Response
     {
         $validator = validate($request->all(), [

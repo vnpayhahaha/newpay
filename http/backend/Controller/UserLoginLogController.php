@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\Permission;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
@@ -18,6 +19,7 @@ class UserLoginLogController extends BasicController
     protected UserLoginLogService $service;
 
     #[GetMapping('/user-login-log/list')]
+    #[Permission(code: 'log:userLogin:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(
@@ -31,6 +33,7 @@ class UserLoginLogController extends BasicController
 
     // delete
     #[DeleteMapping('/user-login-log')]
+    #[Permission(code: 'log:userLogin:delete')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->input('ids'));
