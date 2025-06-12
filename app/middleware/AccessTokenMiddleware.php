@@ -14,6 +14,7 @@ use Webman\MiddlewareInterface;
 
 class AccessTokenMiddleware implements MiddlewareInterface
 {
+
     public function process(Request $request, callable $handler): Response
     {
         if ($request->method() === 'OPTIONS') {

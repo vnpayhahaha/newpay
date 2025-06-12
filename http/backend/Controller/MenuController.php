@@ -4,10 +4,8 @@ namespace http\backend\Controller;
 
 use app\controller\BasicController;
 use app\lib\enum\ResultCode;
-use app\middleware\AccessTokenMiddleware;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
-use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
@@ -17,7 +15,6 @@ use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
-#[Middleware(AccessTokenMiddleware::class)]
 class MenuController extends BasicController
 {
     #[Inject]

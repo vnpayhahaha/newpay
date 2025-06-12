@@ -3,10 +3,8 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
-use app\middleware\AccessTokenMiddleware;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
-use app\router\Annotations\Middleware;
 use app\router\Annotations\RestController;
 use app\service\UserLoginLogService;
 use DI\Attribute\Inject;
@@ -14,7 +12,6 @@ use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
-#[Middleware(AccessTokenMiddleware::class)]
 class UserLoginLogController extends BasicController
 {
     #[Inject]

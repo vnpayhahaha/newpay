@@ -5,13 +5,11 @@ namespace http\backend\Controller;
 use app\controller\BasicController;
 use app\exception\BusinessException;
 use app\lib\enum\ResultCode;
-use app\middleware\AccessTokenMiddleware;
 use app\model\enums\MenuStatus;
 use app\model\enums\RoleStatus;
 use app\repository\MenuRepository;
 use app\repository\RoleRepository;
 use app\router\Annotations\GetMapping;
-use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use app\service\UserService;
@@ -21,7 +19,6 @@ use support\Request;
 use support\Response;
 
 #[RestController("/admin/permission")]
-#[Middleware(AccessTokenMiddleware::class)]
 class PermissionController extends BasicController
 {
 

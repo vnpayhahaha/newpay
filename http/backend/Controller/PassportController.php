@@ -6,10 +6,8 @@ use app\controller\BasicController;
 use app\lib\annotation\NoNeedLogin;
 use app\lib\enum\ResultCode;
 use app\lib\JwtAuth\facade\JwtAuth;
-use app\middleware\AccessTokenMiddleware;
 use app\model\enums\UserType;
 use app\router\Annotations\GetMapping;
-use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use DI\Attribute\Inject;
@@ -56,7 +54,6 @@ class PassportController extends BasicController
     }
 
     #[PostMapping('/logout')]
-    #[Middleware(AccessTokenMiddleware::class)]
     public function logout(Request $request): Response
     {
 
@@ -72,7 +69,6 @@ class PassportController extends BasicController
     }
 
     #[GetMapping('/getInfo')]
-    #[Middleware(AccessTokenMiddleware::class)]
     public function getInfo(Request $request): Response
     {
         $user = $request->user;
@@ -83,7 +79,6 @@ class PassportController extends BasicController
     }
 
     #[PostMapping('/refresh')]
-    #[Middleware(AccessTokenMiddleware::class)]
     public function refresh(Request $request): Response
     {
         $token = Context::get('token');
