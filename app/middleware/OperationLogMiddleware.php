@@ -29,7 +29,7 @@ class OperationLogMiddleware implements MiddlewareInterface
                 if ($reflectionClass->hasMethod($action)) {
                     $reflectionMethod = $reflectionClass->getMethod($action);
 
-                    if ($methodAnnotation = $reflectionMethod->getAttributes(OperationLog::class)[0]) {
+                    if ($methodAnnotation = $reflectionMethod->getAttributes(OperationLog::class)[0] ?? null) {
                         // 获取注解参数
                         $isDownload = false;
                         if (!empty($response->getHeader('content-description')) && !empty($response->getHeader('content-transfer-encoding'))) {
@@ -38,7 +38,7 @@ class OperationLogMiddleware implements MiddlewareInterface
                         $annotationPermission = $reflectionMethod->getAttributes(Permission::class)[0] ?? null;
                         $annotationPermissionCode = '';
                         if ($annotationPermission) {
-                            $annotationPermissionCode = $annotationPermission->getArguments()[0];
+                            $annotationPermissionCode = $annotationPermission->getArguments()[0] ?? '';
                         }
                         Event::dispatch('operation.log', new OperationEventDto($this->getRequestInfo($request, [
                             'code'          => !empty($annotationPermissionCode) ? explode(',', $annotationPermissionCode)[0] : '',
@@ -59,7 +59,6 @@ class OperationLogMiddleware implements MiddlewareInterface
 
     protected function getRequestInfo(Request $request, array $data): array
     {
-        $store = $store ?? ($request->app === '' ? 'default' : $request->app);
 
         $ip = $request->getRealIp(false);
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
@@ -83,7 +82,7 @@ class OperationLogMiddleware implements MiddlewareInterface
             'is_success'      => $data['response_code'] == 200 && $is_success,
         ];
         try {
-            $token = Context::get('token');
+            $token = Context::get('token') ?? '';
             JwtAuth::parseToken($token);
             $loginUser = JwtAuth::getUser();
             $operationLog['username'] = $loginUser->username;
