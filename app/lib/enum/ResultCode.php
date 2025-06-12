@@ -2,7 +2,7 @@
 
 namespace app\lib\enum;
 
-use app\lib\attribute\Message;
+use app\lib\annotation\Message;
 use app\lib\traits\ConstantsTrait;
 
 enum ResultCode: int

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\lib\attribute;
+namespace app\lib\annotation;
 
 
 use app\model\enums\ScopeType;

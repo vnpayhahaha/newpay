@@ -4,7 +4,7 @@ namespace app\model\enums;
 
 use app\constants\User;
 use app\lib\traits\ConstantsTrait;
-use app\lib\attribute\Message;
+use app\lib\annotation\Message;
 
 enum UserStatus: int
 {

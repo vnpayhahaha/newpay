@@ -2,7 +2,7 @@
 
 namespace app\lib\traits;
 
-use app\lib\attribute\Message;
+use app\lib\annotation\Message;
 use ReflectionClass;
 
 

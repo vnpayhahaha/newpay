@@ -4,7 +4,7 @@ namespace app\service;
 
 use app\exception\BusinessException;
 use app\exception\UnprocessableEntityException;
-use app\lib\attribute\DataScope;
+use app\lib\annotation\DataScope;
 use app\lib\enum\ResultCode;
 use app\model\enums\ScopeType;
 use app\model\ModelRole;
