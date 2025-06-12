@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\NoNeedLogin;
 use app\lib\enum\ResultCode;
 use app\lib\JwtAuth\facade\JwtAuth;
 use app\middleware\AccessTokenMiddleware;
@@ -26,6 +27,7 @@ class PassportController extends BasicController
     protected PassportService $passportService;
 
     #[PostMapping('/login')]
+    #[NoNeedLogin]
     public function login(Request $request): Response
     {
         $validator = validate($request->post(), [

@@ -12,10 +12,13 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
+
 return [
     '' => [
-        \app\middleware\RequestIdMiddleware::class,
-        \app\middleware\LangMiddleware::class,
-        \app\middleware\OperationLogMiddleware::class,
+        app\middleware\RequestIdMiddleware::class,
+        app\middleware\LangMiddleware::class,
+        app\middleware\AccessTokenMiddleware::class,
+        app\middleware\OperationLogMiddleware::class,
+        app\middleware\PermissionMiddleware::class,
     ]
 ];

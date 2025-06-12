@@ -11,7 +11,6 @@ use app\middleware\AccessTokenMiddleware;
 use app\model\ModelMenu;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
-use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
@@ -22,7 +21,6 @@ use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
-#[Middleware(AccessTokenMiddleware::class)]
 class RoleController extends BasicController
 {
 
@@ -32,6 +30,7 @@ class RoleController extends BasicController
 
     #[GetMapping('/role/list')]
     #[OperationLog('获取角色')]
+    #[Permission('permission:leader:delete')]
     public function pageList(Request $request): Response
     {
         return $this->success(

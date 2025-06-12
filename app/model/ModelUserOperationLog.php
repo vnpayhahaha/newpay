@@ -20,6 +20,8 @@ use support\Model;
  * @property int $is_success 操作是否成功(1:成功,2:失败)
  * @property string $response_data 响应数据
  * @property int $operator_id 操作者ID
+ * @property string $request_id uuid请求ID
+ * @property int $request_duration 请求耗时(毫秒)
  */
 class ModelUserOperationLog extends Model
 {
@@ -62,19 +64,22 @@ class ModelUserOperationLog extends Model
         'is_success',
         'response_data',
         'operator_id',
+        'request_id',
+        'request_duration',
     ];
 
     /**
      * The attributes that should be cast to native types.
      */
     protected $casts = [
-        'id'              => 'integer',
-        'created_by'      => 'integer',
-        'updated_by'      => 'integer',
-        'created_at'      => 'datetime',
-        'updated_at'      => 'datetime',
-        'is_success'      => 'integer',
-        'response_status' => 'integer',
+        'id'               => 'integer',
+        'created_by'       => 'integer',
+        'updated_by'       => 'integer',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
+        'is_success'       => 'integer',
+        'response_status'  => 'integer',
+        'request_duration' => 'integer',
     ];
 
 }

@@ -8,7 +8,7 @@ use Attribute;
 /**
  * 记录操作日志注解。
  */
-#[Attribute]
+#[Attribute(Attribute::TARGET_METHOD)]
 class OperationLog
 {
     /**
