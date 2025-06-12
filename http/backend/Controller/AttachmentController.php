@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\DeleteMapping;
@@ -22,6 +23,7 @@ class AttachmentController extends BasicController
 
     #[GetMapping('/attachment/list')]
     #[Permission(code: 'dataCenter:attachment:list')]
+    #[OperationLog('附件列表')]
     public function pageList(Request $request): Response
     {
         $params = $this->getRequest()->all();
@@ -36,6 +38,7 @@ class AttachmentController extends BasicController
     // upload
     #[PostMapping('/attachment/upload')]
     #[Permission(code: 'dataCenter:attachment:upload')]
+    #[OperationLog('上传附件')]
     public function upload(Request $request): Response
     {
         $this->service->upload('file');
@@ -45,6 +48,7 @@ class AttachmentController extends BasicController
     // delete
     #[DeleteMapping('/attachment/{id}')]
     #[Permission(code: 'dataCenter:attachment:delete')]
+    #[OperationLog('删除附件')]
     public function delete(Request $request, int $id): Response
     {
         if (!$this->service->getRepository()->existsById($id)) {

@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\model\enums\PolicyType;
@@ -32,6 +33,7 @@ class UserController extends BasicController
 
     #[GetMapping('/user/list')]
     #[Permission(code: 'permission:user:index')]
+    #[OperationLog('用户列表')]
     public function pageList(Request $request): Response
     {
 
@@ -46,6 +48,7 @@ class UserController extends BasicController
 
     #[PutMapping('/user')]
     #[Permission(code: 'permission:user:update')]
+    #[OperationLog('更新用户信息')]
     public function updateInfo(Request $request): Response
     {
         $validator = validate($request->post(), [
@@ -104,6 +107,7 @@ class UserController extends BasicController
      */
     #[PutMapping('/user/password')]
     #[Permission(code: 'permission:user:password')]
+    #[OperationLog('重置密码')]
     public function resetPassword(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -121,6 +125,7 @@ class UserController extends BasicController
     // create
     #[PostMapping('/user')]
     #[Permission(code: 'permission:user:save')]
+    #[OperationLog('创建用户')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -149,6 +154,7 @@ class UserController extends BasicController
     // save
     #[PutMapping('/user/{userId}')]
     #[Permission(code: 'permission:user:update')]
+    #[OperationLog('更新用户')]
     public function save(Request $request, int $userId): Response
     {
         $validator = validate($request->all(), [
@@ -175,6 +181,7 @@ class UserController extends BasicController
     // delete
     #[DeleteMapping('/user')]
     #[Permission(code: 'permission:user:delete')]
+    #[OperationLog('删除用户')]
     public function delete(Request $request): Response
     {
         $this->userService->deleteById($request->all());
@@ -184,6 +191,7 @@ class UserController extends BasicController
     // 获取用户角色列表
     #[GetMapping('/user/{userId}/roles')]
     #[Permission(code: 'permission:user:getRole')]
+    #[OperationLog('获取用户角色列表')]
     public function getUserRoles(int $userId): Response
     {
         return $this->success($this->userService->getUserRoles($userId)->map(static fn(ModelRole $role) => $role->only([
@@ -196,6 +204,7 @@ class UserController extends BasicController
     // 批量授权用户角色
     #[PutMapping('/user/{userId}/roles')]
     #[Permission(code: 'permission:user:setRole')]
+    #[OperationLog('批量授权用户角色')]
     public function batchGrantUserRoles(Request $request, int $userId): Response
     {
         $validator = validate($request->all(), [

@@ -18,6 +18,11 @@ class UserOperationLogController extends BasicController
     #[Inject]
     protected UserOperationLogService $service;
 
+    /**
+     * 用户操作日志列表
+     * @param Request $request
+     * @return Response
+     */
     #[GetMapping('/user-operation-log/list')]
     #[Permission(code: 'log:userOperation:list')]
     public function pageList(Request $request): Response
@@ -31,6 +36,11 @@ class UserOperationLogController extends BasicController
         );
     }
 
+    /**
+     * 删除用户操作日志
+     * @param Request $request
+     * @return Response
+     */
     #[DeleteMapping('/user-operation-log')]
     #[Permission(code: 'log:userOperation:delete')]
     public function delete(Request $request): Response

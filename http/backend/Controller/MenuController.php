@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\DeleteMapping;
@@ -23,6 +24,7 @@ class MenuController extends BasicController
 
     #[GetMapping('/menu/list')]
     #[Permission(code: 'permission:menu:index')]
+    #[OperationLog('菜单列表')]
     public function pageList(Request $request): Response
     {
         return $this->success(data: $this->service->getRepository()->list([
@@ -34,6 +36,7 @@ class MenuController extends BasicController
     // create
     #[PostMapping('/menu')]
     #[Permission(code: 'permission:menu:create')]
+    #[OperationLog('创建菜单')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -78,6 +81,7 @@ class MenuController extends BasicController
     // save
     #[PutMapping('/menu/{id}')]
     #[Permission(code: 'permission:menu:save')]
+    #[OperationLog('编辑菜单')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -121,6 +125,7 @@ class MenuController extends BasicController
     // delete
     #[DeleteMapping('/menu')]
     #[Permission(code: 'permission:menu:delete')]
+    #[OperationLog('删除菜单')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());

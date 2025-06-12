@@ -18,6 +18,11 @@ class UserLoginLogController extends BasicController
     #[Inject]
     protected UserLoginLogService $service;
 
+    /**
+     * 用户登录日志列表
+     * @param Request $request
+     * @return Response
+     */
     #[GetMapping('/user-login-log/list')]
     #[Permission(code: 'log:userLogin:list')]
     public function pageList(Request $request): Response
@@ -31,7 +36,11 @@ class UserLoginLogController extends BasicController
         );
     }
 
-    // delete
+    /**
+     * 删除用户登录日志
+     * @param Request $request
+     * @return Response
+     */
     #[DeleteMapping('/user-login-log')]
     #[Permission(code: 'log:userLogin:delete')]
     public function delete(Request $request): Response

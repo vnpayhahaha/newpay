@@ -31,6 +31,11 @@ class PermissionController extends BasicController
     #[Inject]
     protected UserService $userService;
 
+    /**
+     * 获取当前用户菜单
+     * @param Request $request
+     * @return Response
+     */
     #[GetMapping('/menus')]
     public function menus(Request $request): Response
     {
@@ -45,6 +50,11 @@ class PermissionController extends BasicController
         );
     }
 
+    /**
+     * 获取当前用户角色
+     * @param Request $request
+     * @return Response
+     */
     #[GetMapping('/roles')]
     public function roles(Request $request): Response
     {
@@ -55,6 +65,12 @@ class PermissionController extends BasicController
         );
     }
 
+    /**
+     * 更新用户信息
+     * @param Request $request
+     * @return Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
     #[PostMapping('/roles')]
     public function update(Request $request): Response
     {

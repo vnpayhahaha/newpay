@@ -5,8 +5,6 @@ namespace app\middleware;
 use app\event\Dto\OperationEventDto;
 use app\lib\annotation\OperationLog;
 use app\lib\JwtAuth\facade\JwtAuth;
-use app\service\MenuService;
-use support\Container;
 use support\Context;
 use support\Log;
 use Webman\Event\Event;
@@ -48,7 +46,7 @@ class OperationLogMiddleware implements MiddlewareInterface
                             $isDownload = true;
                         }
                         Event::dispatch('operation.log', new OperationEventDto($this->getRequestInfo($request, [
-                            'name'             => $methodAnnotation->getArguments()[0] ?? '',
+                            'name'             => $methodAnnotation->getArguments()[0] ?? $request->method(),
                             'request_duration' => $duration,
                             'response_code'    => $response->getStatusCode(),
                             'response_data'    => $isDownload ? '文件下载' : $response->rawBody(),

@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\model\enums\PolicyType;
@@ -25,6 +26,7 @@ class PositionController extends BasicController
 
     #[GetMapping('/position/list')]
     #[Permission(code: 'permission:position:index')]
+    #[OperationLog('岗位列表')]
     public function pageList(Request $request): Response
     {
         return $this->success(
@@ -39,6 +41,7 @@ class PositionController extends BasicController
     // batchDataPermission
     #[PutMapping('/position/{id}/data_permission')]
     #[Permission(code: 'permission:position:data_permission')]
+    #[OperationLog('设置岗位数据权限')]
     public function dataPermissionListForPosition(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -65,6 +68,7 @@ class PositionController extends BasicController
     // create
     #[PostMapping('/position')]
     #[Permission(code: 'permission:position:save')]
+    #[OperationLog('创建岗位')]
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -98,6 +102,7 @@ class PositionController extends BasicController
     // save
     #[PutMapping('/position/{id}')]
     #[Permission(code: 'permission:position:update')]
+    #[OperationLog('编辑岗位')]
     public function save(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
@@ -129,6 +134,7 @@ class PositionController extends BasicController
     // delete
     #[DeleteMapping('position')]
     #[Permission(code: 'permission:position:delete')]
+    #[OperationLog('删除岗位')]
     public function delete(Request $request): Response
     {
         $this->service->deleteById($request->all());
