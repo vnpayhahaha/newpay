@@ -68,4 +68,17 @@ final class MenuService extends IService
         }
         return $model;
     }
+
+    /**
+     * 通过name获取菜单名称.
+     */
+    public function findNameByCode(string $name): string
+    {
+        if (strlen($name) < 1) {
+            return trans('undefined_menu',[],'menu');
+        }
+        $meta = $this->repository->findNameByCode($name);
+        var_dump('通过name获取菜单名称==', $meta);
+        return $meta ?? trans('undefined_menu',[],'menu');
+    }
 }

@@ -4,6 +4,8 @@ namespace http\backend\Controller;
 
 use app\controller\BasicController;
 use app\exception\UnprocessableEntityException;
+use app\lib\annotation\OperationLog;
+use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\middleware\AccessTokenMiddleware;
 use app\model\ModelMenu;
@@ -29,6 +31,7 @@ class RoleController extends BasicController
 
 
     #[GetMapping('/role/list')]
+    #[OperationLog('获取角色')]
     public function pageList(Request $request): Response
     {
         return $this->success(

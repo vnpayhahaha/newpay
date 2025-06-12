@@ -257,7 +257,7 @@ class JwtAuth
      *
      * @return AuthorizationUserInterface|null
      */
-    public function getUser()
+    public function getUser(): ?AuthorizationUserInterface
     {
         if ($this->user) {
             return $this->user->get($this->jwt);

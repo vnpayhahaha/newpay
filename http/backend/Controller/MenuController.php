@@ -9,6 +9,7 @@ use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\Middleware;
 use app\router\Annotations\PostMapping;
+use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\MenuService;
 use DI\Attribute\Inject;

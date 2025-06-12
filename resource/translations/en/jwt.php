@@ -10,8 +10,9 @@ declare(strict_types=1);
  * @license  https://github.com/mineadmin/MineAdmin/blob/master/LICENSE
  */
 return [
-    'unauthorized' => 'Unauthorized',
-    'forbidden' => 'Forbidden',
-    'expired' => 'Expired',
+    'unauthorized'      => 'Unauthorized',
+    'forbidden'         => 'Forbidden',
+    'expired'           => 'Expired',
     'validation_failed' => 'User information verification failed',
+    'not_user_token'    => 'User token not found',
 ];

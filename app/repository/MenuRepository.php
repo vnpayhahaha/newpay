@@ -57,4 +57,12 @@ final class MenuRepository extends IRepository
             ->with('children')
             ->get();
     }
+
+    /**
+     * 通过 name 查询菜单meta.
+     */
+    public function findNameByCode(string $name): ?string
+    {
+        return $this->model::query()->where('name', $name)->value('meta');
+    }
 }
