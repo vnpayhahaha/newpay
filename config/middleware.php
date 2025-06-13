@@ -15,6 +15,7 @@
 
 return [
     '' => [
+        app\middleware\CorsMiddleware::class,
         app\middleware\RequestIdMiddleware::class,
         app\middleware\LangMiddleware::class,
         app\middleware\AccessTokenMiddleware::class,
