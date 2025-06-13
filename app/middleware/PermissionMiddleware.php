@@ -7,7 +7,6 @@ use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\lib\JwtAuth\exception\JwtException;
 use app\model\ModelUser;
-use support\Log;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -16,6 +15,9 @@ class PermissionMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, callable $handler): Response
     {
+        if ($request->noNeedLogin) {
+            return $handler($request);
+        }
         $user = $request->user;
         if (!$user) {
             throw new JwtException(trans('unauthorized', [], 'jwt'));

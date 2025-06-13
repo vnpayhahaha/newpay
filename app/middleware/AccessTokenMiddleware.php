@@ -30,6 +30,7 @@ class AccessTokenMiddleware implements MiddlewareInterface
                     $reflectionMethod = $reflectionClass->getMethod($action);
                     $methodAnnotation = $reflectionMethod->getAttributes(NoNeedLogin::class);
                     if (!empty($methodAnnotation)) {
+                        $request->noNeedLogin = true;
                         return $handler($request);
                     }
                 }
