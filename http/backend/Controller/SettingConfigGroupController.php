@@ -21,7 +21,7 @@ class SettingConfigGroupController extends BasicController
     #[Inject]
     protected SettingConfigGroupService $service;
 
-    #[GetMapping('/setting/ConfigGroup/list')]
+    #[GetMapping('/setting/configGroup/list')]
     #[Permission(code: 'system:config:group:list')]
     #[OperationLog('系统配置分组列表')]
     public function pageList(Request $request): Response
@@ -29,7 +29,7 @@ class SettingConfigGroupController extends BasicController
         return $this->success(data: $this->service->getList([]));
     }
 
-    #[PostMapping('/setting/ConfigGroup')]
+    #[PostMapping('/setting/configGroup')]
     #[Permission(code: 'system:config:group:create')]
     #[OperationLog('创建系统配置分组')]
     public function create(Request $request): Response
@@ -43,7 +43,7 @@ class SettingConfigGroupController extends BasicController
         return $this->success();
     }
 
-    #[PutMapping('/setting/ConfigGroup/{id}')]
+    #[PutMapping('/setting/configGroup/{id}')]
     #[Permission(code: 'system:config:group:update')]
     #[OperationLog('更新系统配置分组')]
     public function update(Request $request, int $id): Response
@@ -57,7 +57,7 @@ class SettingConfigGroupController extends BasicController
         return $this->success();
     }
 
-    #[DeleteMapping('/setting/ConfigGroup')]
+    #[DeleteMapping('/setting/configGroup')]
     #[Permission(code: 'system:config:group:delete')]
     #[OperationLog('删除系统配置分组')]
     public function delete(Request $request): Response

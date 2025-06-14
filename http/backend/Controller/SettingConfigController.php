@@ -41,7 +41,9 @@ class SettingConfigController extends BasicController
     #[OperationLog('获取系统配置详情')]
     public function details(int $id): Response
     {
-        return $this->success($this->service->getDetails($id));
+        return $this->success($this->service->getDetails([
+            'group_id' => $id,
+        ]));
     }
 
     #[PostMapping('/setting/config')]
