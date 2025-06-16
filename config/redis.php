@@ -26,4 +26,11 @@ return [
                         'heartbeat_interval' => 50,  // 心跳检测间隔，不要大于60秒
         ],
     ],
+    'cache'   => [ // <==== 新增
+                   'password' => 'abc123',
+                   'host'     => '127.0.0.1',
+                   'port'     => 6379,
+                   'database' => 1,
+                   'prefix'   => 'webman_cache-',
+    ]
 ];

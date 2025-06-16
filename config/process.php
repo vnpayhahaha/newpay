@@ -58,5 +58,9 @@ return [
                 'enable_memory_monitor' => DIRECTORY_SEPARATOR === '/',
             ]
         ]
-    ]
+    ],
+    'cache-cleaner' => [
+        'handler' => app\process\CacheCleanerProcess::class,
+        'count' => 1, // 只需要一个进程
+    ],
 ];

@@ -15,14 +15,13 @@
 namespace support;
 
 use app\lib\enum\ResultCode;
-use Hyperf\Contract\Arrayable;
 use Webman\Http\Request;
 
 /**
  * Class Response
  * @package support
  */
-class Response extends \Webman\Http\Response implements Arrayable
+class Response extends \Webman\Http\Response
 {
 
     /**

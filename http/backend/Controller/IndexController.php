@@ -5,18 +5,18 @@ namespace http\backend\Controller;
 use app\controller\BasicController;
 use app\lib\annotation\NoNeedLogin;
 use app\Router\Annotations\GetMapping;
+use app\router\Annotations\PostMapping;
 use app\Router\Annotations\RestController;
-use app\service\UserService;
-
-
+use app\service\SettingConfigService;
 use DI\Attribute\Inject;
 use support\Request;
+
 
 #[RestController("/admin")]
 final class IndexController extends BasicController
 {
     #[Inject]
-    protected UserService $service;
+    protected SettingConfigService $service;
 
     #[GetMapping('/home')]
     #[NoNeedLogin]
@@ -32,9 +32,21 @@ final class IndexController extends BasicController
 //        if ($validator->fails()) {
 //            return $this->error($validator->errors()->first());
 //        }
-        $dds = sys_config('upload_mode');
+        $params = $request->all();
+        $result1 = sys_config($params['name']);
 
-        return $this->success($dds);
+        return $this->success([
+            'result1' => $result1,
+        ]);
+    }
+
+    #[PostMapping('/update')]
+    #[NoNeedLogin]
+    public function updateConfig(Request $request)
+    {
+        $data = $request->post();
+        $this->service->updateData($data);
+        return $this->success();
     }
 
 }
