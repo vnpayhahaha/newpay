@@ -3,6 +3,7 @@
 namespace http\backend\Controller;
 
 use app\controller\BasicController;
+use app\lib\annotation\NoNeedLogin;
 use app\Router\Annotations\GetMapping;
 use app\Router\Annotations\RestController;
 use app\service\UserService;
@@ -18,6 +19,7 @@ final class IndexController extends BasicController
     protected UserService $service;
 
     #[GetMapping('/home')]
+    #[NoNeedLogin]
     public function index(Request $request)
     {
 //        return $this->success([
@@ -30,8 +32,7 @@ final class IndexController extends BasicController
 //        if ($validator->fails()) {
 //            return $this->error($validator->errors()->first());
 //        }
-        $dds = $this->service->page([]);
-        var_dump($dds);
+        $dds = sys_config('upload_mode');
 
         return $this->success($dds);
     }

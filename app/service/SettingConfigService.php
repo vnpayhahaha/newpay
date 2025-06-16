@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\lib\annotation\Cacheable;
 use app\repository\SettingConfigRepository;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,5 +58,16 @@ class SettingConfigService extends IService
                 $params
             );
         }
+    }
+
+    #[Cacheable(
+        prefix: 'system:config:value',
+        value: '_#{key}',
+        ttl: 600,
+        listener: 'system-config-update'
+    )]
+    public function getConfigByKey(string $key): ?array
+    {
+        return $this->repository->getConfigByKey($key);
     }
 }

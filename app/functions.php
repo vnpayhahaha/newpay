@@ -54,3 +54,15 @@ if (!function_exists('formatBytes')) {
     }
 
 }
+if (!function_exists('sys_config')) {
+    /**
+     * 获取后台系统配置.
+     * @param string $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    function sys_config(string $key, mixed $default = null): mixed
+    {
+        return \support\Container::get(app\service\SettingConfigService::class)->getConfigByKey($key) ?? $default;
+    }
+}
