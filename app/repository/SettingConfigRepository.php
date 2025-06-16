@@ -54,4 +54,16 @@ final class SettingConfigRepository extends IRepository
 
         return $query;
     }
+
+    /**
+     * 按Key获取配置.
+     */
+    public function getConfigByKey(string $key): array
+    {
+        $model = $this->model::query()->select([
+            'group_id', 'name', 'key', 'value', 'sort', 'input_type', 'config_select_data',
+        ])->where('key', '=', $key)->first();
+        return $model ? $model->toArray() : [];
+    }
+
 }
