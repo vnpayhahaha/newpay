@@ -4,7 +4,7 @@ namespace app\service\upload;
 
 
 use app\exception\UploadException;
-use app\service\SystemConfigService;
+use app\service\SettingConfigService;
 use support\Container;
 
 /**
@@ -38,11 +38,14 @@ class UploadFile
      *
      * @return array|null
      */
-    public static function getConfig(string $name = ''): ?array
+    public static function getConfig(string $name = ''): array
     {
-        $systemConfigService = Container::make(SystemConfigService::class);
-        $config = $systemConfigService->getConfigContentValue($name);
-        return $config ?? [];
+        $config = config('upload.config', []);
+        if (empty($name)) {
+            return [];
+        }
+        var_dump('getConfig=', $config);
+        return $config[$name] ?? [];
     }
 
     /**
@@ -52,8 +55,11 @@ class UploadFile
      */
     public static function getDefaultConfig(): array
     {
-        $systemConfigService = Container::make(SystemConfigService::class);
-        $basicConfig = $systemConfigService->getConfig('basic_upload_setting');
+        $settingConfigService = Container::make(SettingConfigService::class);
+        $basicConfig = $settingConfigService->getDetails([
+            'group_id' => 2,
+        ])->toArray();
+
         if (empty($basicConfig)) {
             return [
                 'mode'         => 'local',
@@ -64,7 +70,18 @@ class UploadFile
                 'exclude'      => ['mp4'],
             ];
         }
-        return $basicConfig;
+        $basicConfigKeyValue = array_column($basicConfig, 'value', 'key');
+
+        $upload_include = $basicConfigKeyValue['upload_include'] ?? '';
+        $upload_exclude = $basicConfigKeyValue['upload_exclude'] ?? '';
+        return [
+            'mode'         => $basicConfigKeyValue['upload_mode'] ?? 'local',
+            'single_limit' => $basicConfigKeyValue['upload_single_limit'] ?? 1024,
+            'total_limit'  => $basicConfigKeyValue['upload_total_limit'] ?? 1024,
+            'nums'         => $basicConfigKeyValue['upload_nums'] ?? 1,
+            'include'      => $basicConfigKeyValue['upload_include'] ? explode(',', $upload_include) : ['png'],
+            'exclude'      => $basicConfigKeyValue['upload_exclude'] ? explode(',', $upload_exclude) : ['mp4'],
+        ];
     }
 
     public static function disk(string|null $storage = null, bool $is_file_upload = true): UploadFileInterface

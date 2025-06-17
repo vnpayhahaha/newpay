@@ -8,7 +8,6 @@ use app\model\enums\ScopeType;
 use app\repository\AttachmentRepository;
 use app\service\upload\UploadFile;
 use DI\Attribute\Inject;
-use support\Container;
 use support\Db;
 
 
@@ -36,8 +35,7 @@ final class AttachmentService extends IService
     {
         try {
             Db::transaction(function () use ($upload, $isLocal) {
-                $systemConfigService = Container::make(SystemConfigService::class);
-                $baseConfig = $systemConfigService->getConfigContentValue('basic_upload_setting');//获取上次配置
+                $baseConfig = UploadFile::getDefaultConfig();//获取上次配置
                 if (empty($baseConfig)) {
                     throw new UploadException('缺少上传配置信息');
                 }

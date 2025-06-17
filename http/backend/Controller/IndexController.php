@@ -8,6 +8,7 @@ use app\Router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\Router\Annotations\RestController;
 use app\service\SettingConfigService;
+use app\service\upload\UploadFile;
 use DI\Attribute\Inject;
 use support\Request;
 
@@ -32,12 +33,15 @@ final class IndexController extends BasicController
 //        if ($validator->fails()) {
 //            return $this->error($validator->errors()->first());
 //        }
+//        $params = $request->all();
+//        $result1 = sys_config($params['name']);
+//
+//        return $this->success([
+//            'result1' => $result1,
+//        ]);
         $params = $request->all();
-        $result1 = sys_config($params['name']);
-
-        return $this->success([
-            'result1' => $result1,
-        ]);
+        UploadFile::getDefaultConfig();
+        return $this->success();
     }
 
     #[PostMapping('/update')]

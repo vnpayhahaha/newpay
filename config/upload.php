@@ -8,13 +8,6 @@ use app\service\upload\storage\S3;
 
 return [
     'debug'           => config('app.debug'),
-    'config_key'      => [
-        'local' => '',
-        'oss'   => '',
-        'cos'   => '',
-        'qiniu' => '',
-        's3'    => '',
-    ],
     'adapter_classes' => [
         'local' => Local::class,
         'oss'   => Oss::class,
@@ -22,4 +15,50 @@ return [
         'qiniu' => Qiniu::class,
         's3'    => S3::class,
     ],
+    'config'          => [
+        'local' => [
+            'root'    => 'public',
+            'dirname' => 'upload',
+            'domain'  => 'http://127.0.0.1:9501',
+        ],
+        'oss'   => [
+            'accessKeyId'     => '',
+            'accessKeySecret' => '',
+            'bucket'          => '',
+            'domain'          => '',
+            'endpoint'        => '',
+            'dirname'         => '',
+            'remark'          => '',
+        ],
+        'cos'   => [
+            'secretId'  => '',
+            'secretKey' => '',
+            'bucket'    => '',
+            'domain'    => '',
+            'region'    => '',
+            'dirname'   => '',
+            'remark'    => '',
+        ],
+        'qiniu' => [
+            'accessKey' => '',
+            'secretKey' => '',
+            'bucket'    => '',
+            'domain'    => '',
+            'dirname'   => '',
+            'region'    => '',
+            'remark'    => '',
+        ],
+        's3'    => [
+            'key'      => '',
+            'secret'   => '',
+            'region'   => '',
+            'bucket'   => '',
+            'domain'   => '',
+            'dirname'  => '',
+            'remark'   => '',
+            'endpoint' => '',
+            'acl'      => ''
+        ],
+    ],
+
 ];
