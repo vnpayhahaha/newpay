@@ -41,8 +41,8 @@ class AttachmentController extends BasicController
     #[OperationLog('上传附件')]
     public function upload(Request $request): Response
     {
-        $this->service->upload('file');
-        return $this->success();
+
+        return $this->success($this->service->upload('file'));
     }
 
     // delete

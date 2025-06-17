@@ -44,7 +44,6 @@ class UploadFile
         if (empty($name)) {
             return [];
         }
-        var_dump('getConfig=', $config);
         return $config[$name] ?? [];
     }
 

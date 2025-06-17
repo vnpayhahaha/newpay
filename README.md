@@ -1316,3 +1316,25 @@
     }
 }
 ```
+```json
+{
+    "code": 200,
+    "message": "成功",
+    "data": {
+        "created_by": 1,
+        "origin_name": "ChMkK2VuiYOIAt4fAADe7KV_wZgAAX6mQLS-ysAAN8E319.jpg",
+        "storage_mode": 0,
+        "object_name": "a2f329ce-3143-4c0c-bcef-0f07343b36ef.jpg",
+        "mime_type": "image\/jpeg",
+        "storage_path": "2025-06-17",
+        "hash": "473a077cb76edab1d3525751ec25d236",
+        "suffix": "jpg",
+        "size_byte": 37963,
+        "size_info": 37963,
+        "url": "http:\/\/127.0.0.1:9501\/uploads\/2025-06-17\/a2f329ce-3143-4c0c-bcef-0f07343b36ef.jpg",
+        "updated_at": "2025-06-17 00:54:32",
+        "created_at": "2025-06-17 00:54:32",
+        "id": 5
+    }
+}
+```
