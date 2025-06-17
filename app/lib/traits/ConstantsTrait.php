@@ -39,7 +39,7 @@ trait ConstantsTrait
                         //var_dump('==message==', $messageKey);
 
                         // trans($messageTranKey,  [],$domain); 如果有$messageKey已.分割，第一部分为domain,剩余部分为$messageTranKey，尝试进行翻译
-                        if (strpos($messageKey, '.') !== false) {
+                        if (str_contains($messageKey, '.')) {
                             $messageTranKey = substr($messageKey, strpos($messageKey, '.') + 1);
                             $domain = substr($messageKey, 0, strpos($messageKey, '.'));
                             //var_dump('==domain==', $messageTranKey, $domain);

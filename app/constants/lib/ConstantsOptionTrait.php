@@ -9,7 +9,7 @@ trait ConstantsOptionTrait
         // $optionList 用t(string $key, array $replace = []): string 方法 翻译转换$optionList数组每一项的value值, key不变
         return array_map(
             static function ($item) use ($parameters) {
-                return trans($item, $parameters);
+                return t($item, $parameters);
             }, $optionList
         );
     }
@@ -22,7 +22,7 @@ trait ConstantsOptionTrait
         return array_map(
             static function ($key, $item) use ($parameters) {
                 return [
-                    'label' => trans($item, $parameters),
+                    'label' => t($item, $parameters),
                     'value' => $key,
                 ];
             }, array_keys($optionList), array_values($optionList)
@@ -32,7 +32,7 @@ trait ConstantsOptionTrait
     // 获取翻译后的人性化描述
     public static function getHumanizeValue(array $optionList, int $key, array $parameters = []): string
     {
-        return trans($optionList[$key], $parameters);
+        return t($optionList[$key], $parameters);
     }
 
 }

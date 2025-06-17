@@ -2,6 +2,7 @@
 
 namespace app\middleware;
 
+use support\Context;
 use Webman\MiddlewareInterface;
 use Webman\Http\Response;
 use Webman\Http\Request;
@@ -13,6 +14,8 @@ class LangMiddleware implements MiddlewareInterface
         $acceptLanguage = $request->header('accept-language', 'zh_cn');
         $locale = $this->parseAcceptLanguage($acceptLanguage);
         locale($locale);
+        Context::set('locale', $locale);
+        var_dump('=LangMiddleware=locale==', $locale);
         return $handler($request);
     }
 

@@ -53,6 +53,9 @@ enum ResultCode: int
     #[Message('result.disabled')]
     case DISABLED = 101001;
 
+    // 字段枚举获取失败
+    #[Message('result.enum_not_found')]
+    case ENUM_NOT_FOUND = 102001;
 
     // backend 错误码 2xxxxx  系统标识【1】-业务模块标识【2】-错误码【3】
 

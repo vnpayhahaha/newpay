@@ -24,6 +24,7 @@ return [
     'payload_too_large'    => 'Payload too large',
     'unprocessable_entity' => 'Request parameter error',
     'disabled'             => 'Account disabled',
+    'enum_not_found'       => 'Enum not found',
 
     // 用户模块
     'user_login_failed'    => 'User login failed',

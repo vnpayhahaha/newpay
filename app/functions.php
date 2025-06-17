@@ -4,6 +4,7 @@
  */
 
 use app\lib\JwtAuth\JwtAuth;
+use support\Context;
 
 if (!function_exists('validate')) {
     /**
@@ -64,5 +65,19 @@ if (!function_exists('sys_config')) {
     function sys_config(string $key, mixed $default = null): mixed
     {
         return \support\Container::get(app\service\SettingConfigService::class)->getConfigByKey($key) ?? $default;
+    }
+}
+if (!function_exists('t')) {
+
+    function t(string $key, array $replace = []): string
+    {
+        if (str_contains($key, '.')) {
+            $tranKey = substr($key, strpos($key, '.') + 1);
+            $domain = substr($key, 0, strpos($key, '.'));
+            $locale = Context::get('locale');
+            return trans($tranKey, $replace, $domain, $locale);
+        }
+
+        return $key;
     }
 }

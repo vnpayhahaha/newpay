@@ -24,6 +24,7 @@ return [
     'payload_too_large'    => '请求体过大',
     'unprocessable_entity' => '请求参数错误',
     'disabled'             => '账号已禁用',
+    'enum_not_found'       => '枚举不存在',
 
     // 用户模块
     'user_login_failed'    => '用户登录失败',
