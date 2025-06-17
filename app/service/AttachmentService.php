@@ -55,7 +55,6 @@ final class AttachmentService extends IService
                 if ($filesInfo = $this->repository->getModel()->where(['hash' => $hash])->first()) {
                     return $filesInfo->toArray();
                 }
-                var_dump($data);
                 $inData = [
                     'storage_mode' => $type,
                     'origin_name'  => $data['origin_name'] ?? '',
