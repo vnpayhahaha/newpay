@@ -1,13 +1,13 @@
 <?php
 
-namespace http\openapi\Controller;
+namespace http\merchant\controller;
 
 use app\controller\BasicController;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
 use support\Request;
 
-#[RestController("/openapi")]
+#[RestController("/merchant")]
 class IndexController extends BasicController
 {
     #[GetMapping('/home')]
