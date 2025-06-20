@@ -2,14 +2,15 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
 use support\Model;
 
 /**
 * @property int $id 主键
 * @property int $user_id 用户id
 * @property int $role_id 角色id
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
+* @property Carbon $created_at
+* @property Carbon $updated_at
 */
 final class ModelUserBelongsRole extends Model
 {
@@ -24,7 +25,7 @@ final class ModelUserBelongsRole extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array

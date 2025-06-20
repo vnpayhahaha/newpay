@@ -3,6 +3,7 @@
 namespace app\model;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 /**
@@ -14,6 +15,8 @@ use support\Model;
 */
 final class ModelUserPosition extends Model
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      * @var string

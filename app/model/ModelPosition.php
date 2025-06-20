@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use support\Model;
 
@@ -22,6 +23,8 @@ use support\Model;
  */
 class ModelPosition extends Model
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      * @var string

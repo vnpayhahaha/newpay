@@ -2,17 +2,21 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 /**
 * @property int $user_id
 * @property int $dept_id
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
-* @property \Carbon\Carbon $deleted_at
+* @property Carbon $created_at
+* @property Carbon $updated_at
+* @property Carbon $deleted_at
 */
 final class ModelUserDept extends Model
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      * @var string
@@ -24,7 +28,7 @@ final class ModelUserDept extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array
