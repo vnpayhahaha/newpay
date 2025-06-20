@@ -16,8 +16,8 @@ class CorsMiddleware implements MiddlewareInterface
         $headers = [
             'Access-Control-Allow-Origin'      => '*',
             'Access-Control-Allow-Methods'     => 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-            'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With, Token',
-            'Access-Control-Expose-Headers'    => 'Authorization, Token',
+            'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With, Token, accept-language',
+            'Access-Control-Expose-Headers'    => 'Authorization, Token, X-Requested-With, accept-language, X-Request-Id',
             'Access-Control-Allow-Credentials' => 'true', // 如果需要携带凭证
         ];
         // 处理OPTIONS预检请求
