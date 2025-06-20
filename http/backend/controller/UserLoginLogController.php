@@ -1,6 +1,6 @@
 <?php
 
-namespace http\backend\Controller;
+namespace http\backend\controller;
 
 use app\controller\BasicController;
 use app\lib\annotation\Permission;
