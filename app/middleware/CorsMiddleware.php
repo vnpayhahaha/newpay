@@ -12,7 +12,6 @@ class CorsMiddleware implements MiddlewareInterface
     public function process(Request $request, callable $handler): Response
     {
         // 如果是options请求则返回一个空响应，否则继续向洋葱芯穿越，并得到一个响应
-        $response = $handler($request);
         // 设置基础跨域头
         $headers = [
             'Access-Control-Allow-Origin'      => '*',
@@ -29,6 +28,7 @@ class CorsMiddleware implements MiddlewareInterface
             ]));
             return $response;
         }
+        $response = $handler($request);
         Log::info('CorsMiddleware  process');
         // 非OPTIONS请求添加跨域头
         $response->withHeaders($headers);
