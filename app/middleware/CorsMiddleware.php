@@ -2,6 +2,7 @@
 
 namespace app\middleware;
 
+use support\Log;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
@@ -28,6 +29,7 @@ class CorsMiddleware implements MiddlewareInterface
             ]));
             return $response;
         }
+        Log::info('CorsMiddleware  process');
         // 非OPTIONS请求添加跨域头
         $response->withHeaders($headers);
         return $response;
