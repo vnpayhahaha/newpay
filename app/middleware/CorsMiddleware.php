@@ -6,7 +6,7 @@ use Webman\Http\Request;
 use Webman\Http\Response;
 use Webman\MiddlewareInterface;
 
-class CorsMiddleware  implements MiddlewareInterface
+class CorsMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, callable $handler): Response
     {
@@ -16,11 +16,11 @@ class CorsMiddleware  implements MiddlewareInterface
         // 设置跨域响应头
         $response->withHeaders([
             'Access-Control-Allow-Credentials' => 'true',// 如果需要携带cookie等凭证信息
-            'Access-Control-Allow-Origin' => '*', // 允许所有域名访问，生产环境应指定具体域名
-            'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-           // 'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, Token',
-           // 'Access-Control-Expose-Headers' => 'Authorization, Token',
-           // 'Access-Control-Max-Age' => 1728000, // 预检请求缓存时间(秒)
+            'Access-Control-Allow-Origin'      => '*', // 允许所有域名访问，生产环境应指定具体域名
+            'Access-Control-Allow-Methods'     => 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            'Access-Control-Allow-Headers'     => 'Content-Type, Authorization, X-Requested-With, Token',
+            'Access-Control-Expose-Headers'    => 'Authorization, Token',
+            'Access-Control-Max-Age'           => 1728000, // 预检请求缓存时间(秒)
         ]);
 
         return $response;
