@@ -3,6 +3,7 @@
 namespace app\exception\Handler;
 
 use app\lib\enum\ResultCode;
+use support\Context;
 use support\exception\Handler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
@@ -29,7 +30,18 @@ class AppExceptionHandle extends Handler
             'line'  => $e->getLine(),
             'trace' => $e->getTrace(),
         ] : null;
-        return new \support\Response(ResultCode::from($e->getCode()), $e->getMessage(), $data, $statusCode);
+        $request = Context::get(Request::class);
+        $resultData = [
+            'request_id' => $request->requestId,
+            'path'       => $request->path(),
+            'success'    => false,
+            'code'       => ResultCode::from($e->getCode()),
+            'message'    => $e->getMessage() ?? ResultCode::getMessage($e->getCode()),
+        ];
+        if ($data !== null) {
+            $resultData['data'] = $data;
+        }
+        return new \support\Response($statusCode, ['Content-Type' => 'application/json'], json_encode($resultData));
     }
 
     protected function renderOtherException(Request $request, Throwable $e): Response
@@ -45,17 +57,30 @@ class AppExceptionHandle extends Handler
         if (in_array($getCode, [500, 501, 502, 503, 400, 401, 403, 404, 405, 406, 408, 409, 422])) {
             $statusCode = $getCode;
         }
-        return match ($statusCode) {
-            400 => new \support\Response(ResultCode::BAD_REQUEST, $e->getMessage(), $data, $statusCode),
-            401 => new \support\Response(ResultCode::UNAUTHORIZED, $e->getMessage(), $data, $statusCode),
-            403 => new \support\Response(ResultCode::FORBIDDEN, $e->getMessage(), $data, $statusCode),
-            404 => new \support\Response(ResultCode::NOT_FOUND, $e->getMessage(), $data, $statusCode),
-            405 => new \support\Response(ResultCode::METHOD_NOT_ALLOWED, $e->getMessage(), $data, $statusCode),
-            406 => new \support\Response(ResultCode::NOT_ACCEPTABLE, $e->getMessage(), $data, $statusCode),
-            408 => new \support\Response(ResultCode::REQUEST_TIMEOUT, $e->getMessage(), $data, $statusCode),
-            409 => new \support\Response(ResultCode::CONFLICT, $e->getMessage(), $data, $statusCode),
-            422 => new \support\Response(ResultCode::UNPROCESSABLE_ENTITY, $e->getMessage(), $data, $statusCode),
-            default => new \support\Response(ResultCode::UNKNOWN, $e->getMessage(), $data, $statusCode),
+        $request = Context::get(Request::class);
+
+        $errorCode = match ($statusCode) {
+            400 => ResultCode::BAD_REQUEST,
+            401 => ResultCode::UNAUTHORIZED,
+            403 => ResultCode::FORBIDDEN,
+            404 => ResultCode::NOT_FOUND,
+            405 => ResultCode::METHOD_NOT_ALLOWED,
+            406 => ResultCode::NOT_ACCEPTABLE,
+            408 => ResultCode::REQUEST_TIMEOUT,
+            409 => ResultCode::CONFLICT,
+            422 => ResultCode::UNPROCESSABLE_ENTITY,
+            default => ResultCode::UNKNOWN,
         };
+        $resultData = [
+            'request_id' => $request->requestId,
+            'path'       => $request->path(),
+            'success'    => false,
+            'code'       => $errorCode,
+            'message'    => $e->getMessage() ?? ResultCode::getMessage($errorCode->value),
+        ];
+        if ($data !== null) {
+            $resultData['data'] = $data;
+        }
+        return new Response($statusCode, ['Content-Type' => 'application/json'], json_encode($resultData));
     }
 }
