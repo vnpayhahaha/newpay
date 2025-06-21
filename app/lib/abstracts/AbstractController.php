@@ -20,7 +20,7 @@ abstract class AbstractController
         return $this->json($code, $message, $data, $httpStatus);
     }
 
-    protected function json(ResultCode $code = ResultCode::SUCCESS, mixed $data = null, ?string $message = null, int $httpStatus = 200): Response
+    protected function json(ResultCode $code = ResultCode::SUCCESS, ?string $message = null, mixed $data = null, int $httpStatus = 200): Response
     {
         $request = Context::get(Request::class);
         $resultData = [
