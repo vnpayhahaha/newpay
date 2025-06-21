@@ -14,8 +14,6 @@
 
 namespace support;
 
-use app\lib\enum\ResultCode;
-use Webman\Http\Request;
 
 /**
  * Class Response
@@ -24,35 +22,4 @@ use Webman\Http\Request;
 class Response extends \Webman\Http\Response
 {
 
-    /**
-     * @template T
-     */
-    public function __construct(
-        public ResultCode|int $code = ResultCode::SUCCESS,
-        public ?string    $message = null,
-        public mixed      $data = null,
-        public int        $httpStatus = 200
-    )
-    {
-        if ($this->message === null) {
-            $this->message = ResultCode::getMessage($this->code->value);
-        }
-        parent::__construct($httpStatus, ['Content-Type' => 'application/json'], json_encode($this->toArray()));
-    }
-
-    public function toArray(): array
-    {
-        $request = Context::get(Request::class);
-        $result = [
-            'request_id' => $request->requestId,
-            'path'       => $request->path(),
-            'success'    => $this->code->value === ResultCode::SUCCESS->value,
-            'code'       => $this->code->value,
-            'message'    => $this->message,
-        ];
-        if ($this->data !== null) {
-            $result['data'] = $this->data;
-        }
-        return $result;
-    }
 }

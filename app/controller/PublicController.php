@@ -5,7 +5,6 @@ namespace app\controller;
 use app\lib\annotation\NoNeedLogin;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\RequestMapping;
-use app\router\Annotations\ResourceMapping;
 use app\router\Annotations\RestController;
 use support\Request;
 use support\Response;
