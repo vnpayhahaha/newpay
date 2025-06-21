@@ -23,9 +23,7 @@ class CorsMiddleware implements MiddlewareInterface
         // 处理OPTIONS预检请求
         if ($request->method() === 'OPTIONS') {
             $response = response('', 204);
-            $response->withHeaders(array_merge($headers, [
-                'Access-Control-Max-Age' => 1728000, // 20天缓存
-            ]));
+            $response->withHeaders($headers);
             return $response;
         }
         $response = $handler($request);
