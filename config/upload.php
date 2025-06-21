@@ -19,7 +19,7 @@ return [
         'local' => [
             'root'    => 'public',
             'dirname' => 'upload',
-            'domain'  => 'http://127.0.0.1:9501',
+            'domain'  => env('APP_DOMAIN', 'http://127.0.0.1:9501'),
         ],
         'oss'   => [
             'accessKeyId'     => '',
