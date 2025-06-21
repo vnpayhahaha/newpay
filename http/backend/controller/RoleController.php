@@ -7,7 +7,6 @@ use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
-use app\middleware\AccessTokenMiddleware;
 use app\model\ModelMenu;
 use app\router\Annotations\DeleteMapping;
 use app\router\Annotations\GetMapping;
