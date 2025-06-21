@@ -22,14 +22,13 @@ class CorsMiddleware implements MiddlewareInterface
         ];
         // 处理OPTIONS预检请求
         if ($request->method() === 'OPTIONS') {
-            $response = response('', 204);
-            $response->withHeaders($headers);
-            return $response;
+            return response('', 204)->withHeaders($headers); // 正确返回新对象
         }
+        // 处理响应时重新赋值对象
         $response = $handler($request);
-        Log::info('CorsMiddleware  process');
-        // 非OPTIONS请求添加跨域头
-        $response->withHeaders($headers);
+        $response = $response->withHeaders($headers); // 重新赋值修改后的响应
+
+        Log::info('CorsMiddleware process');
         return $response;
     }
 
