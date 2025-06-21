@@ -28,7 +28,7 @@ class Response extends \Webman\Http\Response
      * @template T
      */
     public function __construct(
-        public ResultCode $code = ResultCode::SUCCESS,
+        public ResultCode|int $code = ResultCode::SUCCESS,
         public ?string    $message = null,
         public mixed      $data = null,
         public int        $httpStatus = 200
