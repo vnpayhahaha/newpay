@@ -19,7 +19,7 @@ use Webman\Route;
 
 class AnnotationProvider
 {
-    public static function start()
+    public static function start(): void
     {
         $annotationClasses = self::scanFile();
 
