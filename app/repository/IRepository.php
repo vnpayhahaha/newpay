@@ -2,11 +2,10 @@
 
 namespace app\repository;
 
-use app\lib\abstracts\AbstractPaginator;
 use app\repository\Traits\BootTrait;
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * @template T of Model
@@ -35,6 +34,7 @@ abstract class IRepository
 
     public function perQuery(Builder $query, array $params): Builder
     {
+        $query = ($params['recycle'] ?? false) && $this->model->getDeletedAtColumn() ? $query->onlyTrashed() : $query;
         $this->startBoot($query, $params);
         return $this->handleSearch($query, $params);
     }
@@ -51,13 +51,10 @@ abstract class IRepository
 
     // Error: Class "Illuminate\Pagination\Paginator
 
+    #[ArrayShape(['list' => "mixed", 'total' => "int"])]
     public function handlePage(\Illuminate\Pagination\LengthAwarePaginator $paginator): array
     {
-        if ($paginator instanceof AbstractPaginator) {
-            $items = $paginator->getCollection();
-        } else {
-            $items = Collection::make($paginator->items());
-        }
+        $items = Collection::make($paginator->items());
         return [
             'list'  => $items->toArray(),
             'total' => $paginator->total(),
@@ -107,7 +104,7 @@ abstract class IRepository
 
     public function updateById(mixed $id, array $data): bool
     {
-        return (bool) $this->getQuery()->whereKey($id)->first()?->update($data);
+        return (bool)$this->getQuery()->whereKey($id)->first()?->update($data);
     }
 
     /**
@@ -120,6 +117,6 @@ abstract class IRepository
 
     public function existsById(mixed $id): bool
     {
-        return (bool) $this->getQuery()->whereKey($id)->exists();
+        return (bool)$this->getQuery()->whereKey($id)->exists();
     }
 }
