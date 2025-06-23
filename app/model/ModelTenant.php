@@ -2,8 +2,10 @@
 
 namespace app\model;
 
+use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use support\Db;
 use support\Model;
 
 /**
@@ -17,7 +19,7 @@ use support\Model;
  * @property string $intro 企业简介
  * @property string $domain 域名
  * @property int $account_count 用户数量（-1不限制）
- * @property int $is_enabled 启用状态(1正常 2停用)
+ * @property bool $is_enabled 启用状态(1正常 2停用)
  * @property int $created_by 创建管理员
  * @property Carbon $created_at 创建时间
  * @property Carbon $expired_at 过期时间
@@ -31,7 +33,7 @@ use support\Model;
 final class ModelTenant extends Model
 {
 
-    use SoftDeletes;
+    use CustomSoftDeletes;
 
     /**
      * The table associated with the model.
@@ -74,11 +76,42 @@ final class ModelTenant extends Model
     protected $casts = [
         'id'            => 'integer',
         'account_count' => 'integer',
-        'is_enabled'    => 'integer',
+        'is_enabled'    => 'boolean',
         'created_by'    => 'integer',
         'created_at'    => 'datetime',
         'updated_at'    => 'datetime',
         'expired_at'    => 'datetime',
         'deleted_at'    => 'datetime',
     ];
+
+    // tenant_id
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelTenant::creating(function (ModelTenant $model) {
+            var_dump('run  creating==');
+            if (empty($model->tenant_id)) {
+                // 获取当前最大ID
+                $maxId = Db::table($model->table)
+                    ->max(Db::raw('CAST(tenant_id AS UNSIGNED)'));
+
+                $nextId = $maxId + 1;
+                $model->tenant_id = str_pad($nextId, 6, '0', STR_PAD_LEFT);
+            }
+        });
+
+        ModelTenant::updating(function (ModelTenant $model) {
+            $model->updated_by = request()->user->id ?? 0;
+        });
+
+        ModelTenant::deleting(function (ModelTenant $model) {
+            if ($model->isForceDeleting()) {
+                return; // 硬删除不记录
+            }
+            // 从请求或上下文获取删除者ID（示例）
+            $deletedBy = request()->user->id ?? 0;
+            $model->deleted_by = $deletedBy;
+        });
+    }
 }

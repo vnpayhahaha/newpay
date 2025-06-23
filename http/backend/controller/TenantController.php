@@ -42,10 +42,11 @@ class TenantController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
+            'company_name'      => 'required|string|max:200',
             'contact_user_name' => 'required|string|max:20',
             'contact_phone'     => 'required|string|max:20',
             'account_count'     => ['required', 'integer', 'between:-1,99'],
-            'is_enabled'        => ['required', 'integer', 'between:1,2'],
+            'is_enabled'        => ['required', 'boolean'],
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
         if ($validator->fails()) {
@@ -69,9 +70,9 @@ class TenantController extends BasicController
         $validator = validate($request->all(), [
             'contact_user_name' => 'required|string|max:20',
             'contact_phone'     => 'required|string|max:20',
-            'company_name'      => 'string|max:30',
+            'company_name'      => 'required|string|max:200',
             'account_count'     => 'required|integer|between:-1,99',
-            'is_enabled'        => ['required', 'integer', 'between:1,2'],
+            'is_enabled'        => ['required', 'boolean'],
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
         if ($validator->fails()) {
