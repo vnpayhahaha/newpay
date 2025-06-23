@@ -84,8 +84,6 @@ final class ModelTenant extends Model
         'deleted_at'    => 'datetime',
     ];
 
-    // tenant_id
-
     public static function boot()
     {
         parent::boot();

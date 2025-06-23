@@ -2,8 +2,8 @@
 
 namespace app\model;
 
+use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
 /**
@@ -12,7 +12,7 @@ use support\Model;
 * @property string $app_name 应用名称
 * @property string $app_key 应用ID
 * @property string $app_secret 应用密钥
-* @property int $status 状态 (1正常 2停用)
+* @property boolean $status 状态 (1正常 2停用)
 * @property string $description 应用介绍
 * @property int $created_by 创建者
 * @property Carbon $created_at 创建时间
@@ -24,7 +24,7 @@ use support\Model;
 */
 final class ModelTenantApp extends Model
 {
-    use SoftDeletes;
+    use CustomSoftDeletes;
 
     /**
      * The table associated with the model.
@@ -57,4 +57,32 @@ final class ModelTenantApp extends Model
         'deleted_at',
         'remark'
     ];
+
+    protected $casts = [
+        'status' => 'boolean',
+        'created_by' => 'integer',
+        'updated_by' => 'integer',
+        'deleted_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        ModelTenantApp::updating(function (ModelTenantApp $model) {
+            $model->updated_by = request()->user->id ?? 0;
+        });
+
+        ModelTenantApp::deleting(function (ModelTenantApp $model) {
+            if ($model->isForceDeleting()) {
+                return; // 硬删除不记录
+            }
+            // 从请求或上下文获取删除者ID（示例）
+            $deletedBy = request()->user->id ?? 0;
+            $model->deleted_by = $deletedBy;
+        });
+    }
 }
