@@ -4,7 +4,6 @@ namespace app\model;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use support\Model;
 
 /**
  * @property int $id 主键
@@ -21,7 +20,7 @@ use support\Model;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-final class ModelSettingConfig extends Model
+final class ModelSettingConfig extends BasicModel
 {
     /**
      * The table associated with the model.

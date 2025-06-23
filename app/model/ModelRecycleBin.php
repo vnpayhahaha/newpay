@@ -4,7 +4,6 @@ namespace app\model;
 
 use app\model\enums\RecycleBinEnabled;
 use Carbon\Carbon;
-use support\Model;
 
 /**
  * @property int $id 主键 ID
@@ -18,7 +17,7 @@ use support\Model;
  * @property Carbon $created_at 创建时间
  * @property Carbon $updated_at 更新时间
  */
-final class ModelRecycleBin extends Model
+final class ModelRecycleBin extends BasicModel
 {
     /**
      * The table associated with the model.

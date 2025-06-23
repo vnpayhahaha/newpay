@@ -3,7 +3,6 @@
 namespace app\model;
 
 use Carbon\Carbon;
-use support\Model;
 
 /**
 * @property int $id 主键
@@ -17,7 +16,7 @@ use support\Model;
 * @property Carbon $created_at
 * @property Carbon $updated_at
 */
-final class ModelRules extends Model
+final class ModelRules extends BasicModel
 {
     /**
      * The table associated with the model.

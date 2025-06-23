@@ -2,14 +2,12 @@
 
 namespace app\model;
 
-use app\constants\Menu;
 use app\model\casts\MetaCast;
 use app\model\enums\MenuStatus;
 use app\model\fieldExpansion\ModelMenuMeta;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
-use support\Model;
 
 /**
  * @property int $id 主键
@@ -29,7 +27,7 @@ use support\Model;
  * @property Collection|ModelRole[] $roles
  * @property Collection|ModelMenu[] $children 字段
  */
-final class ModelMenu extends Model
+final class ModelMenu extends BasicModel
 {
     /**
      * The table associated with the model.

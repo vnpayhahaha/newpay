@@ -4,7 +4,6 @@ namespace app\model;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use support\Model;
 
 /**
  * @property int $user_id 主键 用户ID
@@ -28,7 +27,7 @@ use support\Model;
  * @property string $ip_whitelist IP白名单
  * @property string $remark 备注
  */
-final class ModelTenantUser extends Model
+final class ModelTenantUser extends BasicModel
 {
     use SoftDeletes;
 

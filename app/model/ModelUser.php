@@ -11,7 +11,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
-use support\Model;
 
 /**
  * @property int $id 用户ID，主键
@@ -38,7 +37,7 @@ use support\Model;
  * @property Collection|ModelDepartment[] $dept_leader 部门领导
  * @property Collection|ModelPosition[] $position 岗位
  */
-final class ModelUser extends Model implements AuthorizationUserInterface
+final class ModelUser extends BasicModel implements AuthorizationUserInterface
 {
     /**
      * The table associated with the model.

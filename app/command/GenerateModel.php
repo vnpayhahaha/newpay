@@ -116,10 +116,8 @@ class GenerateModel extends Command
 
 namespace app\model;
 
-use support\Model;
-
 $annotations
-final class Model$modelName extends Model
+final class Model$modelName extends BasicModel
 {
     /**
      * The table associated with the model.

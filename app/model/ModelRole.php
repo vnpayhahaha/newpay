@@ -6,7 +6,6 @@ use app\model\enums\RoleStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
-use support\Model;
 
 /**
  * @property int $id 主键
@@ -23,7 +22,7 @@ use support\Model;
  * @property Collection|ModelMenu[] $menus
  * @property Collection|ModelUser[] $users
  */
-final class ModelRole extends Model
+final class ModelRole extends BasicModel
 {
     /**
      * The table associated with the model.

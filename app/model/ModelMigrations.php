@@ -2,14 +2,12 @@
 
 namespace app\model;
 
-use support\Model;
-
 /**
 * @property int $id 主键
 * @property string $migration
 * @property int $batch
 */
-final class ModelMigrations extends Model
+final class ModelMigrations extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -22,7 +20,7 @@ final class ModelMigrations extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array

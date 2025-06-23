@@ -3,7 +3,6 @@
 namespace app\model;
 
 use Carbon\Carbon;
-use support\Model;
 
 /**
  * @property int $id 主键
@@ -24,7 +23,7 @@ use support\Model;
  * @property Carbon $updated_at 更新时间
  * @property string $remark 备注
  */
-final class ModelAttachment extends Model
+final class ModelAttachment extends BasicModel
 {
     /**
      * The table associated with the model.

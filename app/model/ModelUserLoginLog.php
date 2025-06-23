@@ -3,7 +3,6 @@
 namespace app\model;
 
 use Carbon\Carbon;
-use support\Model;
 
 /**
  * @property int $id 主键
@@ -16,7 +15,7 @@ use support\Model;
  * @property Carbon $login_time 登录时间
  * @property string $remark 备注
  */
-class ModelUserLoginLog extends Model
+class ModelUserLoginLog extends BasicModel
 {
     /**
      * The table associated with the model.

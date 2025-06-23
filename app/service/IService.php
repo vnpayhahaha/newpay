@@ -64,4 +64,37 @@ abstract class IService
     {
         return $this->repository->existsById($id);
     }
+
+    /**
+     * 单个或批量真实删除数据.
+     */
+    public function realDelete(array $ids): bool
+    {
+        return ! empty($ids) && $this->repository->realDelete($ids);
+    }
+
+    /**
+     * 单个或批量从回收站恢复数据.
+     */
+    public function recovery(array $ids): bool
+    {
+        return ! empty($ids) && $this->repository->recovery($ids);
+    }
+
+    /**
+     * 单个或批量禁用数据.
+     */
+    public function disable(array $ids, string $field = 'status'): bool
+    {
+        return ! empty($ids) && $this->repository->disable($ids, $field);
+    }
+
+    /**
+     * 单个或批量启用数据.
+     */
+    public function enable(array $ids, string $field = 'status'): bool
+    {
+        return ! empty($ids) && $this->repository->enable($ids, $field);
+    }
+
 }

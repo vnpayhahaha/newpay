@@ -4,7 +4,6 @@ namespace app\model;
 
 use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
-use support\Model;
 
 /**
 * @property int $id 主键 主键
@@ -22,7 +21,7 @@ use support\Model;
 * @property Carbon $deleted_at 删除时间
 * @property string $remark 备注
 */
-final class ModelTenantApp extends Model
+final class ModelTenantApp extends BasicModel
 {
     use CustomSoftDeletes;
 

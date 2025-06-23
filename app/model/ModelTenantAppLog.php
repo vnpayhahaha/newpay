@@ -2,8 +2,6 @@
 
 namespace app\model;
 
-use support\Model;
-
 /**
 * @property int $id 主键 主键
 * @property string $tenant_id 租户编号
@@ -20,7 +18,7 @@ use support\Model;
 * @property \Carbon\Carbon $access_time 访问时间
 * @property string $remark 备注
 */
-final class ModelTenantAppLog extends Model
+final class ModelTenantAppLog extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -33,7 +31,7 @@ final class ModelTenantAppLog extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array

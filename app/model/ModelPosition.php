@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
-use support\Model;
 
 /**
  * @property int $id
@@ -21,7 +20,7 @@ use support\Model;
  * @property Collection<int,ModelUser>|ModelUser[] $users
  * @property ModelPolicy $policy
  */
-class ModelPosition extends Model
+class ModelPosition extends BasicModel
 {
     use SoftDeletes;
 

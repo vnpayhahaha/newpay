@@ -2,8 +2,6 @@
 
 namespace app\model;
 
-use support\Model;
-
 /**
 * @property int $id 主键
 * @property int $user_id 用户ID（与角色二选一）
@@ -15,7 +13,7 @@ use support\Model;
 * @property \Carbon\Carbon $updated_at
 * @property \Carbon\Carbon $deleted_at
 */
-final class ModelDataPermissionPolicy extends Model
+final class ModelDataPermissionPolicy extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -28,7 +26,7 @@ final class ModelDataPermissionPolicy extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array

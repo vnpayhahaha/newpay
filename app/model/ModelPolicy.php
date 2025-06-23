@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
-use support\Model;
 
 /**
  * @property int $id
@@ -21,7 +20,7 @@ use support\Model;
  * @property Collection<int,ModelPosition>|ModelPosition[] $positions
  * @property Collection<int,ModelUser>|ModelUser[] $users
  */
-class ModelPolicy extends Model
+class ModelPolicy extends BasicModel
 {
     use SoftDeletes;
 

@@ -35,6 +35,18 @@ abstract class IRepository
     public function perQuery(Builder $query, array $params): Builder
     {
         $query = ($params['recycle'] ?? false) && $this->model->getDeletedAtColumn() ? $query->onlyTrashed() : $query;
+        if ($params['select'] ?? false) {
+            $query->select($query->select($params['select']));
+        }
+        if ($params['orderBy'] ?? false) {
+            if (is_array($params['orderBy'])) {
+                foreach ($params['orderBy'] as $key => $order) {
+                    $query->orderBy($order, $params['orderType'][$key] ?? 'asc');
+                }
+            } else {
+                $query->orderBy($params['orderBy'], $params['orderType'] ?? 'asc');
+            }
+        }
         $this->startBoot($query, $params);
         return $this->handleSearch($query, $params);
     }
@@ -118,5 +130,52 @@ abstract class IRepository
     public function existsById(mixed $id): bool
     {
         return (bool)$this->getQuery()->whereKey($id)->exists();
+    }
+
+
+    /**
+     * 单个或批量真实删除数据.
+     */
+    public function realDelete(array $ids): bool
+    {
+        foreach ($ids as $id) {
+            $model = $this->model::withTrashed()->find($id);
+            $model && $model->forceDelete();
+        }
+        return true;
+    }
+
+    /**
+     * 单个或批量从回收站恢复数据.
+     */
+    public function recovery(array $ids): bool
+    {
+        foreach ($ids as $id) {
+            $model = $this->model::withTrashed()->find($id);
+            $model && $model->restore();
+        }
+        return true;
+    }
+
+    /**
+     * 单个或批量禁用数据.
+     */
+    public function disable(array $ids, string $field = 'status'): bool
+    {
+        foreach ($ids as $id) {
+            $this->model::query()->where((new $this->model)->getKeyName(), $id)->update([$field => $this->model::DISABLE]);
+        }
+        return true;
+    }
+
+    /**
+     * 单个或批量启用数据.
+     */
+    public function enable(array $ids, string $field = 'status'): bool
+    {
+        foreach ($ids as $id) {
+            $this->model::query()->where((new $this->model)->getKeyName(), $id)->update([$field => $this->model::ENABLE]);
+        }
+        return true;
     }
 }

@@ -5,7 +5,6 @@ namespace app\model;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use support\Model;
 
 /**
  * @property int $user_id 用户ID
@@ -16,7 +15,7 @@ use support\Model;
  * @property null|ModelDepartment $department
  * @property null|ModelUser $user
  */
-class ModelDeptLeader extends Model
+class ModelDeptLeader extends BasicModel
 {
     use SoftDeletes;
 

@@ -4,7 +4,6 @@ namespace app\model;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use support\Model;
 
 /**
  * @property int $id 主键 主键
@@ -17,7 +16,7 @@ use support\Model;
  * @property Carbon $updated_at
  * @property string $remark 备注
  */
-final class ModelSettingConfigGroup extends Model
+final class ModelSettingConfigGroup extends BasicModel
 {
     /**
      * The table associated with the model.

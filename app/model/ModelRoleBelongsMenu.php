@@ -2,8 +2,6 @@
 
 namespace app\model;
 
-use support\Model;
-
 /**
 * @property int $id 主键
 * @property int $role_id 角色id
@@ -11,7 +9,7 @@ use support\Model;
 * @property \Carbon\Carbon $created_at
 * @property \Carbon\Carbon $updated_at
 */
-final class ModelRoleBelongsMenu extends Model
+final class ModelRoleBelongsMenu extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -24,7 +22,7 @@ final class ModelRoleBelongsMenu extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array

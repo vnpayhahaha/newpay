@@ -4,7 +4,6 @@ namespace app\model;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use support\Model;
 
 /**
 * @property int $user_id
@@ -13,7 +12,7 @@ use support\Model;
 * @property Carbon $updated_at
 * @property Carbon $deleted_at
 */
-final class ModelUserPosition extends Model
+final class ModelUserPosition extends BasicModel
 {
     use SoftDeletes;
 

@@ -3,7 +3,6 @@
 namespace app\model;
 
 use Carbon\Carbon;
-use support\Model;
 
 /**
  * @property int $id
@@ -23,7 +22,7 @@ use support\Model;
  * @property string $request_id uuid请求ID
  * @property int $request_duration 请求耗时(毫秒)
  */
-class ModelUserOperationLog extends Model
+class ModelUserOperationLog extends BasicModel
 {
     /**
      * The table associated with the model.
