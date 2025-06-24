@@ -226,4 +226,23 @@ class UserController extends BasicController
         $this->userService->batchGrantRoleForUser($userId, $validatedData['role_codes']);
         return $this->success();
     }
+
+    // remote
+    #[GetMapping('/userDict/remote')]
+    public function remote(Request $request): Response
+    {
+        $fields = [
+            'id',
+            'username',
+            'user_type',
+            'nickname',
+            'status',
+            'login_ip',
+            'login_time',
+        ];
+        return $this->success(
+            $this->userService->getList([])->map(static fn($user) => $user->only($fields))
+        );
+    }
+
 }
