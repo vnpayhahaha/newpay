@@ -51,7 +51,7 @@ class PublicController extends BasicController
     // 查询所有枚举状态
     #[RequestMapping(path: '/selectAllOptionField', methods: 'get,post')]
     #[NoNeedLogin]
-    public function selectAllOption(Request $request): Response
+    public function selectAllOptionField(Request $request): Response
     {
         $configData = config('constants', []);
         $constantsMap = [];
