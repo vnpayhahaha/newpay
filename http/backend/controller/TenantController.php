@@ -45,23 +45,6 @@ class TenantController extends BasicController
         return $this->service->realDelete((array)$request->input('ids', [])) ? $this->success() : $this->error();
     }
 
-    // 回收站列表
-    #[GetMapping('/tenant/recycle')]
-    #[Permission(code: 'tenant:tenant:recycle')]
-    #[OperationLog('租户回收站列表')]
-    public function recycle(Request $request): Response
-    {
-        $params = $request->all();
-        $params['recycle'] = true;
-        return $this->success(
-            data: $this->service->page(
-                $params,
-                $this->getCurrentPage(),
-                $this->getPageSize(),
-            )
-        );
-    }
-
     // 单个或批量恢复在回收站的数据
     #[PutMapping('/tenant/recovery')]
     #[Permission('system:tenant:recovery')]
