@@ -122,7 +122,7 @@ class RoleController extends BasicController
     }
 
     // 获取角色权限列表
-    #[GetMapping('/role/{id}/permission')]
+    #[GetMapping('/role/{id}/permissions')]
     #[Permission(code: 'permission:role:getMenu')]
     #[OperationLog('获取角色权限列表')]
     public function permissionListForRole(int $id): Response
@@ -133,7 +133,7 @@ class RoleController extends BasicController
     }
 
     // 赋予角色权限
-    #[PutMapping('/role/{id}/permission')]
+    #[PutMapping('/role/{id}/permissions')]
     #[Permission(code: 'permission:role:setMenu')]
     #[OperationLog('赋予角色权限')]
     public function batchGrantPermissionsForRole(Request $request, int $id): Response
@@ -143,7 +143,10 @@ class RoleController extends BasicController
         }
         $validator = validate($request->all(), [
             'permissions'   => 'sometimes|array',
-            'permissions.*' => 'string|exists:menu,name',
+            'permissions.*' => [
+                'string',
+                'regex:/^[a-zA-Z_:]+$/',
+            ],
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
