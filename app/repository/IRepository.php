@@ -34,7 +34,8 @@ abstract class IRepository
 
     public function perQuery(Builder $query, array $params): Builder
     {
-        $query = ($params['recycle'] ?? false) && $this->model->getDeletedAtColumn() ? $query->onlyTrashed() : $query;
+        $recycle = isset($params['recycle']) && filter_var($params['recycle'], FILTER_VALIDATE_BOOL);
+        $query = $recycle && $this->model->getDeletedAtColumn() ? $query->onlyTrashed() : $query;
         if ($params['select'] ?? false) {
             $query->select($query->select($params['select']));
         }

@@ -36,6 +36,41 @@ class TenantController extends BasicController
         );
     }
 
+    // 单个或批量真实删除数据 （清空回收站）
+    #[DeleteMapping('/tenant/realDelete')]
+    #[Permission(code: 'tenant:tenant:realDelete')]
+    #[OperationLog('清空回收站')]
+    public function realDelete(Request $request): Response
+    {
+        return $this->service->realDelete((array)$request->input('ids', [])) ? $this->success() : $this->error();
+    }
+
+    // 回收站列表
+    #[GetMapping('/tenant/recycle')]
+    #[Permission(code: 'tenant:tenant:recycle')]
+    #[OperationLog('租户回收站列表')]
+    public function recycle(Request $request): Response
+    {
+        $params = $request->all();
+        $params['recycle'] = true;
+        return $this->success(
+            data: $this->service->page(
+                $params,
+                $this->getCurrentPage(),
+                $this->getPageSize(),
+            )
+        );
+    }
+
+    // 单个或批量恢复在回收站的数据
+    #[PutMapping('/tenant/recovery')]
+    #[Permission('system:tenant:recovery')]
+    #[OperationLog('租户回收站恢复')]
+    public function recovery(Request $request): Response
+    {
+        return $this->service->recovery((array)$request->input('ids', [])) ? $this->success() : $this->error();
+    }
+
     #[PostMapping('/tenant')]
     #[Permission(code: 'tenant:tenant:create')]
     #[OperationLog('创建租户')]
