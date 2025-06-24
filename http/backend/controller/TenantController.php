@@ -42,12 +42,12 @@ class TenantController extends BasicController
     #[OperationLog('清空回收站')]
     public function realDelete(Request $request): Response
     {
-        return $this->service->realDelete((array)$request->input('ids', [])) ? $this->success() : $this->error();
+        return $this->service->realDelete((array)$request->all()) ? $this->success() : $this->error();
     }
 
     // 单个或批量恢复在回收站的数据
     #[PutMapping('/tenant/recovery')]
-    #[Permission('system:tenant:recovery')]
+    #[Permission(code: 'tenant:tenant:recovery')]
     #[OperationLog('租户回收站恢复')]
     public function recovery(Request $request): Response
     {
