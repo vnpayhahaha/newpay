@@ -116,4 +116,20 @@ class TenantController extends BasicController
         return $this->success();
     }
 
+    #[GetMapping('/tenantDict/remote')]
+    public function remote(Request $request): Response
+    {
+        $fields = [
+            'id',
+            'tenant_id',
+            'contact_user_name',
+            'is_enabled',
+            'created_by',
+            'expired_at',
+        ];
+        return $this->success(
+            $this->service->getList([])->map(static fn($user) => $user->only($fields))
+        );
+    }
+
 }
