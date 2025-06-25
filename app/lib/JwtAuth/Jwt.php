@@ -2,7 +2,7 @@
 
 namespace app\lib\JwtAuth;
 
-use app\lib\enum\ResultCode;
+
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use DateTimeImmutable;
@@ -46,7 +46,7 @@ class Jwt
         $this->init();
     }
 
-    protected function init()
+    protected function init(): void
     {
         $this->initJwtConfiguration();
     }
@@ -56,7 +56,7 @@ class Jwt
      *
      * @return void
      */
-    protected function initJwtConfiguration()
+    protected function initJwtConfiguration(): void
     {
         $this->jwtConfiguration = Configuration::forSymmetricSigner(
             $this->config->getSigner(),
@@ -168,13 +168,15 @@ class Jwt
 
         if (Utils::isPast($claims->get('exp')->getTimestamp(), $leeway)) {
             if ($this->config->getAutoRefresh()) {
-                if (Utils::isPast($claims->get('iat')->getTimestamp() + $this->config->getRefreshTTL(), $leeway)) {
-                    $this->automaticRenewalToken();
+
+                if (!Utils::isPast($claims->get('iat')->getTimestamp() + $this->config->getRefreshTTL(), $leeway)) {
+                   $this->automaticRenewalToken();
                 } else {
                     throw new TokenRefreshExpiredException('The token is refresh expired', 402);
                 }
+            } else {
+                throw new TokenExpiredException('The token is expired.', 401);
             }
-            throw new TokenExpiredException('The token is expired.', 401);
         }
 
         return $this->claimsToArray($claims->all());
@@ -236,7 +238,7 @@ class Jwt
         $refreshAt = $this->config->getRefreshTTL();
 
         $this->token = $token;
-        return (new Response(ResultCode::SUCCESS))->withHeaders([
+        return response()->withHeaders([
             'Access-Control-Expose-Headers'     => 'Automatic-Renewal-Token,Automatic-Renewal-Token-RefreshAt',
             'Automatic-Renewal-Token'           => $token->toString(),
             'Automatic-Renewal-Token-RefreshAt' => $refreshAt

@@ -42,7 +42,6 @@ class PassportController extends BasicController
         $os = $request->os();
         $result = $this->passportService->login(
             $username,
-
             $password,
             UserType::SYSTEM,
             $request->getRealIp(false),
