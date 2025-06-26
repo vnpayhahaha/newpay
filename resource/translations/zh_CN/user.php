@@ -19,7 +19,7 @@ return [
     'avatar'                => '用户头像',
     'signed'                => '个人签名',
     'dashboard'             => '后台首页类型',
-    'status'                => '状态 (1正常 2停用)',
+    'status'                => '状态',
     'login_ip'              => '最后登陆IP',
     'login_time'            => '最后登陆时间',
     'backend_setting'       => '后台设置数据',

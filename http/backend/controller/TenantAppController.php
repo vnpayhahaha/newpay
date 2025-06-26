@@ -61,10 +61,11 @@ class TenantAppController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'app_name'  => 'required|string|max:32',
-            'remark'    => 'string|max:255',
-            'tenant_id' => 'required|string|max:20',
-            'status'    => ['required', 'boolean'],
+            'app_name'    => 'required|string|max:32',
+            'remark'      => 'string|max:255',
+            'tenant_id'   => 'required|string|max:20',
+            'status'      => ['required', 'boolean'],
+            'description' => 'string|max:255'
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -89,6 +90,7 @@ class TenantAppController extends BasicController
             'remark'    => 'string|max:255',
             'tenant_id' => 'required|string|max:20',
             'status'    => ['required', 'boolean'],
+            'description' => 'string|max:255'
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
