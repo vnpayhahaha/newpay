@@ -24,7 +24,7 @@ class TenantUserController extends BasicController
     protected TenantUserService $service;
 
     #[GetMapping('/tenant_user/list')]
-    #[Permission(code: 'tenant:tenant_user:list')]
+    #[Permission(code: 'tenant:tenantUser:list')]
     #[OperationLog('租户成员列表')]
     public function pageList(Request $request): Response
     {
@@ -37,8 +37,26 @@ class TenantUserController extends BasicController
         );
     }
 
+    // 单个或批量真实删除数据 （清空回收站）
+    #[DeleteMapping('/tenant_user/real_delete')]
+    #[Permission(code: 'tenant:tenantUser:realDelete')]
+    #[OperationLog('清空回收站')]
+    public function realDelete(Request $request): Response
+    {
+        return $this->service->realDelete((array)$request->all()) ? $this->success() : $this->error();
+    }
+
+    // 单个或批量恢复在回收站的数据
+    #[PutMapping('/tenant_user/recovery')]
+    #[Permission(code: 'tenant:tenantUser:recovery')]
+    #[OperationLog('租户回收站恢复')]
+    public function recovery(Request $request): Response
+    {
+        return $this->service->recovery((array)$request->input('ids', [])) ? $this->success() : $this->error();
+    }
+
     #[PostMapping('/tenant_user')]
-    #[Permission(code: 'tenant:tenant_user:create')]
+    #[Permission(code: 'tenant:tenantUser:create')]
     #[OperationLog('添加租户成员')]
     public function create(Request $request): Response
     {
@@ -63,7 +81,7 @@ class TenantUserController extends BasicController
     }
 
     #[PutMapping('/tenant_user/password')]
-    #[Permission(code: 'tenant:tenant_user:update')]
+    #[Permission(code: 'tenant:tenantUser:update')]
     #[OperationLog('重置租户成员密码')]
     public function password(Request $request): Response
     {
@@ -80,7 +98,7 @@ class TenantUserController extends BasicController
     }
 
     #[PutMapping('/tenant_user/{id}')]
-    #[Permission(code: 'tenant:tenant_user:update')]
+    #[Permission(code: 'tenant:tenantUser:update')]
     #[OperationLog('编辑租户成员')]
     public function update(Request $request, int $id): Response
     {
@@ -105,7 +123,7 @@ class TenantUserController extends BasicController
     }
 
     #[DeleteMapping('/tenant_user')]
-    #[Permission(code: 'tenant:tenant_user:delete')]
+    #[Permission(code: 'tenant:tenantUser:delete')]
     #[OperationLog('删除租户成员')]
     public function delete(Request $request): Response
     {

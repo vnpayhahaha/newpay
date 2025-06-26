@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon $last_login_time 最后登陆时间
  * @property int $status 状态(1正常 2停用)
  * @property int $is_enabled_google google验证(1正常 2停用)
- * @property string $google_secret_key Google验证密钥
+ * @property string $google_secret Google验证密钥
  * @property int $is_bind_google 是否已绑定Google验证(1yes 2no)
  * @property int $created_by 创建者
  * @property Carbon $created_at 创建时间
@@ -58,7 +58,7 @@ final class ModelTenantUser extends BasicModel
         'last_login_time',
         'status',
         'is_enabled_google',
-        'google_secret_key',
+        'google_secret',
         'is_bind_google',
         'created_by',
         'created_at',

@@ -15,4 +15,5 @@ class TenantApp
         self::STATUS_NORMAL  => 'tenant_app.enums.status.1',
         self::STATUS_DISABLE => 'tenant_app.enums.status.2',
     ];
+
 }
