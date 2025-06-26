@@ -117,7 +117,7 @@ class TenantController extends BasicController
         return $this->success();
     }
 
-    #[GetMapping('/tenantDict/remote')]
+    #[GetMapping('/tenant_dict/remote')]
     public function remote(Request $request): Response
     {
         $fields = [
