@@ -88,7 +88,7 @@ class TenantAppController extends BasicController
             'app_name'  => 'required|string|max:32',
             'remark'    => 'string|max:255',
             'tenant_id' => 'required|string|max:20',
-            'status'    => ['required', 'integer', 'between:1,2'],
+            'status'    => ['required', 'boolean'],
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
