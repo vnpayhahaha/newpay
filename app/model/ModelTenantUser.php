@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $avatar 头像
  * @property string $last_login_ip 最后登陆IP
  * @property Carbon $last_login_time 最后登陆时间
- * @property int $status 状态(1正常 2停用)
- * @property int $is_enabled_google google验证(1正常 2停用)
+ * @property boolean $status 状态(1正常 2停用)
+ * @property boolean $is_enabled_google google验证(1正常 2停用)
  * @property string $google_secret Google验证密钥
- * @property int $is_bind_google 是否已绑定Google验证(1yes 2no)
+ * @property boolean $is_bind_google 是否已绑定Google验证(1yes 2no)
  * @property int $created_by 创建者
  * @property Carbon $created_at 创建时间
  * @property int $updated_by 更新者
@@ -73,9 +73,9 @@ final class ModelTenantUser extends BasicModel
     protected $casts = [
         'user_id'           => 'integer',
         'last_login_time'   => 'datetime',
-        'status'            => 'integer',
-        'is_enabled_google' => 'integer',
-        'is_bind_google'    => 'integer',
+        'status'            => 'boolean',
+        'is_enabled_google' => 'boolean',
+        'is_bind_google'    => 'boolean',
         'created_by'        => 'integer',
         'created_at'        => 'datetime',
         'updated_by'        => 'integer',
