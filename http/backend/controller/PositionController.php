@@ -3,6 +3,7 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
@@ -58,7 +59,7 @@ class PositionController extends BasicController
         ]);
 
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->batchDataPermission($id, $validatedData);
@@ -87,7 +88,7 @@ class PositionController extends BasicController
             'dept_id' => 'required|integer|exists:department,id',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->create(array_merge(
@@ -119,7 +120,7 @@ class PositionController extends BasicController
             ]
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->updateById($id, array_merge(

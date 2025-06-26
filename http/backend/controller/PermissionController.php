@@ -4,6 +4,7 @@ namespace http\backend\controller;
 
 use app\controller\BasicController;
 use app\exception\BusinessException;
+use app\exception\UnprocessableEntityException;
 use app\lib\enum\ResultCode;
 use app\model\enums\MenuStatus;
 use app\model\enums\RoleStatus;
@@ -84,13 +85,13 @@ class PermissionController extends BasicController
             'backend_setting'           => 'sometimes|array',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $user = $request->user;
         if (Arr::exists($validatedData, 'new_password')) {
             if (!$user->verifyPassword(Arr::get($validatedData, 'old_password'))) {
-                throw new BusinessException(ResultCode::UNPROCESSABLE_ENTITY, trans('old_password_error', [], 'user'));
+                throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, trans('old_password_error', [], 'user'));
             }
             $validatedData['password'] = $validatedData['new_password'];
         }

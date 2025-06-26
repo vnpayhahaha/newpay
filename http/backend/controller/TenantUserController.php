@@ -3,6 +3,7 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
@@ -49,7 +50,7 @@ class TenantUserController extends BasicController
             'is_enabled_google' => ['required', 'integer', 'between:1,2'],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->create(array_merge(
@@ -70,7 +71,7 @@ class TenantUserController extends BasicController
             'id' => 'required|integer|between:1,4294967295',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         return $this->service->resetPassword($validatedData['id'])
@@ -91,7 +92,7 @@ class TenantUserController extends BasicController
             'is_enabled_google' => ['required', 'integer', 'between:1,2'],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->updateById($id, array_merge(

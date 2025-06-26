@@ -66,7 +66,7 @@ class RoleController extends BasicController
         ]);
 
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->create(array_merge(
@@ -99,7 +99,7 @@ class RoleController extends BasicController
             ]
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->updateById($id, array_merge(
@@ -149,7 +149,7 @@ class RoleController extends BasicController
             ],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $permissionsCode = Arr::get($validatedData, 'permissions', []);

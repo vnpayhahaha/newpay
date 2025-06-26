@@ -3,6 +3,7 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
@@ -37,7 +38,7 @@ class TenantController extends BasicController
     }
 
     // 单个或批量真实删除数据 （清空回收站）
-    #[DeleteMapping('/tenant/realDelete')]
+    #[DeleteMapping('/tenant/real_delete')]
     #[Permission(code: 'tenant:tenant:realDelete')]
     #[OperationLog('清空回收站')]
     public function realDelete(Request $request): Response
@@ -68,7 +69,7 @@ class TenantController extends BasicController
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->create(array_merge(
@@ -94,7 +95,7 @@ class TenantController extends BasicController
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->service->updateById($id, array_merge(
@@ -128,7 +129,7 @@ class TenantController extends BasicController
             'expired_at',
         ];
         return $this->success(
-            $this->service->getList([])->map(static fn($user) => $user->only($fields))
+            $this->service->getList([])->map(static fn($model) => $model->only($fields))
         );
     }
 

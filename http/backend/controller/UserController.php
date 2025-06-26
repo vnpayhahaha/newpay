@@ -3,6 +3,7 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
@@ -92,7 +93,7 @@ class UserController extends BasicController
             ],
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->userService->updateById($request->user->id, Arr::except($validatedData, ['password']));
@@ -114,7 +115,7 @@ class UserController extends BasicController
             'id' => 'required|integer|between:1,4294967295',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         return $this->userService->resetPassword($validatedData['id'])
@@ -139,7 +140,7 @@ class UserController extends BasicController
             'avatar'                => 'sometimes|string|max:255|url',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->userService->create(array_merge(
@@ -166,7 +167,7 @@ class UserController extends BasicController
             'avatar'    => 'sometimes|string|max:255|url',
         ]);
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->userService->updateById($userId, array_merge(
@@ -220,7 +221,7 @@ class UserController extends BasicController
         ]);
 
         if ($validator->fails()) {
-            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
         $this->userService->batchGrantRoleForUser($userId, $validatedData['role_codes']);

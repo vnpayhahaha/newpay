@@ -4,23 +4,24 @@ namespace app\model;
 
 use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 /**
-* @property int $id 主键 主键
-* @property string $tenant_id 租户编号
-* @property string $app_name 应用名称
-* @property string $app_key 应用ID
-* @property string $app_secret 应用密钥
-* @property boolean $status 状态 (1正常 2停用)
-* @property string $description 应用介绍
-* @property int $created_by 创建者
-* @property Carbon $created_at 创建时间
-* @property int $updated_by 更新者
-* @property Carbon $updated_at 更新时间
-* @property int $deleted_by 删除者
-* @property Carbon $deleted_at 删除时间
-* @property string $remark 备注
-*/
+ * @property int $id 主键 主键
+ * @property string $tenant_id 租户编号
+ * @property string $app_name 应用名称
+ * @property string $app_key 应用ID
+ * @property string $app_secret 应用密钥
+ * @property boolean $status 状态 (1正常 2停用)
+ * @property string $description 应用介绍
+ * @property int $created_by 创建者
+ * @property Carbon $created_at 创建时间
+ * @property int $updated_by 更新者
+ * @property Carbon $updated_at 更新时间
+ * @property int $deleted_by 删除者
+ * @property Carbon $deleted_at 删除时间
+ * @property string $remark 备注
+ */
 final class ModelTenantApp extends BasicModel
 {
     use CustomSoftDeletes;
@@ -58,7 +59,7 @@ final class ModelTenantApp extends BasicModel
     ];
 
     protected $casts = [
-        'status' => 'boolean',
+        'status'     => 'boolean',
         'created_by' => 'integer',
         'updated_by' => 'integer',
         'deleted_by' => 'integer',
@@ -70,6 +71,13 @@ final class ModelTenantApp extends BasicModel
     public static function boot()
     {
         parent::boot();
+
+        ModelTenantApp::creating(function (ModelTenantApp $model) {
+            // 随机生成16位 app_key 和 hash app_secret
+            $randomStr = Str::random(16);
+            $model->app_key = $randomStr;
+            $model->app_secret = md5($randomStr);
+        });
 
         ModelTenantApp::updating(function (ModelTenantApp $model) {
             $model->updated_by = request()->user->id ?? 0;
