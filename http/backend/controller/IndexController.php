@@ -7,7 +7,7 @@ use app\lib\annotation\NoNeedLogin;
 use app\Router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\Router\Annotations\RestController;
-use app\service\SettingConfigService;
+use app\service\SystemConfigService;
 use app\service\upload\UploadFile;
 use DI\Attribute\Inject;
 use support\Request;
@@ -17,7 +17,7 @@ use support\Request;
 final class IndexController extends BasicController
 {
     #[Inject]
-    protected SettingConfigService $service;
+    protected SystemConfigService $service;
 
     #[GetMapping('/home')]
     #[NoNeedLogin]

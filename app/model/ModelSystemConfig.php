@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-final class ModelSettingConfig extends BasicModel
+final class ModelSystemConfig extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -71,6 +71,6 @@ final class ModelSettingConfig extends BasicModel
     // 反向关联配置组
     public function group(): BelongsTo
     {
-        return $this->belongsTo(ModelSettingConfigGroup::class, 'group_id');
+        return $this->belongsTo(ModelSystemConfigGroup::class, 'group_id');
     }
 }

@@ -2,18 +2,18 @@
 
 namespace app\repository;
 
-use app\model\ModelSettingConfig;
+use app\model\ModelSystemConfig;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class SettingConfigRepository.
- * @extends IRepository<ModelSettingConfig>
+ * @extends IRepository<ModelSystemConfig>
  */
-final class SettingConfigRepository extends IRepository
+final class SystemConfigRepository extends IRepository
 {
     #[Inject]
-    protected ModelSettingConfig $model;
+    protected ModelSystemConfig $model;
 
     /**
      * 搜索处理器.

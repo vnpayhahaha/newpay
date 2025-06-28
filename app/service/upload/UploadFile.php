@@ -4,7 +4,7 @@ namespace app\service\upload;
 
 
 use app\exception\UploadException;
-use app\service\SettingConfigService;
+use app\service\SystemConfigService;
 use support\Container;
 
 /**
@@ -54,7 +54,7 @@ class UploadFile
      */
     public static function getDefaultConfig(): array
     {
-        $settingConfigService = Container::make(SettingConfigService::class);
+        $settingConfigService = Container::make(SystemConfigService::class);
         $basicConfig = $settingConfigService->getDetails([
             'group_id' => 2,
         ])->toArray();

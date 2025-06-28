@@ -4,19 +4,19 @@ namespace app\service;
 
 use app\lib\annotation\Cacheable;
 use app\lib\cache\CacheEventService;
-use app\repository\SettingConfigRepository;
+use app\repository\SystemConfigRepository;
 use Illuminate\Database\Eloquent\Collection;
 use support\Cache;
 use Webman\Event\Event;
 
 /**
- * @extends IService<SettingConfigRepository>
+ * @extends IService<SystemConfigRepository>
  */
-class SettingConfigService extends BaseService
+class SystemConfigService extends BaseService
 {
-    protected SettingConfigRepository $repository;
+    protected SystemConfigRepository $repository;
 
-    public function __construct(SettingConfigRepository $repository)
+    public function __construct(SystemConfigRepository $repository)
     {
         $this->repository = $repository;
     }

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon $updated_at
  * @property string $remark 备注
  */
-final class ModelSettingConfigGroup extends BasicModel
+final class ModelSystemConfigGroup extends BasicModel
 {
     /**
      * The table associated with the model.
@@ -59,7 +59,7 @@ final class ModelSettingConfigGroup extends BasicModel
     // 一对多关系，一个配置组可以有多个配置项
     public function info(): HasMany
     {
-        return $this->hasMany(ModelSettingConfig::class, 'group_id'); // 'group_id' 是 Config 表中的外键
+        return $this->hasMany(ModelSystemConfig::class, 'group_id'); // 'group_id' 是 Config 表中的外键
     }
 
 }

@@ -10,16 +10,16 @@ use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
-use app\service\SettingConfigService;
+use app\service\SystemConfigService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
-class SettingConfigController extends BasicController
+class SystemConfigController extends BasicController
 {
     #[Inject]
-    protected SettingConfigService $service;
+    protected SystemConfigService $service;
 
     #[GetMapping('/setting/config/list')]
     #[Permission(code: 'system:config:list')]

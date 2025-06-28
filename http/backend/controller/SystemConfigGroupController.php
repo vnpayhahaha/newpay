@@ -10,16 +10,16 @@ use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
-use app\service\SettingConfigGroupService;
+use app\service\SystemConfigGroupService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
 #[RestController("/admin")]
-class SettingConfigGroupController extends BasicController
+class SystemConfigGroupController extends BasicController
 {
     #[Inject]
-    protected SettingConfigGroupService $service;
+    protected SystemConfigGroupService $service;
 
     #[GetMapping('/setting/configGroup/list')]
     #[Permission(code: 'system:config:group:list')]

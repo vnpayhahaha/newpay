@@ -64,7 +64,7 @@ if (!function_exists('sys_config')) {
      */
     function sys_config(string $key, mixed $default = null): mixed
     {
-        return \support\Container::get(app\service\SettingConfigService::class)->getConfigByKey($key) ?? $default;
+        return \support\Container::get(app\service\SystemConfigService::class)->getConfigByKey($key) ?? $default;
     }
 }
 if (!function_exists('t')) {
