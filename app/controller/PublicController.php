@@ -18,8 +18,8 @@ class PublicController extends BasicController
     public function selectOption(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'table_name' => 'required|string|max:20',
-            'field_list' => 'required|string|max:20', // 字段
+            'table_name' => 'required|string|max:50',
+            'field_list' => 'required|string|max:50', // 字段
         ]);
 
         if ($validator->fails()) {

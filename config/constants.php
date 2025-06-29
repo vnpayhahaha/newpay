@@ -9,4 +9,5 @@ return [
     'tenant_app'    => app\constants\TenantApp::class, // 租户应用状态
     'tenant_user'   => app\constants\TenantUser::class, // 租户用户状态
     'tenant_config' => app\constants\TenantConfig::class, // 租户配置状态
+    'channel'       => app\constants\Channel::class, // 渠道状态
 ];
