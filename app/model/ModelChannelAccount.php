@@ -41,6 +41,14 @@ use Carbon\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
+ * @property float $daily_max_receipt 单日最大收款限额
+ * @property float $daily_max_payment 单日最大付款限额
+ * @property int $daily_max_receipt_count 单日最大收款次数
+ * @property int $daily_max_payment_count 单日最大付款次数
+ * @property float $max_receipt_per_txn 单笔最大收款限额
+ * @property float $max_payment_per_txn 单笔最大付款限额
+ * @property float $min_receipt_per_txn 单笔最小收款限额
+ * @property float $min_payment_per_txn 单笔最小付款限额
  */
 final class ModelChannelAccount extends BasicModel
 {
@@ -85,6 +93,14 @@ final class ModelChannelAccount extends BasicModel
         'created_at',
         'updated_at',
         'deleted_at',
+        'daily_max_receipt',
+        'daily_max_payment',
+        'daily_max_receipt_count',
+        'daily_max_payment_count',
+        'max_receipt_per_txn',
+        'max_payment_per_txn',
+        'min_receipt_per_txn',
+        'min_payment_per_txn',
     ];
 
     protected $casts = [
@@ -111,6 +127,14 @@ final class ModelChannelAccount extends BasicModel
         'created_at'           => 'datetime',
         'updated_at'           => 'datetime',
         'deleted_at'           => 'datetime',
+        'daily_max_receipt'       => 'decimal:2',
+        'daily_max_payment'       => 'decimal:2',
+        'daily_max_receipt_count' => 'integer',
+        'daily_max_payment_count' => 'integer',
+        'max_receipt_per_txn'     => 'decimal:2',
+        'max_payment_per_txn'     => 'decimal:2',
+        'min_receipt_per_txn'     => 'decimal:2',
+        'min_payment_per_txn'     => 'decimal:2',
     ];
 
 }

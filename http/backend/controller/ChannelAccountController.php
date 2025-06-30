@@ -81,6 +81,14 @@ class ChannelAccountController extends BasicController
             'status'               => ['required', 'boolean'],
             'support_collection'   => ['required', 'boolean'],
             'support_disbursement' => ['required', 'boolean'],
+            'daily_max_receipt'       => 'required|numeric|between:0,999999999',
+            'daily_max_payment'       => 'required|numeric|between:0,999999999',
+            'daily_max_receipt_count' => 'required|integer|between:0,999999999',
+            'daily_max_payment_count' => 'required|integer|between:0,999999999',
+            'max_receipt_per_txn'     => 'required|numeric|between:0,999999999',
+            'max_payment_per_txn'     => 'required|numeric|between:0,999999999',
+            'min_receipt_per_txn'     => 'required|numeric|between:0,999999999',
+            'min_payment_per_txn'     => 'required|numeric|between:0,999999999',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -122,6 +130,14 @@ class ChannelAccountController extends BasicController
             'status'               => ['required', 'boolean'],
             'support_collection'   => ['required', 'boolean'],
             'support_disbursement' => ['required', 'boolean'],
+            'daily_max_receipt'       => 'required|numeric|between:0,999999999',
+            'daily_max_payment'       => 'required|numeric|between:0,999999999',
+            'daily_max_receipt_count' => 'required|integer|between:0,999999999',
+            'daily_max_payment_count' => 'required|integer|between:0,999999999',
+            'max_receipt_per_txn'     => 'required|numeric|between:0,999999999',
+            'max_payment_per_txn'     => 'required|numeric|between:0,999999999',
+            'min_receipt_per_txn'     => 'required|numeric|between:0,999999999',
+            'min_payment_per_txn'     => 'required|numeric|between:0,999999999',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

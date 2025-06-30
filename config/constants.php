@@ -12,4 +12,5 @@ return [
     'channel'         => app\constants\Channel::class, // 渠道状态
     'channel_account' => app\constants\ChannelAccount::class, // 渠道账户状态
     'bank_account'    => app\constants\BankAccount::class, // 银行账户状态
+    'tenant_account'  => app\constants\TenantAccount::class, // 租户账户状态
 ];

@@ -1,0 +1,31 @@
+<?php
+
+namespace app\repository;
+
+use app\model\ModelTenantAccount;
+use DI\Attribute\Inject;
+use Illuminate\Database\Eloquent\Builder;
+
+/**
+ * Class TenantAccountRepository.
+ * @extends IRepository<ModelTenantAccount>
+ */
+class TenantAccountRepository extends IRepository
+{
+    #[Inject]
+    protected ModelTenantAccount $model;
+
+    public function handleSearch(Builder $query, array $params): Builder
+    {
+
+        if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
+            $query->where('tenant_id', $params['tenant_id']);
+        }
+
+        if (isset($params['account_type']) && filled($params['account_type'])) {
+            $query->where('account_type', $params['account_type']);
+        }
+
+        return $query;
+    }
+}
