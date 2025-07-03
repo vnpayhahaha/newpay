@@ -38,8 +38,8 @@ class TenantAccountController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'account_type'  => ['required', 'integer', 'between:1,2'],
-            'tenant_id' => 'required|string|max:20',
+            'account_type' => ['required', 'integer', 'between:1,2'],
+            'tenant_id'    => 'required|string|max:20',
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

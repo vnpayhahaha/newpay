@@ -123,6 +123,7 @@ class TenantController extends BasicController
         $fields = [
             'id',
             'tenant_id',
+            'company_name',
             'contact_user_name',
             'is_enabled',
             'created_by',

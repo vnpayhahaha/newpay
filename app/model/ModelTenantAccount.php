@@ -53,4 +53,10 @@ final class ModelTenantAccount extends BasicModel
         'updated_at'        => 'datetime',
     ];
 
+    // belongsTo tenant
+    public function tenant()
+    {
+        return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
+    }
+
 }

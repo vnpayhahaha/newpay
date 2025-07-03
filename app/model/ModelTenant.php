@@ -5,6 +5,7 @@ namespace app\model;
 use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
 use support\Db;
+use Webman\Event\Event;
 
 /**
  * @property int $id 主键 id
@@ -95,6 +96,10 @@ final class ModelTenant extends BasicModel
                 $nextId = $maxId + 1;
                 $model->tenant_id = str_pad($nextId, 6, '0', STR_PAD_LEFT);
             }
+        });
+
+        ModelTenant::created(function (ModelTenant $model) {
+            Event::dispatch('app.tenant.created', $model);
         });
 
         ModelTenant::updating(function (ModelTenant $model) {
