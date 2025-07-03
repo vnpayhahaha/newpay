@@ -7,7 +7,7 @@ use Workerman\Worker;
 
 class CacheCleanerProcess
 {
-    public function onWorkerStart(Worker $worker)
+    public function onWorkerStart(Worker $worker): void
     {
         var_dump('cache cleaner process start');
         // 只在主进程执行
