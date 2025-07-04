@@ -35,4 +35,15 @@ abstract class BaseService extends IService
     {
         CacheableProcessor::clearCollection();
     }
+
+    // 获取当前管理员用户名
+    public function getCurrentUserName(): string
+    {
+        return request()->user->username ?? '';
+    }
+
+    public function getCurrentUserId(): int
+    {
+        return request()->user->id ?? 0;
+    }
 }

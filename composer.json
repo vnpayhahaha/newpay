@@ -52,7 +52,8 @@
     "nesbot/carbon": "^3.9",
     "ramsey/uuid": "^4.8",
     "webman/redis": "^2.1",
-    "webman/cache": "^2.1"
+    "webman/cache": "^2.1",
+    "webman/redis-queue": "^2.1"
   },
   "suggest": {
     "ext-event": "For better performance. "

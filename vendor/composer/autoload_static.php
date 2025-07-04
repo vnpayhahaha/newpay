@@ -23,10 +23,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         '06a34129a50df3d9257ee706cf3c875b' => __DIR__ . '/..' . '/illuminate/filesystem/functions.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
-        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
+        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         'd2136ff22b54ac75cd96a40e0022218e' => __DIR__ . '/..' . '/workerman/webman-framework/src/support/helpers.php',
+        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b067bc7112e384b61c701452d53a14a8' => __DIR__ . '/..' . '/mtdowling/jmespath.php/src/JmesPath.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         '8a9dc1de0ca7e01f3e08231539562f61' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/functions.php',
@@ -60,9 +60,12 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         ),
         'W' => 
         array (
+            'Workerman\\Redis\\' => 16,
+            'Workerman\\RedisQueue\\' => 21,
             'Workerman\\Coroutine\\' => 20,
             'Workerman\\' => 10,
             'Webman\\Redis\\' => 13,
+            'Webman\\RedisQueue\\' => 18,
             'Webman\\Event\\' => 13,
             'Webman\\Database\\' => 16,
             'Webman\\Console\\' => 15,
@@ -218,10 +221,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         ),
         'support\\' => 
         array (
-            0 => __DIR__ . '/..' . '/webman/database/src/support',
-            1 => __DIR__ . '/..' . '/webman/redis/src/support',
-            2 => __DIR__ . '/..' . '/workerman/webman-framework/src/support',
-            3 => __DIR__ . '/..' . '/webman/cache/src/support',
+            0 => __DIR__ . '/..' . '/webman/cache/src/support',
+            1 => __DIR__ . '/..' . '/webman/database/src/support',
+            2 => __DIR__ . '/..' . '/webman/redis/src/support',
+            3 => __DIR__ . '/..' . '/workerman/webman-framework/src/support',
         ),
         'http\\' => 
         array (
@@ -235,6 +238,14 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
+        'Workerman\\Redis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/redis/src',
+        ),
+        'Workerman\\RedisQueue\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/redis-queue/src',
+        ),
         'Workerman\\Coroutine\\' => 
         array (
             0 => __DIR__ . '/..' . '/workerman/coroutine/src',
@@ -247,6 +258,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         'Webman\\Redis\\' => 
         array (
             0 => __DIR__ . '/..' . '/webman/redis/src',
+        ),
+        'Webman\\RedisQueue\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/webman/redis-queue/src',
         ),
         'Webman\\Event\\' => 
         array (

@@ -15,4 +15,11 @@ class TenantAccount
         self::ACCOUNT_TYPE_RECEIVE => 'tenant_account.enums.account_type.1',
         self::ACCOUNT_TYPE_PAY     => 'tenant_account.enums.account_type.2',
     ];
+
+    // account_id 前缀 AC AP
+    public const ACCOUNT_ID_PREFIX_RECEIVE = 'AC';
+    public const ACCOUNT_ID_PREFIX_PAY     = 'AP';
+
+    // queue name : tenant_account-change-consumer
+    public const CHANGE_QUEUE_NAME = 'tenant_account-change-consumer';
 }

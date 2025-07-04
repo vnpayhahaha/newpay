@@ -2,14 +2,16 @@
 
 namespace app\model;
 
+use app\model\enums\TenantAccountType;
 use Carbon\Carbon;
 
 /**
  * @property int $id 主键 ID
  * @property string $tenant_id 租户编号
+ * @property string $account_id 自定义账户ID（格式：租户ID_账户类型）
  * @property float $balance_available 可用余额
  * @property float $balance_frozen 冻结金额
- * @property int $account_type 账户类型:10-收款账户 20-付款账户
+ * @property TenantAccountType $account_type 账户类型:1-收款账户 2-付款账户
  * @property int $version 乐观锁版本
  * @property Carbon $created_at 创建时间
  * @property Carbon $updated_at 更新时间
@@ -34,6 +36,7 @@ final class ModelTenantAccount extends BasicModel
      */
     protected $fillable = [
         'tenant_id',
+        'account_id',
         'balance_available',
         'balance_frozen',
         'account_type',
@@ -45,9 +48,10 @@ final class ModelTenantAccount extends BasicModel
     protected $casts = [
         'id'                => 'string',
         'tenant_id'         => 'string',
+        'account_id'        => 'string',
         'balance_available' => 'decimal:2',
         'balance_frozen'    => 'decimal:2',
-        'account_type'      => 'integer',
+        'account_type'      => TenantAccountType::class,
         'version'           => 'string',
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',

@@ -7,13 +7,16 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'voku\\' => array($vendorDir . '/voku/portable-ascii/src/voku'),
-    'support\\' => array($vendorDir . '/webman/database/src/support', $vendorDir . '/webman/redis/src/support', $vendorDir . '/workerman/webman-framework/src/support', $vendorDir . '/webman/cache/src/support'),
+    'support\\' => array($vendorDir . '/webman/cache/src/support', $vendorDir . '/webman/database/src/support', $vendorDir . '/webman/redis/src/support', $vendorDir . '/workerman/webman-framework/src/support'),
     'http\\' => array($baseDir . '/http'),
     'app\\View\\Components\\' => array($baseDir . '/app/view/components'),
     'app\\' => array($baseDir . '/app'),
+    'Workerman\\Redis\\' => array($vendorDir . '/workerman/redis/src'),
+    'Workerman\\RedisQueue\\' => array($vendorDir . '/workerman/redis-queue/src'),
     'Workerman\\Coroutine\\' => array($vendorDir . '/workerman/coroutine/src'),
     'Workerman\\' => array($vendorDir . '/workerman/coroutine/src', $vendorDir . '/workerman/workerman/src'),
     'Webman\\Redis\\' => array($vendorDir . '/webman/redis/src'),
+    'Webman\\RedisQueue\\' => array($vendorDir . '/webman/redis-queue/src'),
     'Webman\\Event\\' => array($vendorDir . '/webman/event/src'),
     'Webman\\Database\\' => array($vendorDir . '/webman/database/src'),
     'Webman\\Console\\' => array($vendorDir . '/webman/console/src'),

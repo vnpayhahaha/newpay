@@ -22,6 +22,10 @@ class TenantAccountRepository extends IRepository
             $query->where('tenant_id', $params['tenant_id']);
         }
 
+        if (isset($params['account_id']) && filled($params['account_id'])) {
+            $query->where('account_id', $params['account_id']);
+        }
+
         if (isset($params['account_type']) && filled($params['account_type'])) {
             $query->where('account_type', $params['account_type']);
         }
