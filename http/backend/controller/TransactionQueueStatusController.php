@@ -5,18 +5,18 @@ namespace http\backend\controller;
 use app\controller\BasicController;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
-use app\service\TransactionRecordService;
+use app\service\TransactionQueueStatusService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
 #[RestController("/admin/transaction")]
-class TransactionRecordController extends BasicController
+class TransactionQueueStatusController extends BasicController
 {
     #[Inject]
-    protected TransactionRecordService $service;
+    protected TransactionQueueStatusService $service;
 
-    #[GetMapping('/transaction_record/list')]
+    #[GetMapping('/transaction_queue_status/list')]
     public function pageList(Request $request): Response
     {
         return $this->success(
