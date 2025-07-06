@@ -14,9 +14,9 @@ class TransactionQueueStatus
     const STATUS_FAIL       = 2;
     const STATUS_SUSPEND    = 3;
     public static array $status_list = [
-        self::STATUS_PROCESSING => 'record.enums.status.0',
-        self::STATUS_SUCCESS    => 'record.enums.status.1',
-        self::STATUS_FAIL       => 'record.enums.status.2',
-        self::STATUS_SUSPEND    => 'record.enums.status.3',
+        self::STATUS_PROCESSING => 'transaction_queue_status.enums.status.processing',
+        self::STATUS_SUCCESS    => 'transaction_queue_status.enums.status.success',
+        self::STATUS_FAIL       => 'transaction_queue_status.enums.status.fail',
+        self::STATUS_SUSPEND    => 'transaction_queue_status.enums.status.suspend',
     ];
 }
