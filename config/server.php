@@ -14,7 +14,7 @@
 
 return [
     'event_loop' => '',
-    'stop_timeout' => 2,
+    'stop_timeout' => 20,
     'pid_file' => runtime_path() . '/webman.pid',
     'status_file' => runtime_path() . '/webman.status',
     'stdout_file' => runtime_path() . '/logs/stdout.log',

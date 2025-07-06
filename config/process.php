@@ -63,4 +63,7 @@ return [
         'handler' => app\process\CacheCleanerProcess::class,
         'count' => 1, // 只需要一个进程
     ],
+    'TransactionCrontab'  => [
+        'handler'  => app\process\task\TransactionCrontab::class
+    ],
 ];

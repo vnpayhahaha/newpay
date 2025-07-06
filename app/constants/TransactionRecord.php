@@ -8,67 +8,29 @@ class TransactionRecord
 {
     use ConstantsOptionTrait;
 
-    // 业务交易类型：
-    //# 基础交易类型 (1XX)
-    //100: 收款
-    //110: 付款
-    //120: 转账
-    const TYPE_BASE_RECEIVE  = 100;
-    const TYPE_BASE_PAY      = 110;
-    const TYPE_BASE_TRANSFER = 120;
-    //# 退款相关 (2XX)
-    //200: 收款退款
-    //210: 付款退款
-    const TYPE_REFUND_RECEIVE = 200;
-    const TYPE_REFUND_PAY     = 210;
-    //# 手续费类 (3XX)
-    //300: 收款手续费
-    //310: 付款手续费
-    //320: 转账手续费
-    const TYPE_FEE_RECEIVE  = 300;
-    const TYPE_FEE_PAY      = 310;
-    const TYPE_FEE_TRANSFER = 320;
-    //# 资金调整 (4XX)
-    //400: 资金调增（人工）
-    //410: 资金调减（人工）
-    //420: 冻结资金
-    //430: 解冻资金
-    const TYPE_ADJUST_INCREASE = 400;
-    const TYPE_ADJUST_DECREASE = 410;
-    const TYPE_FREEZE          = 420;
-    const TYPE_UNFREEZE        = 430;
-    //# 特殊交易 (9XX)
-    //900: 冲正交易
-    //910: 差错调整
-    const TYPE_REVERSE      = 900;
-    const TYPE_ERROR_ADJUST = 910;
-    public static array $type_list = [
-        self::TYPE_BASE_RECEIVE    => 'record.enums.type.1',
-        self::TYPE_BASE_PAY        => 'record.enums.type.2',
-        self::TYPE_BASE_TRANSFER   => 'record.enums.type.3',
-        self::TYPE_REFUND_RECEIVE  => 'record.enums.type.4',
-        self::TYPE_REFUND_PAY      => 'record.enums.type.5',
-        self::TYPE_FEE_RECEIVE     => 'record.enums.type.6',
-        self::TYPE_FEE_PAY         => 'record.enums.type.7',
-        self::TYPE_FEE_TRANSFER    => 'record.enums.type.8',
-        self::TYPE_ADJUST_INCREASE => 'record.enums.type.9',
-        self::TYPE_ADJUST_DECREASE => 'record.enums.type.10',
-        self::TYPE_FREEZE          => 'record.enums.type.11',
-        self::TYPE_UNFREEZE        => 'record.enums.type.12',
-        self::TYPE_REVERSE         => 'record.enums.type.13',
-        self::TYPE_ERROR_ADJUST    => 'record.enums.type.14',
-    ];
+    // 业务交易类型：10-订单交易 11-订单退款 20-人工加帐 21-人工减帐 23-冻结 24-解冻 30-收转付 31-付转收 40-冲正 41-调整差错
+    public const TYPE_ORDER_TRANSACTION       = 10;
+    public const TYPE_ORDER_REFUND            = 11;
+    public const TYPE_MANUAL_ADD              = 20;
+    public const TYPE_MANUAL_SUB              = 21;
+    public const TYPE_FREEZE                  = 23;
+    public const TYPE_UNFREEZE                = 24;
+    public const TYPE_TRANSFER_RECEIVE_TO_PAY = 30;
+    public const TYPE_TRANSFER_PAY_TO_RECEIVE = 31;
+    public const TYPE_REVERSE                 = 40;
+    public const TYPE_ERROR_ADJUST            = 50;
 
-    // 交易状态:0-等待结算 1-处理中 2-已冲正 3-成功 4-失败
+
+    // 交易状态:0-等待结算 1-处理中 2-撤销 3-成功 4-失败
     public const STATUS_WAITING_SETTLEMENT = 0;
     public const STATUS_PROCESSING         = 1;
-    public const STATUS_REVERSE            = 2;
+    public const STATUS_CANCEL             = 2;
     public const STATUS_SUCCESS            = 3;
     public const STATUS_FAIL               = 4;
     public static array $status_list = [
         self::STATUS_WAITING_SETTLEMENT => 'record.enums.status.0',
         self::STATUS_PROCESSING         => 'record.enums.status.1',
-        self::STATUS_REVERSE            => 'record.enums.status.2',
+        self::STATUS_CANCEL             => 'record.enums.status.2',
         self::STATUS_SUCCESS            => 'record.enums.status.3',
         self::STATUS_FAIL               => 'record.enums.status.4',
     ];

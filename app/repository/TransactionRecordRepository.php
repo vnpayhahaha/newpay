@@ -17,6 +17,9 @@ class TransactionRecordRepository extends IRepository
     #[Inject]
     protected ModelTransactionRecord $model;
 
+    // D0 创建完成直接走队列
+    // D/T 可能面临修改执行时间，创建完成不走队列，用定时任务查询预计执行时间执行
+
     // 业务交易类型：
     //# 基础交易类型 (1XX)
     //100: 收款
@@ -54,7 +57,7 @@ class TransactionRecordRepository extends IRepository
             'fee_amount'               => $fee_amount,
             'net_amount'               => bcsub((string)$amount, (string)$fee_amount, 4),
             'account_type'             => $account->account_type,
-            'transaction_type'         => $amount >= 0 ? TransactionRecord::TYPE_ADJUST_INCREASE : TransactionRecord::TYPE_ADJUST_DECREASE,
+            'transaction_type'         => $amount >= 0 ? TransactionRecord::TYPE_MANUAL_ADD : TransactionRecord::TYPE_MANUAL_SUB,
             'settlement_delay_mode'    => TransactionRecord::SETTLEMENT_DELAY_MODE_D0,
             'expected_settlement_time' => date('Y-m-d H:i:s'),
             'counterparty'             => $admin_username,
@@ -88,6 +91,10 @@ class TransactionRecordRepository extends IRepository
 
         if (isset($params['transaction_status'])) {
             $query->where('transaction_status', $params['transaction_status']);
+        }
+
+        if (isset($params['failed_msg']) && filled($params['failed_msg'])) {
+            $query->where('failed_msg', 'like', '%' . $params['failed_msg'] . '%');
         }
 
         return $query;

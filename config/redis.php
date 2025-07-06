@@ -27,10 +27,17 @@ return [
         ],
     ],
     'cache'   => [ // <==== 新增
-                   'password' => 'abc123',
-                   'host'     => '127.0.0.1',
-                   'port'     => 6379,
-                   'database' => 1,
+                   'host'     => env('REDIS_HOST', 'localhost'),
+                   'password' => env('REDIS_AUTH', null),
+                   'port'     => (int)env('REDIS_PORT', 6379),
+                   'database' => 2,
                    'prefix'   => 'webman_cache-',
+    ],
+    'queue'   => [ // <==== 新增
+                   'host'     => env('REDIS_HOST', 'localhost'),
+                   'password' => env('REDIS_AUTH', null),
+                   'port'     => (int)env('REDIS_PORT', 6379),
+                   'database' => 1,
+                   'prefix'   =>  env('APP_NAME', ''),
     ]
 ];

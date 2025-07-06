@@ -9,4 +9,5 @@ final class TransactionQueueStatusService extends IService
 {
     #[Inject]
     public TransactionQueueStatusRepository $repository;
+
 }

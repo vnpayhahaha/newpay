@@ -8,8 +8,7 @@ use Carbon\Carbon;
  * @property int $id 主键 主键ID
  * @property string $transaction_no 关联交易流水号
  * @property int $transaction_type 冗余业务交易类型（便于按类型调度）
- * @property int $queue_type 队列类型:1-即时 2-延时 3-重试 4-冲正 5-定时
- * @property int $process_status 状态:0-待处理 1-处理中 2-成功 3-失败 4-挂起 5-等待中
+ * @property int $process_status 状态:0-处理中 1-成功 2-失败 3-挂起
  * @property Carbon $scheduled_execute_time 计划执行时间
  * @property Carbon $next_retry_time 下次重试时间
  * @property int $retry_count 重试次数
@@ -40,7 +39,6 @@ final class ModelTransactionQueueStatus extends BasicModel
     protected $fillable = [
         'transaction_no',
         'transaction_type',
-        'queue_type',
         'process_status',
         'scheduled_execute_time',
         'next_retry_time',
@@ -56,7 +54,6 @@ final class ModelTransactionQueueStatus extends BasicModel
         'id'                     => 'integer',
         'transaction_no'         => 'string',
         'transaction_type'       => 'integer',
-        'queue_type'             => 'integer',
         'process_status'         => 'integer',
         'scheduled_execute_time' => 'datetime',
         'next_retry_time'        => 'datetime',

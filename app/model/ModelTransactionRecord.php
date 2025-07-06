@@ -19,22 +19,19 @@ use Webman\Event\Event;
  * @property int $transaction_type 业务交易类型：# 基础交易类型 (1XX)
  * 100: 收款
  * 110: 付款
- * 120: 转账
  *
  * # 退款相关 (2XX)
  * 200: 收款退款
  * 210: 付款退款
  *
- * # 手续费类 (3XX)
- * 300: 收款手续费
- * 310: 付款手续费
- * 320: 转账手续费
  *
  * # 资金调整 (4XX)
  * 400: 资金调增（人工）
  * 410: 资金调减（人工）
  * 420: 冻结资金
  * 430: 解冻资金
+ * 440: 收转付
+ * 450: 付转收
  *
  * # 特殊交易 (9XX)
  * 900: 冲正交易
@@ -47,7 +44,8 @@ use Webman\Event\Event;
  * @property string $counterparty 交易对手方标识
  * @property string $order_no 关联业务订单号
  * @property string $ref_transaction_no 关联原交易流水号
- * @property int $transaction_status 交易状态:0-等待结算 1-处理中 2-已冲正 3-成功 4-失败
+ * @property int $transaction_status 交易状态:0-等待结算 1-处理中 2-撤销 3-成功 4-失败
+ * @property string $failed_msg 失败错误信息
  * @property string $remark 交易备注
  * @property Carbon $created_at 创建时间
  * @property Carbon $updated_at 更新时间
@@ -89,6 +87,7 @@ final class ModelTransactionRecord extends BasicModel
         'order_no',
         'ref_transaction_no',
         'transaction_status',
+        'failed_msg',
         'remark',
         'created_at',
         'updated_at'
@@ -128,6 +127,10 @@ final class ModelTransactionRecord extends BasicModel
                 $milliseconds = (int)(microtime(true) * 1000);
                 $model->transaction_no = 'TN' . date('YmdHis') . substr($milliseconds, -3);
             }
+        });
+
+        ModelTransactionRecord::created(function (ModelTransactionRecord $model) {
+            Event::dispatch('app.transaction.created', $model);
         });
     }
 }

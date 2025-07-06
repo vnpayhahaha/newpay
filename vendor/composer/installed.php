@@ -3,7 +3,7 @@
         'name' => 'workerman/webman',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1919cb8b7a257eb40e707e8ab1ca0be77415e957',
+        'reference' => 'bd6c879ecaa3940bf78bc8977d78d1a5bedfc8ab',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -1014,6 +1014,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'workerman/crontab' => array(
+            'pretty_version' => 'v1.0.7',
+            'version' => '1.0.7.0',
+            'reference' => '74f51ca8204e8eb628e57bc0e640561d570da2cb',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../workerman/crontab',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'workerman/redis' => array(
             'pretty_version' => 'v2.0.5',
             'version' => '2.0.5.0',
@@ -1035,7 +1044,7 @@
         'workerman/webman' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1919cb8b7a257eb40e707e8ab1ca0be77415e957',
+            'reference' => 'bd6c879ecaa3940bf78bc8977d78d1a5bedfc8ab',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

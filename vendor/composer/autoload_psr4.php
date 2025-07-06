@@ -13,6 +13,7 @@ return array(
     'app\\' => array($baseDir . '/app'),
     'Workerman\\Redis\\' => array($vendorDir . '/workerman/redis/src'),
     'Workerman\\RedisQueue\\' => array($vendorDir . '/workerman/redis-queue/src'),
+    'Workerman\\Crontab\\' => array($vendorDir . '/workerman/crontab/src'),
     'Workerman\\Coroutine\\' => array($vendorDir . '/workerman/coroutine/src'),
     'Workerman\\' => array($vendorDir . '/workerman/coroutine/src', $vendorDir . '/workerman/workerman/src'),
     'Webman\\Redis\\' => array($vendorDir . '/webman/redis/src'),

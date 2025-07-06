@@ -63,4 +63,26 @@ final class ModelTenantAccount extends BasicModel
         return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
     }
 
+    // 乐观锁更新方法
+    public function updateWithLock(array $data): int
+    {
+        if (!isset($data['version'])) {
+            throw new \InvalidArgumentException('Version field is required for optimistic lock');
+        }
+
+        $currentVersion = $data['version'];
+        $data['version'] = $currentVersion + 1;
+
+        $result = $this->newQuery()
+            ->where('id', $this->id)
+            ->where('version', $currentVersion)
+            ->update($data);
+
+        if ($result === 0) {
+            throw new \RuntimeException('Optimistic lock failed: Version mismatch');
+        }
+
+        return $result;
+    }
+
 }

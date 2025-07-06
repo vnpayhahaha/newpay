@@ -21,5 +21,5 @@ class TenantAccount
     public const ACCOUNT_ID_PREFIX_PAY     = 'AP';
 
     // queue name : tenant_account-change-consumer
-    public const CHANGE_QUEUE_NAME = 'tenant_account-change-consumer';
+    public const TRANSACTION_CONSUMER_QUEUE_NAME = 'transaction-consumer';
 }

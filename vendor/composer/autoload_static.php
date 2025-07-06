@@ -62,6 +62,7 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         array (
             'Workerman\\Redis\\' => 16,
             'Workerman\\RedisQueue\\' => 21,
+            'Workerman\\Crontab\\' => 18,
             'Workerman\\Coroutine\\' => 20,
             'Workerman\\' => 10,
             'Webman\\Redis\\' => 13,
@@ -245,6 +246,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         'Workerman\\RedisQueue\\' => 
         array (
             0 => __DIR__ . '/..' . '/workerman/redis-queue/src',
+        ),
+        'Workerman\\Crontab\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/crontab/src',
         ),
         'Workerman\\Coroutine\\' => 
         array (
