@@ -25,6 +25,9 @@ enum ResultCode: int
     #[Message('result.unauthorized')]
     case UNAUTHORIZED = 100401;
 
+    #[Message('result.token_refresh_expired')]
+    case TOKEN_REFRESH_EXPIRED = 100402;
+
     #[Message('result.forbidden')]
     case FORBIDDEN = 100403;
 

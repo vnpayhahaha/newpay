@@ -54,7 +54,7 @@ class AppExceptionHandle extends Handler
 
         $getCode = intval($e->getCode());
         $statusCode = 500;
-        if (in_array($getCode, [500, 501, 502, 503, 400, 401, 403, 404, 405, 406, 408, 409, 422])) {
+        if (in_array($getCode, [500, 501, 502, 503, 400, 401, 402, 403, 404, 405, 406, 408, 409, 422])) {
             $statusCode = $getCode;
         }
         $request = Context::get(Request::class);
@@ -62,6 +62,7 @@ class AppExceptionHandle extends Handler
         $errorCode = match ($statusCode) {
             400 => ResultCode::BAD_REQUEST,
             401 => ResultCode::UNAUTHORIZED,
+            402 => ResultCode::TOKEN_REFRESH_EXPIRED,
             403 => ResultCode::FORBIDDEN,
             404 => ResultCode::NOT_FOUND,
             405 => ResultCode::METHOD_NOT_ALLOWED,
