@@ -72,7 +72,7 @@ class PermissionController extends BasicController
      * @return Response
      * @throws \Illuminate\Validation\ValidationException
      */
-    #[PostMapping('/roles')]
+    #[PostMapping('/update')]
     public function update(Request $request): Response
     {
         $validator = validate($request->post(), [
