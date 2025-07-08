@@ -14,6 +14,7 @@ use app\service\TenantAccountService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
+use Webman\RateLimiter\Annotation\RateLimiter;
 
 #[RestController("/admin/tenant")]
 class TenantAccountController extends BasicController
@@ -37,6 +38,7 @@ class TenantAccountController extends BasicController
     #[PutMapping('/tenant_account/change_balance_available')]
     #[Permission(code: 'tenant:tenant_account:update')]
     #[OperationLog('改变可用余额')]
+    #[RateLimiter(limit: 1, ttl: 2, key: RateLimiter::SID)]
     public function change_balance_available(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -72,6 +74,7 @@ class TenantAccountController extends BasicController
     #[PutMapping('/tenant_account/change_balance_frozen')]
     #[Permission(code: 'tenant:tenant_account:update')]
     #[OperationLog('改变冻结余额')]
+    #[RateLimiter(limit: 1, ttl: 1, key: RateLimiter::SID)]
     public function change_balance_frozen(Request $request): Response
     {
         $validator = validate($request->all(), [

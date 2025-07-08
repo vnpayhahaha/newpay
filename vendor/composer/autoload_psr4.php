@@ -18,6 +18,7 @@ return array(
     'Workerman\\' => array($vendorDir . '/workerman/coroutine/src', $vendorDir . '/workerman/workerman/src'),
     'Webman\\Redis\\' => array($vendorDir . '/webman/redis/src'),
     'Webman\\RedisQueue\\' => array($vendorDir . '/webman/redis-queue/src'),
+    'Webman\\RateLimiter\\' => array($vendorDir . '/webman/rate-limiter/src'),
     'Webman\\Event\\' => array($vendorDir . '/webman/event/src'),
     'Webman\\Database\\' => array($vendorDir . '/webman/database/src'),
     'Webman\\Console\\' => array($vendorDir . '/webman/console/src'),

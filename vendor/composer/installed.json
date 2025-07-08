@@ -6971,6 +6971,44 @@
             "install-path": "../webman/event"
         },
         {
+            "name": "webman/rate-limiter",
+            "version": "v1.1.3",
+            "version_normalized": "1.1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webman-php/rate-limiter.git",
+                "reference": "f6ff79366ab56ac66bc507515d747cdef752db2d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webman-php/rate-limiter/zipball/f6ff79366ab56ac66bc507515d747cdef752db2d",
+                "reference": "f6ff79366ab56ac66bc507515d747cdef752db2d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0",
+                "workerman/webman-framework": ">=1.5.15"
+            },
+            "time": "2024-12-27T10:02:44+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Webman\\RateLimiter\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Webman plugin webman/rate-limiter",
+            "support": {
+                "issues": "https://github.com/webman-php/rate-limiter/issues",
+                "source": "https://github.com/webman-php/rate-limiter/tree/v1.1.3"
+            },
+            "install-path": "../webman/rate-limiter"
+        },
+        {
             "name": "webman/redis",
             "version": "v2.1.3",
             "version_normalized": "2.1.3.0",

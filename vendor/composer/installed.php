@@ -3,7 +3,7 @@
         'name' => 'workerman/webman',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'bd6c879ecaa3940bf78bc8977d78d1a5bedfc8ab',
+        'reference' => '2ef2734bc869295f0fb2acdcb69c34c47c466b30',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -987,6 +987,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'webman/rate-limiter' => array(
+            'pretty_version' => 'v1.1.3',
+            'version' => '1.1.3.0',
+            'reference' => 'f6ff79366ab56ac66bc507515d747cdef752db2d',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../webman/rate-limiter',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'webman/redis' => array(
             'pretty_version' => 'v2.1.3',
             'version' => '2.1.3.0',
@@ -1044,7 +1053,7 @@
         'workerman/webman' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'bd6c879ecaa3940bf78bc8977d78d1a5bedfc8ab',
+            'reference' => '2ef2734bc869295f0fb2acdcb69c34c47c466b30',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

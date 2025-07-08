@@ -67,6 +67,7 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
             'Workerman\\' => 10,
             'Webman\\Redis\\' => 13,
             'Webman\\RedisQueue\\' => 18,
+            'Webman\\RateLimiter\\' => 19,
             'Webman\\Event\\' => 13,
             'Webman\\Database\\' => 16,
             'Webman\\Console\\' => 15,
@@ -267,6 +268,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         'Webman\\RedisQueue\\' => 
         array (
             0 => __DIR__ . '/..' . '/webman/redis-queue/src',
+        ),
+        'Webman\\RateLimiter\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/webman/rate-limiter/src',
         ),
         'Webman\\Event\\' => 
         array (

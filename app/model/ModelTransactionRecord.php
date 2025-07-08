@@ -125,7 +125,8 @@ final class ModelTransactionRecord extends BasicModel
             if (empty($model->transaction_no)) {
                 // 设置 transaction_no
                 $milliseconds = (int)(microtime(true) * 1000);
-                $model->transaction_no = 'TN' . date('YmdHis') . substr($milliseconds, -3);
+                $random = substr(md5(uniqid()), 0, 3); // 3位随机数
+                $model->transaction_no = 'TN' . date('YmdHis') .$random. substr($milliseconds, -3);
             }
         });
 
