@@ -66,6 +66,26 @@ class TransactionRecordRepository extends IRepository
         ]);
     }
 
+    // 冻结/解冻资金
+    public function freezeFunds(int $admin_id, string $admin_username, ModelTenantAccount $account, float $amount, float $fee_amount = 0, string $remark = ''): bool
+    {
+        return !!$this->model::query()->create([
+            'tenant_account_id'        => $account->id,
+            'account_id'               => $account->account_id,
+            'tenant_id'                => $account->tenant_id,
+            'amount'                   => $amount,
+            'fee_amount'               => $fee_amount,
+            'net_amount'               => bcsub((string)$amount, (string)$fee_amount, 4),
+            'account_type'             => $account->account_type,
+            'transaction_type'         => $amount >= 0 ? TransactionRecord::TYPE_FREEZE : TransactionRecord::TYPE_UNFREEZE,
+            'settlement_delay_mode'    => TransactionRecord::SETTLEMENT_DELAY_MODE_D0,
+            'expected_settlement_time' => date('Y-m-d H:i:s'),
+            'counterparty'             => $admin_username,
+            'order_no'                 => $admin_id,
+            'remark'                   => $remark,
+        ]);
+    }
+
     public function handleSearch(Builder $query, array $params): Builder
     {
 

@@ -68,13 +68,35 @@ class TenantAccountRepository extends IRepository
 
                     $oldBalance = $account[$field];
                     $version = $account['version'];
-                    $newBalance = bcadd((string)$oldBalance, (string)$amount, 4);
-                    var_dump('bccomp：',bccomp($newBalance, '0'));
-                    if (bccomp($newBalance, '0') < 0) {
-                        var_dump('减款 余额不足 失败 failed');
-                        // 减款 余额不足 失败 failed
-                        throw new \Exception('Insufficient balance', 1000);
+
+                    // 如果冻结，可用余额小于冻结金额，取可用余额
+                    if ($field == 'balance_frozen'
+                        && TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE == $changeType
+                        && bccomp(strval($account['balance_available']), $amount, 4) < 0
+                    ) {
+                        if ($account['balance_available'] <= 0) {
+                            $amount = 0;
+                        } else {
+                            $amount = $account['balance_available'];
+                        }
                     }
+
+                    $newBalance = bcadd((string)$oldBalance, (string)$amount, 4);
+
+                    if (bccomp((string)$newBalance, '0',4) < 0) {
+                        // 如果解冻，冻结余额小于0，取冻结金额
+                        if ($field == 'balance_frozen'
+                            && TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE == $changeType
+                        ) {
+                            $amount = -$oldBalance;
+                            $newBalance = 0;
+                        } else {
+                            var_dump($field . '减款 余额不足 失败 failed');
+                            // 减款 余额不足 失败 failed
+                            throw new \Exception('Insufficient balance', 1000);
+                        }
+                    }
+
                     $nowTime = date('Y-m-d H:i:s');
 
                     // 构建变更日志数据
@@ -96,6 +118,24 @@ class TenantAccountRepository extends IRepository
                     $logData["{$field}_before"] = $oldBalance;
                     $logData["{$field}_after"] = $newBalance;
 
+                    $updateData = [
+                        $field       => $newBalance,
+                        'version'    => $version + 1,
+                        'updated_at' => $nowTime
+                    ];
+                    // 如果是冻结、解冻 还要更新可用余额
+                    if ($field == 'balance_frozen') {
+                        $change_balance_available = abs(floatval($amount));
+                        if (TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE == $changeType) {
+                            $updateData['balance_available'] = bcsub((string)$account['balance_available'], (string)$change_balance_available, 4);
+                        }
+                        if (TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE == $changeType) {
+                            $updateData['balance_available'] = bcadd((string)$account['balance_available'], (string)$change_balance_available, 4);
+                        }
+                        $logData["balance_available_before"] = $account['balance_available'];
+                        $logData["balance_available_after"] = $updateData['balance_available'];
+                    }
+
                     // 插入变更日志
                     $this->modelTenantAccountRecord::query()->insert($logData);
 
@@ -103,11 +143,7 @@ class TenantAccountRepository extends IRepository
                     $updateResult = $this->model->newQuery()
                         ->where('id', $id)
                         ->where('version', $version)
-                        ->update([
-                            $field       => $newBalance,
-                            'version'    => $version + 1,
-                            'updated_at' => $nowTime
-                        ]);
+                        ->update($updateData);
 
                     if ($updateResult === 0) {
                         throw new Exception("Concurrent modification detected", 409);

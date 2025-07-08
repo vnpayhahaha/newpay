@@ -112,7 +112,8 @@ class TransactionConsumer implements Consumer
                     // 更新 transaction_record 状态 成功
                     ModelTransactionRecord::where('transaction_no', $data['transaction_no'])->update(
                         [
-                            'transaction_status' => TransactionRecord::STATUS_SUCCESS,
+                            'transaction_status'     => TransactionRecord::STATUS_SUCCESS,
+                            'actual_settlement_time' => date('Y-m-d H:i:s'),
                         ]
                     );
                     // 执行乐观锁更新
@@ -132,7 +133,7 @@ class TransactionConsumer implements Consumer
                     usleep($retryInterval * 1000); // 转换为微秒
                     continue;
                 }
-                var_dump('消费失败：',$e->getMessage());
+                var_dump('消费失败：', $e->getMessage());
                 throw $e;
             }
         }

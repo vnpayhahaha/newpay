@@ -49,8 +49,8 @@ class TenantAccountController extends BasicController
                     }
                 },
             ],
-            // balance_available 不能等于0
-            'balance_available' => [
+            // change_amount 不能等于0
+            'change_amount' => [
                 'required',
                 'numeric',
                 function ($attribute, $value, $fail) {
@@ -65,7 +65,42 @@ class TenantAccountController extends BasicController
         }
         $validatedData = $validator->validate();
 
-        return $this->service->changeBalanceAvailable($validatedData['id'], $validatedData['balance_available']) ? $this->success() : $this->error();
+        return $this->service->changeBalanceAvailable($validatedData['id'], $validatedData['change_amount']) ? $this->success() : $this->error();
+    }
+
+    // change balance_frozen
+    #[PutMapping('/tenant_account/change_balance_frozen')]
+    #[Permission(code: 'tenant:tenant_account:update')]
+    #[OperationLog('改变冻结余额')]
+    public function change_balance_frozen(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'id'                => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if (!$this->service->repository->getModel()->where($attribute, $value)->exists()) {
+                        $fail(trans('exists', [':attribute' => $attribute], 'validation'));
+                    }
+                },
+            ],
+            // change_amount 不能等于0
+            'change_amount' => [
+                'required',
+                'numeric',
+                function ($attribute, $value, $fail) {
+                    if ($value == 0) {
+                        $fail(trans('not_equal', [':attribute' => $attribute], 'validation'));
+                    }
+                },
+            ],
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+
+        return $this->service->changeBalanceFrozen($validatedData['id'], $validatedData['change_amount']) ? $this->success() : $this->error();
     }
 
     #[PutMapping('/tenant_account/{id}')]
