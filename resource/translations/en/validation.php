@@ -193,5 +193,5 @@ return [
     */
 
     'attributes' => [],
-    'not_equal' => 'The :attribute must be equal to :value.',
+    'not_equal' => 'The :attribute cannot be equal to :value.',
 ];

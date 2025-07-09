@@ -38,7 +38,7 @@ class TenantAccountController extends BasicController
     #[PutMapping('/tenant_account/change_balance_available')]
     #[Permission(code: 'tenant:tenant_account:update')]
     #[OperationLog('改变可用余额')]
-    #[RateLimiter(limit: 1, ttl: 2, key: RateLimiter::SID)]
+    #[RateLimiter(limit: 1, ttl: 1)]
     public function change_balance_available(Request $request): Response
     {
         $validator = validate($request->all(), [
@@ -57,7 +57,7 @@ class TenantAccountController extends BasicController
                 'numeric',
                 function ($attribute, $value, $fail) {
                     if ($value == 0) {
-                        $fail(trans('not_equal', [':attribute' => $attribute], 'validation'));
+                        $fail(trans('not_equal', [':attribute' => $attribute,':value' => $value], 'validation'));
                     }
                 },
             ],
@@ -93,7 +93,7 @@ class TenantAccountController extends BasicController
                 'numeric',
                 function ($attribute, $value, $fail) {
                     if ($value == 0) {
-                        $fail(trans('not_equal', [':attribute' => $attribute], 'validation'));
+                        $fail(trans('not_equal', [':attribute' => $attribute,':value' => $value], 'validation'));
                     }
                 },
             ],
