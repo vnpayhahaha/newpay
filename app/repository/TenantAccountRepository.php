@@ -82,7 +82,7 @@ class TenantAccountRepository extends IRepository
 
                     $newBalance = bcadd((string)$oldBalance, (string)$amount, 4);
 
-                    if (bccomp((string)$newBalance, '0',4) < 0) {
+                    if (bccomp((string)$newBalance, '0', 4) < 0) {
                         // 如果解冻，冻结余额小于0，取冻结金额
                         if ($field == 'balance_frozen'
                             && TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE == $changeType
@@ -102,6 +102,7 @@ class TenantAccountRepository extends IRepository
                     $logData = [
                         'tenant_id'                => $account['tenant_id'],
                         'tenant_account_id'        => $id,
+                        'account_id'               => $account['account_id'],
                         'account_type'             => $account['account_type'],
                         'change_amount'            => abs(floatval($amount)),
                         'balance_available_before' => $account['balance_available'],
