@@ -23,6 +23,8 @@ class TenantAccountController extends BasicController
     protected TenantAccountService $service;
 
     #[GetMapping('/tenant_account/list')]
+    #[Permission(code: 'tenant:tenant_account:list')]
+    #[OperationLog('租户账户列表')]
     public function pageList(Request $request): Response
     {
         return $this->success(

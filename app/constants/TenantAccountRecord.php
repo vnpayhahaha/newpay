@@ -20,4 +20,17 @@ class TenantAccountRecord
     public const CHANGE_TYPE_REVERSE      = 9;
     public const CHANGE_TYPE_ERROR_ADJUST = 10;
 
+    public static array $change_type_list = [
+        self::CHANGE_TYPE_TRANSACTION  => 'tenant_account_record.enums.change_type.transaction',
+        self::CHANGE_TYPE_REFUND       => 'tenant_account_record.enums.change_type.refund',
+        self::CHANGE_TYPE_MANUAL_ADD   => 'tenant_account_record.enums.change_type.manual_add',
+        self::CHANGE_TYPE_MANUAL_SUB   => 'tenant_account_record.enums.change_type.manual_sub',
+        self::CHANGE_TYPE_FREEZE       => 'tenant_account_record.enums.change_type.freeze',
+        self::CHANGE_TYPE_UNFREEZE     => 'tenant_account_record.enums.change_type.unfreeze',
+        self::CHANGE_TYPE_TRANSFER_IN  => 'tenant_account_record.enums.change_type.transfer_in',
+        self::CHANGE_TYPE_TRANSFER_OUT => 'tenant_account_record.enums.change_type.transfer_out',
+        self::CHANGE_TYPE_REVERSE      => 'tenant_account_record.enums.change_type.reverse',
+        self::CHANGE_TYPE_ERROR_ADJUST => 'tenant_account_record.enums.change_type.error_adjust',
+    ];
+
 }

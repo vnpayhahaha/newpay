@@ -5,7 +5,6 @@ namespace app\repository;
 use app\model\enums\TenantAccountRecordChangeType;
 use app\model\ModelTenantAccount;
 use app\model\ModelTenantAccountRecord;
-use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -104,7 +103,7 @@ class TenantAccountRepository extends IRepository
                         'tenant_id'                => $account['tenant_id'],
                         'tenant_account_id'        => $id,
                         'account_type'             => $account['account_type'],
-                        'change_amount'            => $amount,
+                        'change_amount'            => abs(floatval($amount)),
                         'balance_available_before' => $account['balance_available'],
                         'balance_available_after'  => $account['balance_available'],
                         'balance_frozen_before'    => $account['balance_frozen'],

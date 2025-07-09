@@ -15,4 +15,5 @@ return [
     'tenant_account'           => app\constants\TenantAccount::class, // 租户账户状态
     'transaction_record'       => app\constants\TransactionRecord::class, // 交易记录状态
     'transaction_queue_status' => app\constants\TransactionQueueStatus::class, // 交易队列状态
+    'tenant_account_record'    => app\constants\TenantAccountRecord::class, // 租户账户记录状态
 ];

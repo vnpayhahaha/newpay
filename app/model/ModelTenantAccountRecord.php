@@ -39,6 +39,7 @@ final class ModelTenantAccountRecord extends BasicModel
     protected $fillable = [
         'tenant_id',
         'tenant_account_id',
+        'account_id',
         'account_type',
         'change_amount',
         'balance_available_before',
@@ -54,6 +55,7 @@ final class ModelTenantAccountRecord extends BasicModel
         'id'                       => 'string',
         'tenant_id'                => 'string',
         'tenant_account_id'        => 'integer',
+        'account_id'               => 'string',
         'account_type'             => 'integer',
         'change_amount'            => 'decimal:2',
         'balance_available_before' => 'decimal:2',
@@ -65,5 +67,9 @@ final class ModelTenantAccountRecord extends BasicModel
         'created_at'               => 'datetime',
     ];
 
-
+    // belongsTo tenant
+    public function tenant()
+    {
+        return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
+    }
 }
