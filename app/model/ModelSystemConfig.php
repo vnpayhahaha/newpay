@@ -26,7 +26,7 @@ final class ModelSystemConfig extends BasicModel
      * The table associated with the model.
      * @var string
      */
-    protected $table = 'setting_config';
+    protected $table = 'system_config';
 
     /**
      * The primary key associated with the table.

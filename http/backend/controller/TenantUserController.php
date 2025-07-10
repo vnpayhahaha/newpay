@@ -66,6 +66,9 @@ class TenantUserController extends BasicController
             'phone'             => 'required|string|max:20',
             'status'            => ['required', 'boolean'],
             'is_enabled_google' => ['required', 'boolean'],
+            'avatar'            => 'string|max:255',
+            'remark'            => 'string|max:255',
+            'ip_whitelist'      => 'present',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -108,6 +111,9 @@ class TenantUserController extends BasicController
             'phone'             => 'required|string|max:20',
             'status'            => ['required', 'boolean'],
             'is_enabled_google' => ['required', 'boolean'],
+            'avatar'            => 'string|max:255',
+            'remark'            => 'string|max:255',
+            'ip_whitelist'      => 'present',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

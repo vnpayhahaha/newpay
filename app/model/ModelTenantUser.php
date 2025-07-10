@@ -96,4 +96,9 @@ final class ModelTenantUser extends BasicModel
         $this->password = 123456;
     }
 
+    // belongsTo tenant
+    public function tenant()
+    {
+        return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
+    }
 }

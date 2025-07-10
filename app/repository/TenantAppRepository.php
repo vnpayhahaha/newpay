@@ -36,4 +36,14 @@ class TenantAppRepository extends IRepository
 
         return $query;
     }
+
+    public function page(array $params = [], ?int $page = null, ?int $pageSize = null): array
+    {
+        $result = $this->perQuery($this->getQuery(), $params)->with('tenant:tenant_id,company_name')->paginate(
+            perPage: $pageSize,
+            pageName: static::PER_PAGE_PARAM_NAME,
+            page: $page,
+        );
+        return $this->handlePage($result);
+    }
 }
