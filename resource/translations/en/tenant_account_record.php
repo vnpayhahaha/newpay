@@ -13,6 +13,7 @@ return [
             'transfer_in'  => 'Transfer in',
             'transfer_out' => 'Transfer out',
             'reverse'      => 'Reverse',
+            'reversal'     => 'Reversal',
             'error_adjust' => 'Error adjustment',
         ]
     ],

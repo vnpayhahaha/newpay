@@ -13,6 +13,7 @@ return [
             'transfer_in'  => '转入',
             'transfer_out' => '转出',
             'reverse'      => '冲正',
+            'reversal'     => '反转',
             'error_adjust' => '调整差错',
         ]
     ],
