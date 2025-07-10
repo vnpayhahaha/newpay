@@ -21,6 +21,15 @@ use Illuminate\Support\Str;
  * @property int $deleted_by 删除者
  * @property Carbon $deleted_at 删除时间
  * @property string $remark 备注
+ * @property int $settlement_type 入账类型(1:D0 2:D 3:T)
+ * @property int $settlement_delay_days 入账延迟天数
+ * @property boolean $auto_transfer 自动划扣(1是 0否)
+ * @property int $receipt_fee_type 收款手续费类型(1固定 10费率)
+ * @property float $receipt_fixed_fee 收款固定手续费金额
+ * @property float $receipt_fee_rate 收款手续费费率(%)
+ * @property int $payment_fee_type 付款手续费类型(1固定 10费率)
+ * @property float $payment_fixed_fee 付款固定手续费金额
+ * @property float $payment_fee_rate 付款手续费费率(%)
  */
 final class ModelTenantApp extends BasicModel
 {
@@ -55,17 +64,35 @@ final class ModelTenantApp extends BasicModel
         'updated_at',
         'deleted_by',
         'deleted_at',
-        'remark'
+        'remark',
+        'settlement_type',
+        'settlement_delay_days',
+        'auto_transfer',
+        'receipt_fee_type',
+        'receipt_fixed_fee',
+        'receipt_fee_rate',
+        'payment_fee_type',
+        'payment_fixed_fee',
+        'payment_fee_rate',
     ];
 
     protected $casts = [
-        'status'     => 'boolean',
-        'created_by' => 'integer',
-        'updated_by' => 'integer',
-        'deleted_by' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'status'                => 'boolean',
+        'created_by'            => 'integer',
+        'updated_by'            => 'integer',
+        'deleted_by'            => 'integer',
+        'created_at'            => 'datetime',
+        'updated_at'            => 'datetime',
+        'deleted_at'            => 'datetime',
+        'auto_transfer'         => 'boolean',
+        'settlement_type'       => 'integer',
+        'settlement_delay_days' => 'integer',
+        'receipt_fee_type'      => 'integer',
+        'receipt_fixed_fee'     => 'decimal:2',
+        'receipt_fee_rate'      => 'decimal:2',
+        'payment_fee_type'      => 'integer',
+        'payment_fixed_fee'     => 'decimal:2',
+        'payment_fee_rate'      => 'decimal:2',
     ];
 
     // belongsTo tenant
