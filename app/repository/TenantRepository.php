@@ -34,8 +34,8 @@ class TenantRepository extends IRepository
             $query->where('company_name', $params['company_name']);
         }
 
-        if (isset($params['account_count'])) {
-            $query->where('account_count', $params['account_count']);
+        if (isset($params['user_num_limit'])) {
+            $query->where('user_num_limit', $params['user_num_limit']);
         }
 
         if (isset($params['is_enabled'])) {

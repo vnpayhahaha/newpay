@@ -17,7 +17,8 @@ use Webman\Event\Event;
  * @property string $address 地址
  * @property string $intro 企业简介
  * @property string $domain 域名
- * @property int $account_count 用户数量（-1不限制）
+ * @property int $user_num_limit 用户数量（-1不限制）
+ * @property int $app_num_limit 应用数量（-1不限制）
  * @property bool $is_enabled 启用状态(1正常 2停用)
  * @property int $created_by 创建管理员
  * @property Carbon $created_at 创建时间
@@ -59,7 +60,8 @@ final class ModelTenant extends BasicModel
         'address',
         'intro',
         'domain',
-        'account_count',
+        'user_num_limit',
+        'app_num_limit',
         'is_enabled',
         'created_by',
         'created_at',
@@ -73,14 +75,16 @@ final class ModelTenant extends BasicModel
     ];
 
     protected $casts = [
-        'id'            => 'integer',
-        'account_count' => 'integer',
-        'is_enabled'    => 'boolean',
-        'created_by'    => 'integer',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
-        'expired_at'    => 'datetime',
-        'deleted_at'    => 'datetime',
+        'id'             => 'integer',
+        'account_count'  => 'integer',
+        'is_enabled'     => 'boolean',
+        'user_num_limit' => 'integer',
+        'app_num_limit'  => 'integer',
+        'created_by'     => 'integer',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+        'expired_at'     => 'datetime',
+        'deleted_at'     => 'datetime',
     ];
 
     public static function boot()

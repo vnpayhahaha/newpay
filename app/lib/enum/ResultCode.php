@@ -73,4 +73,8 @@ enum ResultCode: int
     // role_not_exist
     #[Message('result.role_not_exist')]
     case ROLE_NOT_EXIST = 201003;
+
+    // USER_NUM_LIMIT_EXCEEDED
+    #[Message('result.user_num_limit_exceeded')]
+    case USER_NUM_LIMIT_EXCEEDED = 201004;
 }

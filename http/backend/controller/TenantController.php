@@ -64,7 +64,8 @@ class TenantController extends BasicController
             'company_name'      => 'required|string|max:200',
             'contact_user_name' => 'required|string|max:20',
             'contact_phone'     => 'required|string|max:20',
-            'account_count'     => ['required', 'integer', 'between:-1,99'],
+            'user_num_limit'    => ['required', 'integer', 'between:-1,99'],
+            'app_num_limit'     => ['required', 'integer', 'between:-1,99'],
             'is_enabled'        => ['required', 'boolean'],
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
@@ -90,7 +91,8 @@ class TenantController extends BasicController
             'contact_user_name' => 'required|string|max:20',
             'contact_phone'     => 'required|string|max:20',
             'company_name'      => 'required|string|max:200',
-            'account_count'     => 'required|integer|between:-1,99',
+            'user_num_limit'    => ['required', 'integer', 'between:-1,99'],
+            'app_num_limit'     => ['required', 'integer', 'between:-1,99'],
             'is_enabled'        => ['required', 'boolean'],
             'safe_level'        => ['required', 'integer', 'between:0,99'],
         ]);
