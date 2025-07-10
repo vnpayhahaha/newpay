@@ -72,12 +72,12 @@ final class ModelTenantApp extends BasicModel
     {
         parent::boot();
 
-        ModelTenantApp::creating(function (ModelTenantApp $model) {
-            // 随机生成16位 app_key 和 hash app_secret
-            $randomStr = Str::random(16);
-            $model->app_key = $randomStr;
-            $model->app_secret = md5($randomStr);
-        });
+//        ModelTenantApp::creating(function (ModelTenantApp $model) {
+//            // 随机生成16位 app_key 和 hash app_secret
+//            $randomStr = Str::random(16);
+//            $model->app_key = $randomStr;
+//            $model->app_secret = md5($randomStr);
+//        });
 
         ModelTenantApp::updating(function (ModelTenantApp $model) {
             $model->updated_by = request()->user->id ?? 0;

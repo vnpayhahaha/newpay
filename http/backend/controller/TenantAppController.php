@@ -62,6 +62,8 @@ class TenantAppController extends BasicController
     {
         $validator = validate($request->all(), [
             'app_name'    => 'required|string|max:32',
+            'app_key'     => 'required|string|max:16',
+            'app_secret'  => 'required|string|max:128',
             'remark'      => 'string|max:255',
             'tenant_id'   => 'required|string|max:20',
             'status'      => ['required', 'boolean'],
@@ -86,10 +88,12 @@ class TenantAppController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'app_name'  => 'required|string|max:32',
-            'remark'    => 'string|max:255',
-            'tenant_id' => 'required|string|max:20',
-            'status'    => ['required', 'boolean'],
+            'app_name'    => 'required|string|max:32',
+            'app_key'     => 'required|string|max:16',
+            'app_secret'  => 'required|string|max:128',
+            'remark'      => 'string|max:255',
+            'tenant_id'   => 'required|string|max:20',
+            'status'      => ['required', 'boolean'],
             'description' => 'string|max:255'
         ]);
         if ($validator->fails()) {
@@ -126,6 +130,22 @@ class TenantAppController extends BasicController
         ];
         return $this->success(
             $this->service->getList([])->map(static fn($model) => $model->only($fields))
+        );
+    }
+
+    #[GetMapping('/tenant_app/get_app_key')]
+    public function getAppKey(): Response
+    {
+        return $this->success(
+            ['app_key' => $this->service->getAppKey()]
+        );
+    }
+
+    #[GetMapping('/tenant_app/get_app_secret')]
+    public function getAppSecret(): Response
+    {
+        return $this->success(
+            ['app_secret' => $this->service->getAppSecret()]
         );
     }
 }
