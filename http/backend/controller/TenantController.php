@@ -61,13 +61,22 @@ class TenantController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'company_name'      => 'required|string|max:200',
-            'contact_user_name' => 'required|string|max:20',
-            'contact_phone'     => 'required|string|max:20',
-            'user_num_limit'    => ['required', 'integer', 'between:-1,99'],
-            'app_num_limit'     => ['required', 'integer', 'between:-1,99'],
-            'is_enabled'        => ['required', 'boolean'],
-            'safe_level'        => ['required', 'integer', 'between:0,99'],
+            'company_name'          => 'required|string|max:200',
+            'contact_user_name'     => 'required|string|max:20',
+            'contact_phone'         => 'required|string|max:20',
+            'user_num_limit'        => ['required', 'integer', 'between:-1,99'],
+            'app_num_limit'         => ['required', 'integer', 'between:-1,99'],
+            'is_enabled'            => ['required', 'boolean'],
+            'safe_level'            => ['required', 'integer', 'between:0,99'],
+            'settlement_type'       => ['required', 'integer', 'between:1,3'],
+            'settlement_delay_days' => ['integer', 'between:0,99'],
+            'auto_transfer'         => ['required', 'boolean'],
+            'receipt_fee_type'      => ['array'],
+            'receipt_fixed_fee'     => ['numeric', 'between:0,100'],
+            'receipt_fee_rate'      => ['numeric', 'between:0,100'],
+            'payment_fee_type'      => ['array'],
+            'payment_fixed_fee'     => ['numeric', 'between:0,100'],
+            'payment_fee_rate'      => ['numeric', 'between:0,100'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -88,13 +97,21 @@ class TenantController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'contact_user_name' => 'required|string|max:20',
-            'contact_phone'     => 'required|string|max:20',
-            'company_name'      => 'required|string|max:200',
-            'user_num_limit'    => ['required', 'integer', 'between:-1,99'],
-            'app_num_limit'     => ['required', 'integer', 'between:-1,99'],
-            'is_enabled'        => ['required', 'boolean'],
-            'safe_level'        => ['required', 'integer', 'between:0,99'],
+            'contact_user_name'     => 'required|string|max:20',
+            'contact_phone'         => 'required|string|max:20',
+            'company_name'          => 'required|string|max:200',
+            'user_num_limit'        => ['required', 'integer', 'between:-1,99'],
+            'app_num_limit'         => ['required', 'integer', 'between:-1,99'],
+            'is_enabled'            => ['required', 'boolean'],
+            'safe_level'            => ['required', 'integer', 'between:0,99'],
+            'settlement_delay_days' => ['integer', 'between:0,99'],
+            'auto_transfer'         => ['required', 'boolean'],
+            'receipt_fee_type'      => ['array'],
+            'receipt_fixed_fee'     => ['numeric', 'between:0,100'],
+            'receipt_fee_rate'      => ['numeric', 'between:0,100'],
+            'payment_fee_type'      => ['array'],
+            'payment_fixed_fee'     => ['numeric', 'between:0,100'],
+            'payment_fee_rate'      => ['numeric', 'between:0,100'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
