@@ -61,8 +61,8 @@ class ChannelAccountController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'channel_id'           => ['required', 'integer', 'between:1,99999999999'],
-            'merchant_id'          => [
+            'channel_id'              => ['required', 'integer', 'between:1,99999999999'],
+            'merchant_id'             => [
                 'required',
                 'string',
                 'max:50',
@@ -77,10 +77,10 @@ class ChannelAccountController extends BasicController
                     }
                 }
             ],
-            'limit_quota'          => 'required|numeric|between:0,999999999',
-            'status'               => ['required', 'boolean'],
-            'support_collection'   => ['required', 'boolean'],
-            'support_disbursement' => ['required', 'boolean'],
+            'limit_quota'             => 'required|numeric|between:0,999999999',
+            'status'                  => ['required', 'boolean'],
+            'support_collection'      => ['required', 'boolean'],
+            'support_disbursement'    => ['required', 'boolean'],
             'daily_max_receipt'       => 'required|numeric|between:0,999999999',
             'daily_max_payment'       => 'required|numeric|between:0,999999999',
             'daily_max_receipt_count' => 'required|integer|between:0,999999999',
@@ -89,6 +89,7 @@ class ChannelAccountController extends BasicController
             'max_payment_per_txn'     => 'required|numeric|between:0,999999999',
             'min_receipt_per_txn'     => 'required|numeric|between:0,999999999',
             'min_payment_per_txn'     => 'required|numeric|between:0,999999999',
+            'api_config'              => ['array'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -109,8 +110,8 @@ class ChannelAccountController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'channel_id'           => ['required', 'integer', 'between:1,99999999999'],
-            'merchant_id'          => [
+            'channel_id'              => ['required', 'integer', 'between:1,99999999999'],
+            'merchant_id'             => [
                 'required',
                 'string',
                 'max:50',
@@ -126,10 +127,10 @@ class ChannelAccountController extends BasicController
                     }
                 }
             ],
-            'limit_quota'          => 'required|numeric|between:0,999999999',
-            'status'               => ['required', 'boolean'],
-            'support_collection'   => ['required', 'boolean'],
-            'support_disbursement' => ['required', 'boolean'],
+            'limit_quota'             => 'required|numeric|between:0,999999999',
+            'status'                  => ['required', 'boolean'],
+            'support_collection'      => ['required', 'boolean'],
+            'support_disbursement'    => ['required', 'boolean'],
             'daily_max_receipt'       => 'required|numeric|between:0,999999999',
             'daily_max_payment'       => 'required|numeric|between:0,999999999',
             'daily_max_receipt_count' => 'required|integer|between:0,999999999',
@@ -138,6 +139,7 @@ class ChannelAccountController extends BasicController
             'max_payment_per_txn'     => 'required|numeric|between:0,999999999',
             'min_receipt_per_txn'     => 'required|numeric|between:0,999999999',
             'min_payment_per_txn'     => 'required|numeric|between:0,999999999',
+            'api_config'              => ['array'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

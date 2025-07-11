@@ -128,4 +128,10 @@ final class ModelBankAccount extends BasicModel
         'support_disbursement'    => 'boolean',
     ];
 
+    // belongsTo channel
+    public function channel()
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id');
+    }
+
 }

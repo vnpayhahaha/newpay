@@ -9,7 +9,7 @@ use Carbon\Carbon;
  * @property int $id 主键
  * @property int $channel_id 渠道ID
  * @property string $merchant_id 渠道商户ID
- * @property mixed $api_config API配置 {
+ * @property array $api_config API配置 {
  * "api_key": "KEY-12345",
  * "api_secret": "SECRET-67890",
  * "token": "TOKEN-ABCDE",
@@ -107,7 +107,7 @@ final class ModelChannelAccount extends BasicModel
         'id'                   => 'string',
         'channel_id'           => 'integer',
         'merchant_id'          => 'string',
-        'api_config'           => 'string',
+        'api_config'           => 'array',
         'document_info'        => 'string',
         'api_version'          => 'string',
         'callback_url'         => 'string',
@@ -136,5 +136,11 @@ final class ModelChannelAccount extends BasicModel
         'min_receipt_per_txn'     => 'decimal:2',
         'min_payment_per_txn'     => 'decimal:2',
     ];
+
+    // belongsTo channel
+    public function channel()
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id' );
+    }
 
 }

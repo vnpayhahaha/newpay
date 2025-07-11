@@ -69,6 +69,7 @@ class ChannelController extends BasicController
             'support_collection'   => ['required', 'boolean'],
             'support_disbursement' => ['required', 'boolean'],
             'status'               => ['required', 'boolean'],
+            'config'               => ['array']
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -97,6 +98,7 @@ class ChannelController extends BasicController
             'support_collection'   => ['required', 'boolean'],
             'support_disbursement' => ['required', 'boolean'],
             'status'               => ['required', 'boolean'],
+            'config'               => ['array']
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -132,6 +134,7 @@ class ChannelController extends BasicController
             'status',
             'support_collection',
             'support_disbursement',
+            'config'
         ];
         return $this->success(
             $this->service->getList([])->map(static fn($model) => $model->only($fields))
