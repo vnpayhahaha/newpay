@@ -6,6 +6,7 @@ use app\lib\JwtAuth\user\AuthorizationUserInterface;
 use app\model\enums\TenantUserStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use function Aws\boolean_value;
 
 /**
  * @property int $id 主键 用户ID

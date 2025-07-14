@@ -49,7 +49,7 @@ class PassportService extends IService
             throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('password_error', [], 'auth'));
         }
         var_dump('密码正确');
-        if ($user->status->isDisable()) {
+        if (!$user->status) {
             var_dump('用户被禁用');
             throw new BusinessException(ResultCode::DISABLED);
         }
