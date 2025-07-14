@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property int $user_id 主键 用户ID
+ * @property int $id 主键 用户ID
  * @property string $tenant_id 租户编号
  * @property string $username 用户名
  * @property string $password 密码
@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon $deleted_at 删除时间
  * @property string $ip_whitelist IP白名单
  * @property string $remark 备注
+ * @property array $backend_setting 后台设置数据
  */
 final class ModelTenantUser extends BasicModel implements AuthorizationUserInterface
 {
@@ -43,14 +44,14 @@ final class ModelTenantUser extends BasicModel implements AuthorizationUserInter
      * The primary key associated with the table.
      * @var string
      */
-    protected $primaryKey = 'user_id';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that are mass assignable.
      * @var array
      */
     protected $fillable = [
-        'user_id',
+        'id',
         'tenant_id',
         'username',
         'password',
@@ -69,13 +70,14 @@ final class ModelTenantUser extends BasicModel implements AuthorizationUserInter
         'deleted_by',
         'deleted_at',
         'ip_whitelist',
-        'remark'
+        'remark',
+        'backend_setting'
     ];
 
     protected $casts = [
-        'user_id'           => 'integer',
+        'id'                => 'integer',
         'last_login_time'   => 'datetime',
-        'status'            => TenantUserStatus::class,
+        'status'            => 'boolean',
         'is_enabled_google' => 'boolean',
         'is_bind_google'    => 'boolean',
         'created_by'        => 'integer',
@@ -84,6 +86,7 @@ final class ModelTenantUser extends BasicModel implements AuthorizationUserInter
         'updated_at'        => 'datetime',
         'deleted_by'        => 'integer',
         'deleted_at'        => 'datetime',
+        'backend_setting'   => 'json',
     ];
 
     public function getUserById($id)

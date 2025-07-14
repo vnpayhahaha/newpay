@@ -5,12 +5,14 @@ namespace http\tenant\controller;
 use app\controller\BasicController;
 use app\lib\annotation\NoNeedLogin;
 use app\lib\enum\ResultCode;
-use app\model\enums\UserType;
+use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use app\service\TenantService;
 use DI\Attribute\Inject;
 use http\tenant\Service\PassportService;
+use Illuminate\Support\Arr;
+use support\Context;
 use support\Request;
 use support\Response;
 
@@ -61,4 +63,28 @@ class PassportController extends BasicController
         return $this->success($result);
     }
 
+    #[PostMapping('/logout')]
+    public function logout(Request $request): Response
+    {
+
+        $token = Context::get('token');
+        if (!$token) {
+            return $this->error(ResultCode::FAIL, 'Logout failed');
+        }
+        $isLogout = $this->passportService->logout($token);
+        if (!$isLogout) {
+            return $this->error(ResultCode::FAIL, 'Logout failed');
+        }
+        return $this->success();
+    }
+
+    #[GetMapping('/getInfo')]
+    public function getInfo(Request $request): Response
+    {
+        $user = $request->user;
+        return $this->success(Arr::only(
+            $user?->toArray() ?: [],
+            ['username', 'nickname', 'avatar', 'backend_setting', 'phone']
+        ));
+    }
 }
