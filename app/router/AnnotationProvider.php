@@ -28,9 +28,14 @@ class AnnotationProvider
             $tempClassAnnotations[] = self::formatData($annotationClass);
         }
         $formatData = array_merge(...$tempClassAnnotations);
-
+        $configMiddleware = config('middleware');
+        //var_dump('$configMiddleware==', $configMiddleware);
         foreach ($formatData as $item) {
             $method = $item['method'];
+            $pathPrefix = explode('/', $item['path']);
+            if (isset($configMiddleware[$pathPrefix[1]]) && is_array($item['middleware'])) {
+                $item['middleware'] = array_merge($item['middleware'], $configMiddleware[$pathPrefix[1]]);
+            }
             if (is_array($method)) {
                 Route::add($method, $item['path'], [$item['className'], $item['action']])->middleware($item['middleware']);
             } else if ($method === 'resource') {
@@ -116,11 +121,11 @@ class AnnotationProvider
                 $classPath = $classPrefix . ($classResourceAnnotationArgs['path'] ?? $classResourceAnnotationArgs[0] ?? '');
                 $classAllowMethods = $classResourceAnnotationArgs['allow_methods'] ?? [];
                 $tempClassAnnotations[] = [
-                    'method' => 'resource',
-                    'className' => $className,
-                    'path' => $classPath,
+                    'method'       => 'resource',
+                    'className'    => $className,
+                    'path'         => $classPath,
                     'allowMethods' => $classAllowMethods,
-                    'middleware' => $classMiddlewares,
+                    'middleware'   => $classMiddlewares,
                 ];
             }
             $resourceMatch = true;
@@ -206,10 +211,10 @@ class AnnotationProvider
                             }
 
                             $tempClassAnnotations[] = [
-                                'method' => $method,
-                                'path' => $classPrefix . $mappingPath,
-                                'className' => $className,
-                                'action' => $action,
+                                'method'     => $method,
+                                'path'       => $classPrefix . $mappingPath,
+                                'className'  => $className,
+                                'action'     => $action,
                                 'middleware' => $allMiddlewares,
                             ];
                         }

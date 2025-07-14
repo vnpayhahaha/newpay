@@ -19,7 +19,9 @@ return [
         app\middleware\RequestIdMiddleware::class,
         app\middleware\LangMiddleware::class,
         app\middleware\AccessTokenMiddleware::class,
+    ],
+    'backend' => [
         app\middleware\PermissionMiddleware::class,
         app\middleware\OperationLogMiddleware::class,
-    ]
+    ],
 ];
