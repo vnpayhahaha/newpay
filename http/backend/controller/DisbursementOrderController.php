@@ -7,19 +7,19 @@ use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
-use app\service\CollectionOrderService;
+use app\service\DisbursementOrderService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
 #[RestController("/admin/transaction")]
-class CollectionOrderController extends BasicController
+class DisbursementOrderController extends BasicController
 {
     #[Inject]
-    protected CollectionOrderService $service;
+    protected DisbursementOrderService $service;
 
-    #[GetMapping('/collection_order/list')]
-    #[Permission(code: 'transaction:collection_order:list')]
+    #[GetMapping('/disbursement_order/list')]
+    #[Permission(code: 'transaction:disbursement_order:list')]
     #[OperationLog('收款订单列表')]
     public function pageList(Request $request): Response
     {
