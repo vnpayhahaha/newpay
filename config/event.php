@@ -12,7 +12,9 @@ return [
     ],
     'backend.user.login'      => [
         [\http\backend\Service\PassportService::class, 'loginLog'],
-        // ...其它事件处理函数...
+    ],
+    'tenant.user.login'      => [
+        [\http\tenant\Service\PassportService::class, 'loginLog'],
     ],
     // 在服务停止时清理监听器跟踪
     'stop'                    => function () {

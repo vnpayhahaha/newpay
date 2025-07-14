@@ -30,6 +30,8 @@ final class ModelTenantUserLoginLog extends BasicModel
      */
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      * @var array
@@ -45,4 +47,20 @@ final class ModelTenantUserLoginLog extends BasicModel
         'login_time',
         'remark'
     ];
+
+    protected $casts = [
+        'id'         => 'integer',
+        'status'     => 'integer',
+        'login_time' => 'datetime'
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelTenantUserLoginLog::creating(function (ModelTenantUserLoginLog $event) {
+            if ($event->login_time === null) {
+                $event->login_time = Carbon::now();
+            }
+        });
+    }
 }

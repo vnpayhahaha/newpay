@@ -29,8 +29,8 @@ class PassportController extends BasicController
     public function login(Request $request): Response
     {
         $validator = validate($request->post(), [
-            'username' => 'required|string',
-            'password' => 'required|string',
+            'username' => 'required|string|max:20',
+            'password' => 'required|string|max:50',
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::FAIL, $validator->errors()->first());

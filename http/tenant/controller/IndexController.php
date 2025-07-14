@@ -1,13 +1,13 @@
 <?php
 
-namespace http\merchant\controller;
+namespace http\tenant\controller;
 
 use app\controller\BasicController;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
 use support\Request;
 
-#[RestController("/merchant")]
+#[RestController("/tenant")]
 class IndexController extends BasicController
 {
     #[GetMapping('/home')]

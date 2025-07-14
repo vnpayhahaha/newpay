@@ -14,7 +14,14 @@ final class TenantUserRepository extends IRepository
 {
     #[Inject]
     protected ModelTenantUser $model;
-
+    public function findByUnameType(string $username, string $tenant_id): ModelTenantUser|null
+    {
+        // @phpstan-ignore-next-line
+        return $this->model->newQuery()
+            ->where('username', $username)
+            ->where('tenant_id', $tenant_id)
+            ->first();
+    }
     public function handleSearch(Builder $query, array $params): Builder
     {
 

@@ -2,6 +2,8 @@
 
 namespace app\model;
 
+use app\lib\JwtAuth\user\AuthorizationUserInterface;
+use app\model\enums\TenantUserStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -27,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $ip_whitelist IP白名单
  * @property string $remark 备注
  */
-final class ModelTenantUser extends BasicModel
+final class ModelTenantUser extends BasicModel implements AuthorizationUserInterface
 {
     use SoftDeletes;
 
@@ -73,7 +75,7 @@ final class ModelTenantUser extends BasicModel
     protected $casts = [
         'user_id'           => 'integer',
         'last_login_time'   => 'datetime',
-        'status'            => 'boolean',
+        'status'            => TenantUserStatus::class,
         'is_enabled_google' => 'boolean',
         'is_bind_google'    => 'boolean',
         'created_by'        => 'integer',
@@ -84,10 +86,19 @@ final class ModelTenantUser extends BasicModel
         'deleted_at'        => 'datetime',
     ];
 
+    public function getUserById($id)
+    {
+        return $this->where('id', $id)->first();
+    }
 
     public function setPasswordAttribute($value): void
     {
         $this->attributes['password'] = password_hash((string)$value, \PASSWORD_DEFAULT);
+    }
+
+    public function verifyPassword(string $password): bool
+    {
+        return password_verify($password, $this->password);
     }
 
     public function resetPassword(): void

@@ -11,5 +11,5 @@ use DI\Attribute\Inject;
 final class TenantService extends IService
 {
     #[Inject]
-    protected TenantRepository $repository;
+    public TenantRepository $repository;
 }

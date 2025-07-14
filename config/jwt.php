@@ -33,9 +33,9 @@ return [
             'user_model'    => ModelUser::class
         ],
         // 多应用
-        'client'   => [
-            'login_type'    => 'mpo', //  登录方式，sso为单点登录，mpo为多点登录
-            'signer_key'    => 'oP0qmqzHS4Vvml5a',
+        'tenant'   => [
+            'login_type'    => env('JWT_LOGIN_TYPE', 'mpo'), //  登录方式，sso为单点登录，mpo为多点登录
+            'signer_key'    => 'c7d801beaf719d2552c0c933254695c764056df482e883fb2d71092195a2da3d',
             'public_key'    => 'file://path/public.key',
             'private_key'   => 'file://path/private.key',
             'expires_at'    => 3600,
@@ -43,10 +43,10 @@ return [
             'leeway'        => 0,
             'signer'        => 'HS256',
             'type'          => 'Header',
-            'auto_refresh'  => false,
-            'iss'           => 'webman.client',
-            'event_handler' => '',
-            'user_model'    => ''
+            'auto_refresh'  => true,
+            'iss'           => 'webman.tenant',
+            'event_handler' => \http\tenant\Event\TenantUserEvent::class,
+            'user_model'    => \app\model\ModelTenantUser::class
         ],
     ]
 ];
