@@ -28,7 +28,7 @@ class PassportController extends BasicController
     #[NoNeedLogin]
     public function login(Request $request): Response
     {
-        $validator = validate($request->post(), [
+        $validator = validate($request->all(), [
             'username'  => 'required|string|max:20',
             'tenant_id' => [
                 'required',
@@ -87,4 +87,5 @@ class PassportController extends BasicController
             ['username', 'nickname', 'avatar', 'backend_setting', 'phone']
         ));
     }
+
 }
