@@ -22,13 +22,13 @@ class PassportController extends BasicController
     #[Inject]
     protected PassportService $passportService;
     #[Inject]
-    protected TenantService $tenantService;
+    protected TenantService   $tenantService;
 
     #[PostMapping('/login')]
     #[NoNeedLogin]
     public function login(Request $request): Response
     {
-        $validator = validate($request->all(), [
+        $validator = validate($request->post(), [
             'username'  => 'required|string|max:20',
             'tenant_id' => [
                 'required',
@@ -84,7 +84,7 @@ class PassportController extends BasicController
         $user = $request->user;
         return $this->success(Arr::only(
             $user?->toArray() ?: [],
-            ['username', 'nickname', 'avatar', 'backend_setting', 'phone']
+            ['tenant_id', 'username', 'nickname', 'avatar', 'backend_setting', 'phone']
         ));
     }
 
