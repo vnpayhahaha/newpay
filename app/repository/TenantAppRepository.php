@@ -46,4 +46,10 @@ class TenantAppRepository extends IRepository
         );
         return $this->handlePage($result);
     }
+
+    // 获取 AppSecret by app_key
+    public function getAppSecretByAppKey(string $app_key): string|null
+    {
+        return $this->getQuery()->where('app_key', $app_key)->value('app_secret');
+    }
 }

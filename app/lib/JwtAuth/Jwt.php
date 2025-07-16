@@ -3,18 +3,17 @@
 namespace app\lib\JwtAuth;
 
 
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Token;
-use DateTimeImmutable;
-use Exception;
-use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
-use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use app\lib\JwtAuth\Exception\JwtException;
 use app\lib\JwtAuth\exception\TokenExpiredException;
 use app\lib\JwtAuth\exception\TokenInvalidException;
 use app\lib\JwtAuth\exception\TokenRefreshExpiredException;
 use app\lib\JwtAuth\support\Utils;
-use support\Response;
+use DateTimeImmutable;
+use Exception;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 
 class Jwt
 {

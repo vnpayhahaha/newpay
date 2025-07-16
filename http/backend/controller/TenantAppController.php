@@ -137,7 +137,7 @@ class TenantAppController extends BasicController
     public function getAppKey(): Response
     {
         return $this->success(
-            ['app_key' => $this->service->getAppKey()]
+            ['app_key' => $this->service->generateAppKey()]
         );
     }
 
@@ -145,7 +145,7 @@ class TenantAppController extends BasicController
     public function getAppSecret(): Response
     {
         return $this->success(
-            ['app_secret' => $this->service->getAppSecret()]
+            ['app_secret' => $this->service->generateAppSecret()]
         );
     }
 }

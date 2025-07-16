@@ -14,14 +14,20 @@
 
 
 return [
-    '' => [
+    ''        => [
         app\middleware\CorsMiddleware::class,
         app\middleware\RequestIdMiddleware::class,
         app\middleware\LangMiddleware::class,
-        app\middleware\AccessTokenMiddleware::class,
     ],
     'backend' => [
+        app\middleware\AccessTokenMiddleware::class,
         app\middleware\PermissionMiddleware::class,
         app\middleware\OperationLogMiddleware::class,
+    ],
+    'tenant'  => [
+        app\middleware\AccessTokenMiddleware::class,
+    ],
+    'openapi' => [
+        app\middleware\OpenApiSignatureMiddleware::class,
     ],
 ];

@@ -25,7 +25,7 @@ final class TenantAppService extends IService
      * 生成新的app key.
      * @throws Exception
      */
-    public function getAppKey(): string
+    public function generateAppKey(): string
     {
         return bin2hex(random_bytes(5));
     }
@@ -34,9 +34,15 @@ final class TenantAppService extends IService
      * 生成新的app secret.
      * @throws Exception
      */
-    public function getAppSecret(): string
+    public function generateAppSecret(): string
     {
         return base64_encode(bin2hex(random_bytes(32)));
+    }
+
+    // 获取 AppSecret by app_key
+    public function getAppSecretByAppKey(string $app_key): string|null
+    {
+        return $this->repository->getAppSecretByAppKey($app_key);
     }
 
     public function create(array $data): mixed

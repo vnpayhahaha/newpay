@@ -106,3 +106,43 @@ if (!function_exists('parseAcceptLanguage')) {
         return 'zh_CN';
     }
 }
+if (!function_exists('ascii_params')) {
+    /**
+     * 自定义ascii排序 返回字符串
+     * @param array $params
+     * @return string
+     */
+    function ascii_params(array $params = []): string
+    {
+        if (!empty($params)) {
+            $p = ksort($params);
+            if ($p) {
+                $str = '';
+                foreach ($params as $k => $val) {
+                    $str .= $k . '=' . $val . '&';
+                }
+                return rtrim($str, '&');
+            }
+        }
+        return '参数错误';
+    }
+}
+// md5 加密签名 最后连接符
+if (!function_exists('md5_signature')) {
+    function md5_signature(array $params, string $key, string $key_name = 'key', string $connect = '&'): string
+    {
+        // 第一步：过滤空值和空字符串,保留数字0
+        $params = array_filter($params, function ($val) {
+            return $val !== '' && $val !== null;
+        });
+        // 第二步：拼接签名密钥
+        $str = ascii_params($params);
+        if ($key_name === null) {
+            $str .= $connect . $key;
+        } else {
+            $str .= $connect . $key_name . '=' . $key;
+        }
+        var_dump('===签名前字符==', $str);
+        return md5($str);
+    }
+}

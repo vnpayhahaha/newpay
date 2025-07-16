@@ -77,4 +77,24 @@ enum ResultCode: int
     // USER_NUM_LIMIT_EXCEEDED
     #[Message('result.user_num_limit_exceeded')]
     case USER_NUM_LIMIT_EXCEEDED = 201004;
+
+    // openApi
+    // sign is required
+    #[Message('result.openapi.sign_is_required')]
+    case OPENAPI_SIGN_IS_REQUIRED = 202001;
+    // app_key is required
+    #[Message('result.openapi.app_key_is_required')]
+    case OPENAPI_APP_KEY_IS_REQUIRED = 202002;
+    // app_key is invalid
+    #[Message('result.openapi.app_key_is_invalid')]
+    case OPENAPI_APP_KEY_IS_INVALID = 202003;
+    // sign is invalid
+    #[Message('result.openapi.sign_is_invalid')]
+    case OPENAPI_SIGN_IS_INVALID = 202004;
+    // timestamp is required
+    #[Message('result.openapi.timestamp_is_required')]
+    case OPENAPI_TIMESTAMP_IS_REQUIRED = 202005;
+    // timestamp is expired
+    #[Message('result.openapi.timestamp_is_expired')]
+    case OPENAPI_TIMESTAMP_IS_EXPIRED = 202006;
 }
