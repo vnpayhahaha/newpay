@@ -22,8 +22,8 @@ final class CollectionOrderRepository extends IRepository
             $query->where('platform_order_no', $params['platform_order_no']);
         }
 
-        if (isset($params['merchant_order_no'])) {
-            $query->where('merchant_order_no', $params['merchant_order_no']);
+        if (isset($params['tenant_order_no'])) {
+            $query->where('tenant_order_no', $params['tenant_order_no']);
         }
 
         if (isset($params['upstream_order_no'])) {

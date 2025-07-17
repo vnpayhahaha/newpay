@@ -45,6 +45,13 @@ final class TenantAppService extends IService
         return $this->repository->getAppSecretByAppKey($app_key);
     }
 
+
+    // 获取 App信息 by app_key
+    public function queryByAppKey(string $app_key): mixed
+    {
+        return $this->repository->getQuery()->where('app_key', $app_key)->first();
+    }
+
     public function create(array $data): mixed
     {
         // 读取租户 ID，判断 user_num_limit 限制

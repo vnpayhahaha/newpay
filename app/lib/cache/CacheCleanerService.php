@@ -104,6 +104,8 @@ class CacheCleanerService
 
         if (!is_dir($path)) {
             Log::warning("Cache directory not found: {$path}");
+            // 如果目录不存在，则创建
+            mkdir($path, 0755, true);
             return 0;
         }
 

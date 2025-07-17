@@ -194,4 +194,5 @@ return [
 
     'attributes' => [],
     'not_equal' => 'The :attribute cannot be equal to :value.',
+    'discontinued' => ':attribute is discontinued.',
 ];

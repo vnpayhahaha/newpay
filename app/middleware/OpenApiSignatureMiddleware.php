@@ -2,6 +2,7 @@
 
 namespace app\middleware;
 
+use app\constants\TenantApp;
 use app\lib\enum\ResultCode;
 use app\service\TenantAppService;
 use DI\Attribute\Inject;
@@ -37,12 +38,16 @@ class OpenApiSignatureMiddleware implements MiddlewareInterface
         if (time() - $timestamp > 60) {
             return $this->errorHandler(ResultCode::OPENAPI_TIMESTAMP_IS_EXPIRED, 'timestamp is expired');
         }
-        $appSecret = $this->tenantAppService->getAppSecretByAppKey($app_key);
-        if (!$appSecret) {
+        $app = $this->tenantAppService->queryByAppKey($app_key);
+        if (!$app) {
             return $this->errorHandler(ResultCode::OPENAPI_APP_KEY_IS_INVALID, 'app_key is invalid');
         }
+        // 判断$app 状态
+        if ($app->status == TenantApp::STATUS_DISABLE) {
+            return $this->errorHandler(ResultCode::OPENAPI_APP_IS_DISABLED, 'app is disabled');
+        }
         unset($params['sign']);
-        $md5_sign = md5_signature($params, $appSecret);
+        $md5_sign = md5_signature($params, $app->app_secret);
         if ($sign != $md5_sign) {
             return $this->errorHandler(ResultCode::OPENAPI_SIGN_IS_INVALID, 'sign is invalid');
         }

@@ -7,7 +7,7 @@ use Carbon\Carbon;
 /**
  * @property int $id 主键
  * @property string $platform_order_no 平台订单号
- * @property string $merchant_order_no 下游订单号
+ * @property string $tenant_order_no 下游订单号
  * @property string $upstream_order_no 上游订单号
  * @property float $amount 订单金额
  * @property float $payable_amount 订单应付金额
@@ -30,10 +30,11 @@ use Carbon\Carbon;
  * 2-人工核销
  * 3-接口核销
  * 4-机器人核销
- * @property string $callback_url 回调地址
- * @property int $callback_count 回调次数
+ * @property string $notify_url 回调地址
+ * @property string $notify_remark 回调原样返回
+ * @property int $notify_count 回调次数
  * @property int $notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
- * @property string $checkout_url 收银台地址
+ * @property string $pay_url 收银台地址
  * @property string $return_url 支付成功后跳转地址
  * @property string $tenant_id 租户编号
  * @property int $app_id 应用ID
@@ -77,7 +78,7 @@ final class ModelCollectionOrder extends BasicModel
      */
     protected $fillable = [
         'platform_order_no',
-        'merchant_order_no',
+        'tenant_order_no',
         'upstream_order_no',
         'amount',
         'payable_amount',
@@ -95,10 +96,11 @@ final class ModelCollectionOrder extends BasicModel
         'expire_time',
         'order_source',
         'recon_type',
-        'callback_url',
-        'callback_count',
+        'notify_url',
+        'notify_remark',
+        'notify_count',
         'notify_status',
-        'checkout_url',
+        'pay_url',
         'return_url',
         'tenant_id',
         'app_id',
@@ -135,7 +137,7 @@ final class ModelCollectionOrder extends BasicModel
         'collection_type'            => 'integer',
         'collection_channel_id'      => 'integer',
         'recon_type'                 => 'integer',
-        'callback_count'             => 'integer',
+        'notify_count'             => 'integer',
         'notify_status'              => 'integer',
         'app_id'                     => 'integer',
         'status'                     => 'integer',

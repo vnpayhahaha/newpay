@@ -158,4 +158,5 @@ return [
     ],
     'attributes' => [],
     'not_equal' => ':attribute 不能等于 :value。',
+    'discontinued' => ':attribute 已停用。',
 ];

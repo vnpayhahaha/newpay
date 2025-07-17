@@ -65,21 +65,20 @@ enum ResultCode: int
     // 用户模块 201xxx
     #[Message('result.user_login_failed')]
     case USER_LOGIN_FAILED = 201001;
-
     // USER_NOT_FOUND
     #[Message('result.user_not_exist')]
     case USER_NOT_EXIST = 201002;
-
     // role_not_exist
     #[Message('result.role_not_exist')]
     case ROLE_NOT_EXIST = 201003;
-
     // USER_NUM_LIMIT_EXCEEDED
     #[Message('result.user_num_limit_exceeded')]
     case USER_NUM_LIMIT_EXCEEDED = 201004;
 
     // openApi
     // sign is required
+    #[Message('result.openapi.system_error')]
+    case OPENAPI_SYSTEM_ERROR = 202000;
     #[Message('result.openapi.sign_is_required')]
     case OPENAPI_SIGN_IS_REQUIRED = 202001;
     // app_key is required
@@ -97,4 +96,7 @@ enum ResultCode: int
     // timestamp is expired
     #[Message('result.openapi.timestamp_is_expired')]
     case OPENAPI_TIMESTAMP_IS_EXPIRED = 202006;
+    // app is disabled
+    #[Message('result.openapi.app_is_disabled')]
+    case OPENAPI_APP_IS_DISABLED = 202007;
 }

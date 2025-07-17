@@ -2,11 +2,27 @@
 
 namespace app\service;
 
+use app\lib\annotation\Cacheable;
 use app\repository\TenantApiInterfaceRepository;
-use DI\Attribute\Inject;
 
-final class TenantApiInterfaceService extends IService
+final class TenantApiInterfaceService extends BaseService
 {
-    #[Inject]
+
     public TenantApiInterfaceRepository $repository;
+
+    public function __construct(TenantApiInterfaceRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+    #[Cacheable(
+        prefix: 'openapi:reatlimit',
+        value: '_#{api_name}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    private function getRateLimitByApiName(string $api_name): int
+    {
+        return (int)$this->repository->getQuery()->where('api_name', $api_name)->value('rate_limit') ?? 0;
+    }
+
 }

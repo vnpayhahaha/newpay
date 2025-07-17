@@ -7,7 +7,7 @@ use Carbon\Carbon;
 /**
  * @property int $id 主键
  * @property string $platform_order_no 平台订单号
- * @property string $merchant_order_no 下游订单号
+ * @property string $tenant_order_no 下游订单号
  * @property string $upstream_order_no 上游订单号
  * @property Carbon $pay_time 支付时间
  * @property string $order_source 订单来源:App-API 管理后台 导入
@@ -65,7 +65,7 @@ final class ModelDisbursementOrder extends BasicModel
      */
     protected $fillable = [
         'platform_order_no',
-        'merchant_order_no',
+        'tenant_order_no',
         'upstream_order_no',
         'pay_time',
         'order_source',

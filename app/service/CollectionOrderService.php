@@ -9,4 +9,11 @@ final class CollectionOrderService extends IService
 {
     #[Inject]
     public CollectionOrderRepository $repository;
+
+
+    // 创建订单
+    public function createOrder(array $data): mixed
+    {
+        return $this->repository->create($data);
+    }
 }
