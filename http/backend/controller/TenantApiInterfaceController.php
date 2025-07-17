@@ -58,16 +58,14 @@ class TenantApiInterfaceController extends BasicController
                     }
                 }
             ],
-            'request_params'   => 'array',
-            'request_example'  => 'array',
-            'response_params'  => 'array',
-            'response_example' => 'array',
+            'request_params'   => 'json',
+            'request_example'  => 'json',
+            'response_params'  => 'json',
+            'response_example' => 'json',
             'description'      => 'string|max:1000',
             'status'           => 'boolean',
             'rate_limit'       => ['integer', 'between:0,1000'],
             'auth_mode'        => ['integer', 'between:0,2'],
-            'remark'           => 'string|max:255',
-            'ip_whitelist'     => 'present',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -105,16 +103,14 @@ class TenantApiInterfaceController extends BasicController
                     }
                 }
             ],
-            'request_params'   => 'array',
-            'request_example'  => 'array',
-            'response_params'  => 'array',
-            'response_example' => 'array',
+            'request_params'   => 'json',
+            'request_example'  => 'json',
+            'response_params'  => 'json',
+            'response_example' => 'json',
             'description'      => 'string|max:1000',
             'status'           => 'boolean',
             'rate_limit'       => ['integer', 'between:0,1000'],
             'auth_mode'        => ['integer', 'between:0,2'],
-            'remark'           => 'string|max:255',
-            'ip_whitelist'     => 'present',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

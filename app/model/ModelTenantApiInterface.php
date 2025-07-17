@@ -66,9 +66,5 @@ final class ModelTenantApiInterface extends BasicModel
         'updated_by'       => 'integer',
         'created_at'       => 'datetime',
         'updated_at'       => 'datetime',
-        'request_params'   => 'array',
-        'request_example'  => 'array',
-        'response_params'  => 'array',
-        'response_example' => 'array'
     ];
 }
