@@ -12,4 +12,6 @@ Route::options('[{path:.+}]', function ($request) {
         'Access-Control-Allow-Credentials' => 'true',
     ]);
 });
+// 查询开放api
+Route::get('/common/api/{api}', [http\common\controller\ApiController::class,'api']);
 \app\router\AnnotationProvider::start();

@@ -6,6 +6,7 @@ return [
         'http/backend',
         'http/tenant',
         'http/openapi',
+        'http/common',
     ],
     // requestMapping 允许的请求method
     'allow_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
