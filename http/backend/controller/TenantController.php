@@ -132,6 +132,7 @@ class TenantController extends BasicController
             'auto_verify_fail_rate'    => ['numeric', 'between:0,100'],
             'upstream_items'           => 'array',
             'payment_assign_items'     => 'array',
+            'collection_use_method'    => 'array',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

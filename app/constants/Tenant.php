@@ -43,4 +43,12 @@ class Tenant
     public static array $payment_assign_options = [
 
     ];
+
+    // collection_use_method 收款使用方法1银行账户 2上游
+    public const COLLECTION_USE_METHOD_BANK_ACCOUNT = 1;
+    public const COLLECTION_USE_METHOD_UPSTREAM     = 2;
+    public static array $collection_use_method_list = [
+        self::COLLECTION_USE_METHOD_BANK_ACCOUNT => 'tenant.enums.collection_use_method.bank_account',
+        self::COLLECTION_USE_METHOD_UPSTREAM     => 'tenant.enums.collection_use_method.upstream',
+    ];
 }

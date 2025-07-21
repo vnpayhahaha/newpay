@@ -22,18 +22,22 @@ return [
     'deleted_at'        => 'Deletion Time',
     'remark'            => 'Remark',
     'enums'             => [
-        'is_enabled' => [
+        'is_enabled'            => [
             1 => 'Active',
             2 => 'Disabled'
         ],
-        'settlement' => [
+        'settlement'            => [
             1 => 'Actual Amount',
             2 => 'Order Amount'
         ],
-        'bank_card'  => [
+        'bank_card'             => [
             1 => 'Random',
             2 => 'Sequential',
             3 => 'Polling'
-        ]
+        ],
+        'collection_use_method' => [
+            'bank_account' => 'Bank Account',
+            'upstream'  => 'Upstream',
+        ],
     ]
 ];

@@ -22,18 +22,22 @@ return [
     'deleted_at'        => '删除时间',
     'remark'            => '备注',
     'enums'             => [
-        'is_enabled' => [
+        'is_enabled'            => [
             1 => '激活',
             2 => '停用',
         ],
-        'settlement' => [
+        'settlement'            => [
             1 => '实际金额',
             2 => '订单金额',
         ],
-        'bank_card'  => [
+        'bank_card'             => [
             1 => '随机',
             2 => '依次',
             3 => '轮询',
+        ],
+        'collection_use_method' => [
+            'bank_account' => '银行户',
+            'upstream'     => '上游',
         ],
     ],
 ];
