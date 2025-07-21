@@ -35,12 +35,11 @@ class CollectionOrderController extends BasicController
         // 参数验证
         $validator = validate($request->all(), [
             'tenant_id'       => [
-                //'required|string|max:20'
                 'required',
                 'string',
                 'max:20',
                 function ($attribute, $value, $fail) use ($request) {
-                    $findTenant = $this->tenantService->repository->getQuery()->where('tenant_id', $value)->first();
+                    $findTenant = $this->tenantService->repository->getQuery()->select(['tenant_id', 'is_enabled'])->where('tenant_id', $value)->first();
                     if (!$findTenant) {
                         return $fail(trans('exists', [':attribute' => $attribute], 'validation'));
                     }

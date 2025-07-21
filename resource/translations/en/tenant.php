@@ -25,6 +25,15 @@ return [
         'is_enabled' => [
             1 => 'Active',
             2 => 'Disabled'
+        ],
+        'settlement' => [
+            1 => 'Actual Amount',
+            2 => 'Order Amount'
+        ],
+        'bank_card'  => [
+            1 => 'Random',
+            2 => 'Sequential',
+            3 => 'Polling'
         ]
     ]
 ];
