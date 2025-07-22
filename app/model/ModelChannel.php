@@ -18,7 +18,7 @@ use Carbon\Carbon;
  * @property int $support_collection 支持代收
  * @property int $support_disbursement 支持代付
  * @property mixed $config 渠道配置(JSON)
- * @property int $status 状态:1-启用 2-停用
+ * @property boolean $status 状态:1-启用 0-停用
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at

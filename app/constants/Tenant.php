@@ -34,6 +34,16 @@ class Tenant
         self::BANK_CARD_POLLING    => 'tenant.enums.bank_card.3',
     ];
 
+    // $settlement_delay_mode 入账类型(1:D0 2:D 3:T)
+    public const SETTLEMENT_DELAY_MODE_D0 = 1;
+    public const SETTLEMENT_DELAY_MODE_D  = 2;
+    public const SETTLEMENT_DELAY_MODE_T  = 3;
+    public static array $settlement_delay_mode_list = [
+        self::SETTLEMENT_DELAY_MODE_D0 => 'D0',
+        self::SETTLEMENT_DELAY_MODE_D  => 'D',
+        self::SETTLEMENT_DELAY_MODE_T  => 'T',
+    ];
+
     // 上游第三方收款项 upstream_options
     public static array $upstream_options = [
 
@@ -50,5 +60,21 @@ class Tenant
     public static array $collection_use_method_list = [
         self::COLLECTION_USE_METHOD_BANK_ACCOUNT => 'tenant.enums.collection_use_method.bank_account',
         self::COLLECTION_USE_METHOD_UPSTREAM     => 'tenant.enums.collection_use_method.upstream',
+    ];
+
+    // receipt_fixed_fee  收款手续费类型(1固定 2费率)
+    public const RECEIPT_FEE_TYPE_FIXED = 1;
+    public const RECEIPT_FEE_TYPE_RATE  = 2;
+    public static array $receipt_fee_type_list = [
+        self::RECEIPT_FEE_TYPE_FIXED => 'tenant.enums.receipt_fee_type.fixed',
+        self::RECEIPT_FEE_TYPE_RATE  => 'tenant.enums.receipt_fee_type.rate',
+    ];
+
+    // payment_fee_type 付款手续费类型(1固定 2费率)
+    public const PAYMENT_FEE_TYPE_FIXED = 1;
+    public const PAYMENT_FEE_TYPE_RATE  = 2;
+    public static array $payment_fee_type_list = [
+        self::PAYMENT_FEE_TYPE_FIXED => 'tenant.enums.payment_fee_type.fixed',
+        self::PAYMENT_FEE_TYPE_RATE  => 'tenant.enums.payment_fee_type.rate',
     ];
 }

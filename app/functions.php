@@ -146,3 +146,32 @@ if (!function_exists('md5_signature')) {
         return md5($str);
     }
 }
+// buildPlatformOrderNo
+if (!function_exists('buildPlatformOrderNo')) {
+    function buildPlatformOrderNo(string $prefix = ''): string
+    {
+        // 使用更高精度的时间戳（微秒级）
+        $microsecond = microtime(true);
+        $date = DateTime::createFromFormat('U.u', sprintf('%.6f', $microsecond));
+        try {
+            // 首选加密安全的随机字节生成器
+            $randomBytes = random_bytes(4);
+        } catch (Throwable $e) {
+            // 降级方案1：尝试使用 OpenSSL 扩展
+            if (function_exists('openssl_random_pseudo_bytes')) {
+                $randomBytes = openssl_random_pseudo_bytes(4);
+            } // 降级方案2：使用 mt_rand 生成伪随机数
+            else {
+                // 生成4字节（32位）随机数
+                $randomInt = mt_rand(0, 0xFFFFFFFF);
+                $randomBytes = pack('N', $randomInt); // 将32位整数打包为4字节字符串
+            }
+        }
+        // 格式化时间部分（包含毫秒）
+        $timePart = $date->format('YmdHis') . str_pad($date->format('v'), 3, '0', STR_PAD_LEFT);
+        // 转换为十六进制并大写
+        $randomHex = bin2hex($randomBytes);
+        // 组合时间戳和随机部分
+        return $prefix . $timePart. strtoupper($randomHex);
+    }
+}

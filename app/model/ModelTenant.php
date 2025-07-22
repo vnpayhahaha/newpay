@@ -29,13 +29,13 @@ use Webman\Event\Event;
  * @property int $deleted_by 删除者
  * @property Carbon $deleted_at 删除时间
  * @property string $remark 备注
- * @property int $settlement_type 入账类型(1:D0 2:D 3:T)
+ * @property int $settlement_delay_mode 入账类型(1:D0 2:D 3:T)
  * @property int $settlement_delay_days 入账延迟天数
  * @property int $auto_transfer 自动划扣(1是 0否)
- * @property string $receipt_fee_type 收款手续费类型(1固定 2费率)
+ * @property array $receipt_fee_type 收款手续费类型(1固定 2费率)
  * @property float $receipt_fixed_fee 收款固定手续费金额
  * @property float $receipt_fee_rate 收款手续费费率(%)
- * @property string $payment_fee_type 付款手续费类型(1固定 2费率)
+ * @property array $payment_fee_type 付款手续费类型(1固定 2费率)
  * @property float $payment_fixed_fee 付款固定手续费金额
  * @property float $payment_fee_rate 付款手续费费率(%)
  * @property int $is_receipt 是否收款(1是 0否)
@@ -47,9 +47,9 @@ use Webman\Event\Event;
  * @property int $receipt_settlement_type 收款结算方式(1实际金额 2订单金额)
  * @property int $upstream_enabled 启用上游第三方收款(1是 0否)
  * @property array $upstream_items 上游第三方收款顺序
- * @property int $float_enabled 启用金额浮动(1是 0否)
- * @property string $float_range 金额浮动区间(格式：-5,5)
- * @property string $notify_range 下游通知金额区间(格式：100,1000)
+ * @property boolean $float_enabled 启用金额浮动(1是 0否)
+ * @property array $float_range 金额浮动区间(格式：-5,5)
+ * @property array $notify_range 下游通知金额区间(格式：100,1000)
  * @property int $auto_assign_enabled 启用自动分配(1是 0否)
  * @property int $receipt_expire_minutes 收款订单失效时间(分钟)
  * @property int $payment_expire_minutes 付款订单失效时间(分钟)
@@ -101,7 +101,7 @@ final class ModelTenant extends BasicModel
         'deleted_by',
         'deleted_at',
         'remark',
-        'settlement_type',
+        'settlement_delay_mode',
         'settlement_delay_days',
         'auto_transfer',
         'receipt_fee_type',
@@ -145,7 +145,7 @@ final class ModelTenant extends BasicModel
         'expired_at'               => 'datetime',
         'deleted_at'               => 'datetime',
         'auto_transfer'            => 'boolean',
-        'settlement_type'          => 'integer',
+        'settlement_delay_mode'    => 'integer',
         'settlement_delay_days'    => 'integer',
         'receipt_fee_type'         => 'array',
         'receipt_fixed_fee'        => 'float',

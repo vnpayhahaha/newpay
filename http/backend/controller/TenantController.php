@@ -128,11 +128,12 @@ class TenantController extends BasicController
             'payment_expire_minutes'   => ['integer', 'between:0,9999'],
             'reconcile_retain_minutes' => ['integer', 'between:0,9999'],
             'bill_delay_minutes'       => ['integer', 'between:0,9999'],
-            'card_acquire_type'        => ['required', 'integer', 'between:1,3'],
+            'card_acquire_type'        => ['integer', 'between:1,3'],
             'auto_verify_fail_rate'    => ['numeric', 'between:0,100'],
             'upstream_items'           => 'array',
             'payment_assign_items'     => 'array',
             'collection_use_method'    => 'array',
+            'settlement_delay_mode'    => ['integer', 'between:1,3'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

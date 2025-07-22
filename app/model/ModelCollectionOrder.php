@@ -3,6 +3,7 @@
 namespace app\model;
 
 use Carbon\Carbon;
+use support\Db;
 
 /**
  * @property int $id 主键
@@ -21,6 +22,8 @@ use Carbon\Carbon;
  * @property int $settlement_type 入账结算类型:0-未入账 1-实付金额 2-订单金额
  * @property int $collection_type 收款类型:1-银行卡 2-UPI 3-第三方支付
  * @property int $collection_channel_id 收款渠道ID
+ * @property int $channel_account_id 渠道账户ID
+ * @property int $bank_account_id 银行账户ID
  * @property Carbon $pay_time 支付时间
  * @property Carbon $expire_time 订单失效时间
  * @property string $order_source 订单来源:APP-API 管理后台 导入
@@ -57,6 +60,8 @@ use Carbon\Carbon;
  * @property string $platform_transaction_no 平台交易流水号
  * @property string $utr utr
  * @property string $customer_submitted_utr 客户提交的UTR
+ * @property int $settlement_delay_mode 入账类型(1:D0 2:D1 3:T0)
+ * @property int $settlement_delay_days 入账延迟天数（自然日）
  */
 final class ModelCollectionOrder extends BasicModel
 {
@@ -92,6 +97,8 @@ final class ModelCollectionOrder extends BasicModel
         'settlement_type',
         'collection_type',
         'collection_channel_id',
+        'channel_account_id',
+        'bank_account_id',
         'pay_time',
         'expire_time',
         'order_source',
@@ -121,6 +128,8 @@ final class ModelCollectionOrder extends BasicModel
         'platform_transaction_no',
         'utr',
         'customer_submitted_utr',
+        'settlement_delay_mode',
+        'settlement_delay_days',
     ];
 
     protected $casts = [
@@ -136,8 +145,10 @@ final class ModelCollectionOrder extends BasicModel
         'settlement_type'            => 'integer',
         'collection_type'            => 'integer',
         'collection_channel_id'      => 'integer',
+        'channel_account_id'         => 'integer',
+        'bank_account_id'            => 'integer',
         'recon_type'                 => 'integer',
-        'notify_count'             => 'integer',
+        'notify_count'               => 'integer',
         'notify_status'              => 'integer',
         'app_id'                     => 'integer',
         'status'                     => 'integer',
@@ -145,5 +156,18 @@ final class ModelCollectionOrder extends BasicModel
         'expire_time'                => 'datetime',
         'created_at'                 => 'datetime',
         'updated_at'                 => 'datetime',
+        'settlement_delay_mode'      => 'integer',
+        'settlement_delay_days'      => 'integer',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        ModelCollectionOrder::creating(function (ModelCollectionOrder $model) {
+            var_dump('run ModelCollectionOrder creating==');
+            if (empty($model->platform_order_no)) {
+                $model->platform_order_no = buildPlatformOrderNo('CO');
+            }
+        });
+    }
 }
