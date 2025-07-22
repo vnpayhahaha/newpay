@@ -163,7 +163,7 @@ class ChannelAccountController extends BasicController
         return $this->success();
     }
 
-    #[GetMapping('/channel_account/channel_dict/remote')]
+    #[GetMapping('/channel_account/remote')]
     public function remote(Request $request): Response
     {
         $fields = [
@@ -176,7 +176,41 @@ class ChannelAccountController extends BasicController
             'support_disbursement',
         ];
         return $this->success(
-            $this->service->getList([])->map(static fn($model) => $model->only($fields))
+            $this->service->getList($request->all())->map(static fn($model) => $model->only($fields))
+        );
+    }
+
+    // 可用选项 type 1 代收 2 代付
+    #[GetMapping('/channel_account/available_options/{type}')]
+    public function options(Request $request, int $type): Response
+    {
+        $fields = [
+            'id',
+            'merchant_id',
+        ];
+
+        $channelAccounts = $this->service->repository->getQuery()
+            ->whereHas('channel', function ($query) use ($type) {
+                $query->where('status', true);
+                if ($type === 1) {
+                    $query->where('support_collection', true);
+                } else {
+                    $query->where('support_disbursement', true);
+                }
+            })
+            ->where('status', true)
+            ->where(function ($query) use ($type) {
+                if ($type === 1) {
+                    $query->where('support_collection', true);
+                } else {
+                    $query->where('support_disbursement', true);
+                }
+            })
+            ->get()
+            ->map(static fn($model) => $model->only($fields));
+
+        return $this->success(
+            $channelAccounts
         );
     }
 

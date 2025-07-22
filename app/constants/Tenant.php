@@ -46,7 +46,8 @@ class Tenant
 
     // 上游第三方收款项 upstream_options
     public static array $upstream_options = [
-
+        'aipay'  => \app\upstream\aipay\CollectionService::class,
+        'caipay' => \app\upstream\caipay\CollectionService::class,
     ];
 
     // payment_assign_options

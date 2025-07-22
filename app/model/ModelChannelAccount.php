@@ -35,7 +35,7 @@ use Carbon\Carbon;
  * @property float $today_receipt_amount 当日已收款金额
  * @property float $today_payment_amount 当日已付款金额
  * @property Carbon $stat_date 统计日期(YYYY-MM-DD)
- * @property int $status 状态:1-启用 2-停用
+ * @property boolean $status 状态:1-启用 0-停用
  * @property int $support_collection 支持代收
  * @property int $support_disbursement 支持代付
  * @property Carbon $created_at
@@ -104,7 +104,7 @@ final class ModelChannelAccount extends BasicModel
     ];
 
     protected $casts = [
-        'id'                   => 'string',
+        'id'                   => 'integer',
         'channel_id'           => 'integer',
         'merchant_id'          => 'string',
         'api_config'           => 'array',

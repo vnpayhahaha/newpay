@@ -10,8 +10,10 @@ use app\lib\enum\ResultCode;
 use app\model\ModelCollectionOrder;
 use app\model\ModelTenant;
 use app\repository\BankAccountRepository;
+use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
 use app\repository\TenantRepository;
+use app\upstream\Handle\TransactionCollectionOrderFactory;
 use DI\Attribute\Inject;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
@@ -27,6 +29,8 @@ final class CollectionOrderService extends IService
     protected TenantRepository       $tenantRepository;
     #[Inject]
     protected BankAccountRepository  $bankAccountRepository;
+    #[Inject]
+    protected ChannelAccountRepository $channelAccountRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): mixed
@@ -46,8 +50,9 @@ final class CollectionOrderService extends IService
 
         $result = [];
         foreach ($findTenant->collection_use_method as $method) {
-            if ($method === Tenant::COLLECTION_USE_METHOD_UPSTREAM && $upstream_enabled) {
+            if ($method === Tenant::COLLECTION_USE_METHOD_UPSTREAM && $upstream_enabled && filled($findTenant->upstream_items)) {
                 // 上游第三方收款
+                $result = $this->upstreamCollection($data, $findTenant, $source);
                 break;
             }
             if ($method === Tenant::COLLECTION_USE_METHOD_BANK_ACCOUNT) {
@@ -210,6 +215,27 @@ final class CollectionOrderService extends IService
     public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder): array
     {
         return [];
+    }
+
+    // createOrderOfUpstream
+    public function upstreamCollection(array $data, ModelTenant $findTenant, string $source = ''): array
+    {
+        foreach ($findTenant->upstream_items as $channelAccountId){
+            // 查询 渠道状态 且 满足限额
+            $channel_account = $this->channelAccountRepository
+                ->getChannelAccountOfCollectionQuery($channelAccountId, $data['amount'])
+                ->first();
+            if ($channel_account && isset($channel_account['channel']['channel_code'])) {
+                $className = Tenant::$upstream_options[$channel_account['channel']['channel_code']];
+                $service = TransactionCollectionOrderFactory::getInstance($className)->init($channel_account);
+                $result = $service->createOrder($data['tenant_order_no'], $data['amount']);
+                if ($result['ok']) {
+                    return $result;
+                }
+                // TODO 记录订单日志
+            }
+        }
+
     }
 
 }
