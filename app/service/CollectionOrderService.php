@@ -24,11 +24,11 @@ use Webman\Http\Request;
 final class CollectionOrderService extends IService
 {
     #[Inject]
-    public CollectionOrderRepository $repository;
+    public CollectionOrderRepository   $repository;
     #[Inject]
-    protected TenantRepository       $tenantRepository;
+    protected TenantRepository         $tenantRepository;
     #[Inject]
-    protected BankAccountRepository  $bankAccountRepository;
+    protected BankAccountRepository    $bankAccountRepository;
     #[Inject]
     protected ChannelAccountRepository $channelAccountRepository;
 
@@ -212,15 +212,43 @@ final class CollectionOrderService extends IService
         return $resultAmount;
     }
 
+    #[ArrayShape(['platform_order_no' => "string", 'tenant_order_no' => "string", 'pay_url' => "string", 'paytm' => "string", 'upi' => "string", 'gpay' => "string", 'phonepe' => "string"])]
     public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder): array
     {
-        return [];
+        $platform_order_no = $collectionOrder->platform_order_no;
+        $tenant_order_no = $collectionOrder->tenant_order_no;
+        $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . '?order_no=' . $collectionOrder->platform_order_no;
+
+        if (filled($collectionOrder->payer_upi)) {
+            $upi = $collectionOrder->payer_upi;
+            $upi_str = explode('@', $collectionOrder->payer_upi);
+            $sign = "MEYCIQCHBg/RU0nnqGczGT+3qmufIH0d4syWKuN/93J8Of+pVwIhAJRHuz0ouV+LC1+MLU9is5mIfphzIYAnLb9yRKM7lXA+";
+            $order_id_code = strtolower(dechex($collectionOrder->id));
+            return [
+                'platform_order_no' => $platform_order_no,
+                'tenant_order_no'   => $tenant_order_no,
+                'pay_url'           => $pay_url,
+                'paytm'             => "paytmmp://cash_wallet?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}&featuretype=money_transfer",
+                'upi'               => "upi://pay?pa={$upi}&pn=Payment To {$upi_str[0]}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&tr={$collectionOrder->platform_order_no}",
+                'gpay'              => "gpay://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&mc=5641",
+                'phonepe'           => "phonepe://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}",
+            ];
+        }
+        return [
+            'platform_order_no' => $platform_order_no,
+            'tenant_order_no'   => $tenant_order_no,
+            'pay_url'           => $pay_url,
+            'paytm'             => '',
+            'upi'               => '',
+            'gpay'              => '',
+            'phonepe'           => '',
+        ];
     }
 
     // createOrderOfUpstream
     public function upstreamCollection(array $data, ModelTenant $findTenant, string $source = ''): array
     {
-        foreach ($findTenant->upstream_items as $channelAccountId){
+        foreach ($findTenant->upstream_items as $channelAccountId) {
             // 查询 渠道状态 且 满足限额
             $channel_account = $this->channelAccountRepository
                 ->getChannelAccountOfCollectionQuery($channelAccountId, $data['amount'])

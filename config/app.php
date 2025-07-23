@@ -24,4 +24,5 @@ return [
     'controller_suffix' => 'Controller',
     'controller_reuse'  => false,
     'enable'            => true,
+    'cash_desk_url'     => env('CASH_DESK_URL', ''),
 ];
