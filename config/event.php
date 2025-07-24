@@ -4,6 +4,9 @@ return [
     'operation.log'           => [
         [\app\event\OperationEvent::class, 'process'],
     ],
+    'tenant.app.log'           => [
+        [\app\event\TenantAppLogEvent::class, 'process'],
+    ],
     'app.tenant.created'      => [
         [\app\event\TenantEvent::class, 'Created'],
     ],

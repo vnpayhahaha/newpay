@@ -20,6 +20,7 @@ use Carbon\Carbon;
 * @property string $ip_location IP所属地
 * @property Carbon $access_time 访问时间
 * @property string $remark 备注
+* @property int $duration 耗时
 */
 final class ModelTenantAppLog extends BasicModel
 {
@@ -34,6 +35,7 @@ final class ModelTenantAppLog extends BasicModel
      * @var string
      */
     protected $primaryKey = 'id';
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -53,6 +55,7 @@ final class ModelTenantAppLog extends BasicModel
         'ip',
         'ip_location',
         'access_time',
-        'remark'
+        'remark',
+        'duration',
     ];
 }

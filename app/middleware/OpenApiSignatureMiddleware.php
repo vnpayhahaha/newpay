@@ -19,6 +19,13 @@ class OpenApiSignatureMiddleware implements MiddlewareInterface
 
     public function process(Request $request, callable $handler): Response
     {
+        // 如果header中获取 Origin 的值为dev
+        if ($request->header('Origin') == 'dev') {
+            $app = $this->tenantAppService->queryByAppKey($request->post('app_key', '0cb3bd11ae'));
+            Context::set(ModelTenantApp::class, $app);
+            return $handler($request);
+        }
+
         $params = $request->all();
         // 获取参数sign
         $sign = $params['sign'] ?? null;

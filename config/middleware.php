@@ -28,6 +28,7 @@ return [
         app\middleware\AccessTokenMiddleware::class,
     ],
     'openapi' => [
-       // app\middleware\OpenApiSignatureMiddleware::class,
+        app\middleware\OpenApiSignatureMiddleware::class,
+        app\middleware\OpenApiLogMiddleware::class,
     ],
 ];
