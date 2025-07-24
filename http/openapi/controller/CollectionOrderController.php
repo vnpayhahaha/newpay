@@ -62,7 +62,7 @@ class CollectionOrderController extends BasicController
                 'max:64',
                 function ($attribute, $value, $fail) use ($request) {
                     if ($this->service->repository->getQuery()->where('tenant_order_no', $value)->exists()) {
-                        $fail(trans('exists', [':attribute' => $attribute], 'validation'));
+                        $fail(trans('unique', [':attribute' => $attribute], 'validation'));
                     }
                 }
             ],
@@ -75,7 +75,7 @@ class CollectionOrderController extends BasicController
             throw new OpenApiException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-        $successData = $this->service->createOrder($validatedData);
+        $successData = $this->service->createOrder($validatedData, $validatedData['app_key']);
         return $this->success([$successData]);
     }
 }

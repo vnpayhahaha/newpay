@@ -98,7 +98,7 @@ final class BankAccountRepository extends IRepository
         $rawWhere .= ' AND (limit_quota = 0 OR (limit_quota > 0 AND used_quota + ? <= limit_quota))';
         // 获取等级匹配的银行卡
         return $query
-            ->where('safe_level', $safe_level)
+            ->where('security_level', $safe_level)
             ->where('status', BankAccount::STATUS_ENABLE)
             ->where('support_collection', BankAccount::SUPPORT_COLLECTION_YES)
             ->where(function ($query) use ($order_amount) {

@@ -4,6 +4,7 @@ namespace app\middleware;
 
 use app\constants\TenantApp;
 use app\lib\enum\ResultCode;
+use app\model\ModelTenantApp;
 use app\service\TenantAppService;
 use DI\Attribute\Inject;
 use support\Context;
@@ -51,6 +52,7 @@ class OpenApiSignatureMiddleware implements MiddlewareInterface
         if ($sign != $md5_sign) {
             return $this->errorHandler(ResultCode::OPENAPI_SIGN_IS_INVALID, 'sign is invalid');
         }
+        Context::set(ModelTenantApp::class, $app);
         return $handler($request);
     }
 

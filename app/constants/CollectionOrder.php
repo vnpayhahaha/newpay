@@ -40,4 +40,5 @@ class CollectionOrder
         self::COLLECTION_TYPE_UPI          => 'collection_order.enums.collection_type.upi',
         self::COLLECTION_TYPE_UPSTREAM     => 'collection_order.enums.collection_type.upstream',
     ];
+
 }

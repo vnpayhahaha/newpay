@@ -46,6 +46,6 @@ return [
     // 订单模块
     'order.no_available_collection_method'         => '没有可用的收款方式',
     'order.no_matching_bank_card'                  => '没有匹配可用的银行卡',
-    'collection_float_amount_error'                => '收款浮动金额配置错误',
-    'collection_amount_less_than_min_float_amount' => '收款金额不能小于配置的浮动金额最小值',
+    'order.collection_float_amount_error'                => '收款浮动金额配置错误',
+    'order.collection_amount_less_than_min_float_amount' => '收款金额不能小于配置的浮动金额最小值',
 ];

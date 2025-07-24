@@ -9,6 +9,7 @@ use app\exception\OpenApiException;
 use app\lib\enum\ResultCode;
 use app\model\ModelCollectionOrder;
 use app\model\ModelTenant;
+use app\model\ModelTenantApp;
 use app\repository\BankAccountRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
@@ -82,7 +83,7 @@ final class CollectionOrderService extends IService
         if (!$card) {
             throw new BusinessException(ResultCode::ORDER_NO_MATCHING_BANK_CARD);
         }
-        $card->last_use_time = date('Y-m-d H:i:s');
+        $card->last_used_time = date('Y-m-d H:i:s');
         $card->save();
 
         // 计算收款费率
@@ -97,7 +98,7 @@ final class CollectionOrderService extends IService
             $income_rate = bcdiv((string)$findTenant->receipt_fee_rate, '100', 4);
             $calculate['rate_fee'] = bcmul($data['amount'], $income_rate, 4);
         }
-        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee'], 4);
+//        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee'], 4);
 
         $payable_amount = $data['amount'];
         if ($findTenant->float_enabled) {
@@ -120,6 +121,11 @@ final class CollectionOrderService extends IService
             $payable_amount = $floatAmount;
         }
         $request = Context::get(Request::class);
+        $app = Context::get(ModelTenantApp::class);
+        // test 调试使用
+        if(!$app){
+            $app = ModelTenantApp::getQuery()->where('app_key', $data['app_key'])->first();
+        }
         // 收款订单创建
         $collectionOrder = $this->repository->create([
             'tenant_id'             => $data['tenant_id'],
@@ -128,8 +134,8 @@ final class CollectionOrderService extends IService
             'payable_amount'        => $payable_amount,
             'fixed_fee'             => $calculate['fixed_fee'],
             'rate_fee'              => $calculate['rate_fee'],
-            'total_fee'             => $calculate['total_fee'],
-            'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
+//            'total_fee'             => $calculate['total_fee'],
+//            'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
             'settlement_type'       => $findTenant->receipt_settlement_type,
             'collection_type'       => CollectionOrder::COLLECTION_TYPE_BANK_ACCOUNT,
             'collection_channel_id' => $card->channel_id,
@@ -139,7 +145,7 @@ final class CollectionOrderService extends IService
             'notify_remark'         => $data['notify_remark'] ?? '',
             'return_url'            => $data['return_url'] ?? '',
             'notify_url'            => $data['notify_url'] ?? '',
-            'app_id'                => $data['app_id'] ?? '',
+            'app_id'                => $app->id ?? '',
             'payer_name'            => $card->account_holder,
             'payer_account'         => $card->account_number,
             'payer_bank'            => $card->bank_code,

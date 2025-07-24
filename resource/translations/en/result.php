@@ -46,6 +46,6 @@ return [
     // 订单模块
     'order.no_available_collection_method'         => 'No available collection method',
     'order.no_matching_bank_card'                  => 'No matching bank card',
-    'collection_float_amount_error'                => 'Collection float amount error',
-    'collection_amount_less_than_min_float_amount' => 'Collection amount less than min float amount',
+    'order.collection_float_amount_error'                => 'Collection float amount error',
+    'order.collection_amount_less_than_min_float_amount' => 'Collection amount less than min float amount',
 ];
