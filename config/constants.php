@@ -17,4 +17,5 @@ return [
     'transaction_queue_status' => app\constants\TransactionQueueStatus::class, // 交易队列状态
     'tenant_account_record'    => app\constants\TenantAccountRecord::class, // 租户账户记录状态
     'tenant_api_interface'     => app\constants\TenantApiInterface::class, // 租户接口状态
+    'transaction_voucher'      => app\constants\TransactionVoucher::class, // 交易凭证状态
 ];

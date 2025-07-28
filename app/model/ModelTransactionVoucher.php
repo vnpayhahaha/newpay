@@ -79,4 +79,17 @@ final class ModelTransactionVoucher extends BasicModel
         'updated_at'               => 'datetime',
         'transaction_type'         => 'integer'
     ];
+
+    public function channel()
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id' );
+    }
+    public function channel_account()
+    {
+        return $this->belongsTo(ModelChannelAccount::class, 'channel_account_id','id' );
+    }
+    public function bank_account()
+    {
+        return $this->belongsTo(ModelBankAccount::class, 'bank_account_id','id' );
+    }
 }
