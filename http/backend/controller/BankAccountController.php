@@ -143,13 +143,15 @@ class BankAccountController extends BasicController
         return $this->success();
     }
 
-    #[GetMapping('/bank_account/tenant_dict/remote')]
+    #[GetMapping('/bank_account/remote')]
     public function remote(Request $request): Response
     {
         $fields = [
             'id',
             'channel_id',
             'branch_name',
+            'account_holder',
+            'account_number',
             'status',
             'bank_code',
             'support_collection',

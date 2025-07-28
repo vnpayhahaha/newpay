@@ -43,7 +43,10 @@ class TransactionVoucherController extends BasicController
         $validator = validate($request->all(), [
             'channel_id'               => 'required|integer|between:1,4294967295',
             'bank_account_id'          => [
-                'required',
+                'integer',
+                'between:1,4294967295',
+            ],
+            'channel_account_id'       => [
                 'integer',
                 'between:1,4294967295',
             ],
@@ -74,7 +77,9 @@ class TransactionVoucherController extends BasicController
         }
         $validatedData = $validator->validate();
         return $this->service->create(array_merge(
-            $validatedData,
+            $validatedData + [
+                'content' => json_encode($validatedData)
+            ],
             [
                 'operation_admin_id' => $request->user->id,
             ]
@@ -92,7 +97,10 @@ class TransactionVoucherController extends BasicController
         $validator = validate($request->all(), [
             'channel_id'               => 'required|integer|between:1,4294967295',
             'bank_account_id'          => [
-                'required',
+                'integer',
+                'between:1,4294967295',
+            ],
+            'channel_account_id'       => [
                 'integer',
                 'between:1,4294967295',
             ],
