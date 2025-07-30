@@ -15,6 +15,7 @@ use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
 use app\repository\TenantRepository;
 use app\upstream\Handle\TransactionCollectionOrderFactory;
+use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
@@ -25,11 +26,11 @@ use Webman\Http\Request;
 final class CollectionOrderService extends IService
 {
     #[Inject]
-    public CollectionOrderRepository   $repository;
+    public CollectionOrderRepository $repository;
     #[Inject]
-    protected TenantRepository         $tenantRepository;
+    protected TenantRepository $tenantRepository;
     #[Inject]
-    protected BankAccountRepository    $bankAccountRepository;
+    protected BankAccountRepository $bankAccountRepository;
     #[Inject]
     protected ChannelAccountRepository $channelAccountRepository;
 
@@ -95,10 +96,12 @@ final class CollectionOrderService extends IService
             $calculate['fixed_fee'] = $findTenant->receipt_fixed_fee;
         }
         if (in_array(Tenant::RECEIPT_FEE_TYPE_RATE, $findTenant->receipt_fee_type)) {
-            $income_rate = bcdiv((string)$findTenant->receipt_fee_rate, '100', 4);
-            $calculate['rate_fee'] = bcmul($data['amount'], $income_rate, 4);
+            $calculate['rate_fee'] = $findTenant->receipt_fee_rate;
+            $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
         }
-//        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee'], 4);
+        $rate_fee_amount = bcmul($data['amount'], $rate_fee, 4);
+        $calculate['rate_fee_amount'] = $rate_fee_amount;
+        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $rate_fee_amount, 4);
 
         $payable_amount = $data['amount'];
         if ($findTenant->float_enabled) {
@@ -123,7 +126,7 @@ final class CollectionOrderService extends IService
         $request = Context::get(Request::class);
         $app = Context::get(ModelTenantApp::class);
         // test 调试使用
-        if(!$app){
+        if (!$app) {
             $app = ModelTenantApp::getQuery()->where('app_key', $data['app_key'])->first();
         }
         // 收款订单创建
@@ -134,8 +137,9 @@ final class CollectionOrderService extends IService
             'payable_amount'        => $payable_amount,
             'fixed_fee'             => $calculate['fixed_fee'],
             'rate_fee'              => $calculate['rate_fee'],
-//            'total_fee'             => $calculate['total_fee'],
-//            'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
+            'rate_fee_amount'       => $calculate['rate_fee_amount'],
+            'total_fee'             => $calculate['total_fee'],
+            'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
             'settlement_type'       => $findTenant->receipt_settlement_type,
             'collection_type'       => CollectionOrder::COLLECTION_TYPE_BANK_ACCOUNT,
             'collection_channel_id' => $card->channel_id,
@@ -269,7 +273,21 @@ final class CollectionOrderService extends IService
                 // TODO 记录订单日志
             }
         }
+        return [
+            'ok'      => false,
+            'message' => 'Failed to create order',
+        ];
+    }
 
+    // 定时任务监听订单失效
+    public function orderExpire(): void
+    {
+        $this->repository->getQuery()
+            ->where('status', CollectionOrder::STATUS_PROCESSING)
+            ->where('expire_time', '<', Carbon::now())
+            ->update([
+                'status' => CollectionOrder::STATUS_INVALID,
+            ]);
     }
 
 }

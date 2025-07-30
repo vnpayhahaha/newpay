@@ -15,6 +15,7 @@ use support\Db;
  * @property float $paid_amount 订单实付金额
  * @property float $fixed_fee 固定手续费
  * @property float $rate_fee 费率手续费
+ * @property float $rate_fee_amount 费率手续费金额
  * @property float $total_fee 总手续费
  * @property float $upstream_fee 上游手续费
  * @property float $upstream_settlement_amount 上游结算金额
@@ -90,6 +91,7 @@ final class ModelCollectionOrder extends BasicModel
         'paid_amount',
         'fixed_fee',
         'rate_fee',
+        'rate_fee_amount',
         'total_fee',
         'upstream_fee',
         'upstream_settlement_amount',
@@ -138,6 +140,7 @@ final class ModelCollectionOrder extends BasicModel
         'paid_amount'                => 'float',
         'fixed_fee'                  => 'float',
         'rate_fee'                   => 'float',
+        'rate_fee_amount'            => 'float',
         'total_fee'                  => 'float',
         'upstream_fee'               => 'float',
         'upstream_settlement_amount' => 'float',

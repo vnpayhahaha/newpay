@@ -66,4 +66,7 @@ return [
     'TransactionCrontab'  => [
         'handler'  => app\process\task\TransactionCrontab::class
     ],
+    'CollectionOrderCancelCrontab'  => [
+        'handler'  => app\process\task\CollectionOrderCancelCrontab::class
+    ],
 ];

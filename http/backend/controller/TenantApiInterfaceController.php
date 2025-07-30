@@ -43,9 +43,9 @@ class TenantApiInterfaceController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'api_name'         => 'required|string|max:100',
-            'api_uri'          => 'required|string|max:255',
-            'http_method'      => [
+            'api_name'            => 'required|string|max:100',
+            'api_uri'             => 'required|string|max:255',
+            'http_method'         => [
                 'required',
                 'in:GET,POST,PUT,DELETE',
                 function ($attribute, $value, $fail) use ($request) {
@@ -58,14 +58,19 @@ class TenantApiInterfaceController extends BasicController
                     }
                 }
             ],
-            'request_params'   => 'json',
-            'request_example'  => 'json',
-            'response_params'  => 'json',
-            'response_example' => 'json',
-            'description'      => 'string|max:1000',
-            'status'           => 'boolean',
-            'rate_limit'       => ['integer', 'between:0,1000'],
-            'auth_mode'        => ['integer', 'between:0,2'],
+            'request_params'      => 'json',
+            'request_params_en'   => 'json',
+            'request_example'     => 'json',
+            'request_example_en'  => 'json',
+            'response_params'     => 'json',
+            'response_params_en'  => 'json',
+            'response_example'    => 'json',
+            'response_example_en' => 'json',
+            'description'         => 'string|max:1000',
+            'description_en'      => 'string|max:1000',
+            'status'              => 'boolean',
+            'rate_limit'          => ['integer', 'between:0,1000'],
+            'auth_mode'           => ['integer', 'between:0,2'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -87,9 +92,9 @@ class TenantApiInterfaceController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'api_name'         => 'required|string|max:100',
-            'api_uri'          => 'required|string|max:255',
-            'http_method'      => [
+            'api_name'            => 'required|string|max:100',
+            'api_uri'             => 'required|string|max:255',
+            'http_method'         => [
                 'required',
                 'in:GET,POST,PUT,DELETE',
                 function ($attribute, $value, $fail) use ($request, $id) {
@@ -103,14 +108,19 @@ class TenantApiInterfaceController extends BasicController
                     }
                 }
             ],
-            'request_params'   => 'json',
-            'request_example'  => 'json',
-            'response_params'  => 'json',
-            'response_example' => 'json',
-            'description'      => 'string|max:1000',
-            'status'           => 'boolean',
-            'rate_limit'       => ['integer', 'between:0,1000'],
-            'auth_mode'        => ['integer', 'between:0,2'],
+            'request_params'      => 'json',
+            'request_params_en'   => 'json',
+            'request_example'     => 'json',
+            'request_example_en'  => 'json',
+            'response_params'     => 'json',
+            'response_params_en'  => 'json',
+            'response_example'    => 'json',
+            'response_example_en' => 'json',
+            'description'         => 'string|max:1000',
+            'description_en'      => 'string|max:1000',
+            'status'              => 'boolean',
+            'rate_limit'          => ['integer', 'between:0,1000'],
+            'auth_mode'           => ['integer', 'between:0,2'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
