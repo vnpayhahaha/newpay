@@ -13,9 +13,14 @@ return [
             44 => 'Refunded',
         ],
         'collection_type' => [
-            'bank_account'        => 'Bank Account',
-            'upi'                 => 'UPI',
-            'upstream' => 'Upstream',
+            'bank_account' => 'Bank Account',
+            'upi'          => 'UPI',
+            'upstream'     => 'Upstream',
+        ],
+        'settlement_type' => [
+            'not_settled'  => 'Not Settled',
+            'paid_amount'  => 'Paid Amount',
+            'order_amount' => 'Order Amount',
         ],
     ],
 ];

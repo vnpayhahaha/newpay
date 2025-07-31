@@ -18,5 +18,10 @@ return [
             'upi'          => 'UPI',
             'upstream'     => '上游',
         ],
+        'settlement_type' => [
+            'not_settled'  => '未入账',
+            'paid_amount'  => '实付金额',
+            'order_amount' => '订单金额',
+        ],
     ],
 ];
