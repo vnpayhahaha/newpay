@@ -166,11 +166,29 @@ final class ModelCollectionOrder extends BasicModel
     public static function boot()
     {
         parent::boot();
-        ModelCollectionOrder::creating(function (ModelCollectionOrder $model) {
+        self::creating(function (ModelCollectionOrder $model) {
             var_dump('run ModelCollectionOrder creating==');
             if (empty($model->platform_order_no)) {
                 $model->platform_order_no = buildPlatformOrderNo('CO');
             }
         });
+    }
+
+    // belongsTo channel
+    public function channel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannel::class, 'collection_channel_id','id' );
+    }
+
+    // belongsTo channel_account
+    public function channel_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannelAccount::class, 'channel_account_id','id' );
+    }
+
+    // belongsTo bank_account
+    public function bank_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelBankAccount::class, 'bank_account_id','id' );
     }
 }

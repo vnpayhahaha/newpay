@@ -22,5 +22,18 @@ return [
             'paid_amount'  => 'Paid Amount',
             'order_amount' => 'Order Amount',
         ],
+        'recon_type'      => [
+            'not_recon'       => 'Not Recon',
+            'auto_recon'      => 'Auto Recon',
+            'manual_recon'    => 'Manual Recon',
+            'interface_recon' => 'Interface Recon',
+            'robot_recon'     => 'Robot Recon',
+        ],
+        'notify_status'   => [
+            'not_notify'     => 'Not Notified',
+            'notify_success' => 'Notify Success',
+            'notify_fail'    => 'Notify Fail',
+            'callback_ing'   => 'In the callback',
+        ],
     ],
 ];

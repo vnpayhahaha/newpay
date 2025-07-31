@@ -51,4 +51,30 @@ class CollectionOrder
         self::SETTLEMENT_TYPE_ORDER_AMOUNT => 'collection_order.enums.settlement_type.order_amount',
     ];
 
+    // recon_type 核销类型:\r\n    0-未核销 \r\n    1-自动核销 \r\n    2-人工核销 \r\n    3-接口核销 \r\n    4-机器人核销
+    public const RECON_TYPE_NOT_RECON = 0;
+    public const RECON_TYPE_AUTO_RECON = 1;
+    public const RECON_TYPE_MANUAL_RECON = 2;
+    public const RECON_TYPE_INTERFACE_RECON = 3;
+    public const RECON_TYPE_ROBOT_RECON = 4;
+    public static array $recon_type_list = [
+        self::RECON_TYPE_NOT_RECON       => 'collection_order.enums.recon_type.not_recon',
+        self::RECON_TYPE_AUTO_RECON      => 'collection_order.enums.recon_type.auto_recon',
+        self::RECON_TYPE_MANUAL_RECON    => 'collection_order.enums.recon_type.manual_recon',
+        self::RECON_TYPE_INTERFACE_RECON => 'collection_order.enums.recon_type.interface_recon',
+        self::RECON_TYPE_ROBOT_RECON     => 'collection_order.enums.recon_type.robot_recon',
+    ];
+
+    // notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
+    public const NOTIFY_STATUS_NOT_NOTIFY = 0;
+    public const NOTIFY_STATUS_NOTIFY_SUCCESS = 1;
+    public const NOTIFY_STATUS_NOTIFY_FAIL = 2;
+    public const NOTIFY_STATUS_CALLBACK_ING = 3;
+    public static array $notify_status_list = [
+        self::NOTIFY_STATUS_NOT_NOTIFY     => 'collection_order.enums.notify_status.not_notify',
+        self::NOTIFY_STATUS_NOTIFY_SUCCESS => 'collection_order.enums.notify_status.notify_success',
+        self::NOTIFY_STATUS_NOTIFY_FAIL    => 'collection_order.enums.notify_status.notify_fail',
+        self::NOTIFY_STATUS_CALLBACK_ING   => 'collection_order.enums.notify_status.callback_ing',
+    ];
+
 }

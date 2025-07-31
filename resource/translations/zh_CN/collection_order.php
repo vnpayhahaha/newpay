@@ -23,5 +23,18 @@ return [
             'paid_amount'  => '实付金额',
             'order_amount' => '订单金额',
         ],
+        'recon_type'      => [
+            'not_recon'       => '未核销',
+            'auto_recon'      => '自动核销',
+            'manual_recon'    => '人工核销',
+            'interface_recon' => '接口核销',
+            'robot_recon'     => '机器人核销',
+        ],
+        'notify_status'   => [
+            'not_notify'     => '未通知',
+            'notify_success' => '已通知',
+            'notify_fail'    => '通知失败',
+            'callback_ing'   => '回调中',
+        ],
     ],
 ];
