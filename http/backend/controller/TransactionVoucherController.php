@@ -138,4 +138,12 @@ class TransactionVoucherController extends BasicController
         ));
         return $this->success();
     }
+
+    // 核销选择项，类型分组
+    #[GetMapping('/transaction_voucher/write_off_options')]
+    public function selectOfWriteOff(Request $request): Response
+    {
+        $list = $this->service->getWriteOffOptions($request->all());
+        return $this->success($list);
+    }
 }

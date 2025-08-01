@@ -63,6 +63,7 @@ use support\Db;
  * @property string $customer_submitted_utr 客户提交的UTR
  * @property int $settlement_delay_mode 入账类型(1:D0 2:D1 3:T0)
  * @property int $settlement_delay_days 入账延迟天数（自然日）
+ * @property int $transaction_voucher_id 核销凭证id
  */
 final class ModelCollectionOrder extends BasicModel
 {
@@ -132,6 +133,7 @@ final class ModelCollectionOrder extends BasicModel
         'customer_submitted_utr',
         'settlement_delay_mode',
         'settlement_delay_days',
+        'transaction_voucher_id',
     ];
 
     protected $casts = [
@@ -161,6 +163,7 @@ final class ModelCollectionOrder extends BasicModel
         'updated_at'                 => 'datetime',
         'settlement_delay_mode'      => 'integer',
         'settlement_delay_days'      => 'integer',
+        'transaction_voucher_id'      => 'integer',
     ];
 
     public static function boot()
