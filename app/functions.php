@@ -159,7 +159,13 @@ if (!function_exists('buildPlatformOrderNo')) {
         } catch (Throwable $e) {
             // 降级方案1：尝试使用 OpenSSL 扩展
             if (function_exists('openssl_random_pseudo_bytes')) {
-                $randomBytes = openssl_random_pseudo_bytes(4);
+                $strong = false;
+                // 添加第二个参数并验证加密强度
+                $randomBytes = openssl_random_pseudo_bytes(4, $strong);
+                // 添加双重验证：返回值有效性 + 算法强度
+                if ($randomBytes === false || !$strong) {
+                    throw new RuntimeException('Secure random number generator not available');
+                }
             } // 降级方案2：使用 mt_rand 生成伪随机数
             else {
                 // 生成4字节（32位）随机数
@@ -172,6 +178,67 @@ if (!function_exists('buildPlatformOrderNo')) {
         // 转换为十六进制并大写
         $randomHex = bin2hex($randomBytes);
         // 组合时间戳和随机部分
-        return $prefix . $timePart. strtoupper($randomHex);
+        return $prefix . $timePart . strtoupper($randomHex);
+    }
+}
+
+if (!function_exists('isWeekend')) {
+    function isWeekend(DateTime $date): bool
+    {
+        // 使用 PHP 的 DateTime::format 方法获取星期几的数字表示
+        // 1 表示星期一，7 表示星期日
+        // 所以我们需要检查数字是否为 6（星期六）或 7（星期日）
+        return in_array($date->format('N'), [6, 7], true);
+    }
+}
+// 根据延时结算类型 D0(当天) D(自然日) T(工作日) + 延时结算天数 计算 预计结算时间
+if (!function_exists('calculateSettlementDate')) {
+    /**
+     * 计算预计结算时间
+     * @param int $type 结算类型（1:D0/2:D/3:T）
+     * @param int $days 延时天数
+     * @param DateTime|null $startDate 起始日期（默认当前时间）
+     * @return DateTime
+     * @throws InvalidArgumentException
+     */
+    function calculateSettlementDate(int $type = 1, int $days = 0, DateTime|null $startDate = null): DateTime
+    {
+        // 参数校验
+        if (!is_int($days) || $days < 0) {
+            throw new InvalidArgumentException("Days must be a non-negative integer.");
+        }
+
+        // 初始化日期对象
+        if ($startDate === null) {
+            $startDate = new DateTime();
+        } else {
+            $startDate = clone $startDate;
+        }
+
+        $currentDate = clone $startDate;
+
+        switch (strtoupper($type)) {
+            case 1:
+            case 2:
+                // 自然日计算（包含周末）
+                $currentDate->modify("+$days days");
+                break;
+
+            case 3:
+                // 工作日计算（跳过周末）
+                $addedDays = 0;
+                while ($addedDays < $days) {
+                    $currentDate->modify('+1 day');
+                    if (!isWeekend($currentDate)) {
+                        $addedDays++;
+                    }
+                }
+                break;
+
+            default:
+                throw new InvalidArgumentException("Invalid type. Use 'D0', 'D', or 'T'.");
+        }
+
+        return $currentDate;
     }
 }

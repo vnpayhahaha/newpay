@@ -21,6 +21,12 @@ class TenantAccountRepository extends IRepository
     #[Inject]
     protected ModelTenantAccountRecord $modelTenantAccountRecord;
 
+    public function findById(mixed $id): mixed
+    {
+        return $this->getQuery()->whereKey($id)
+            ->with('tenant')
+            ->first();
+    }
     public function handleSearch(Builder $query, array $params): Builder
     {
 
@@ -69,9 +75,9 @@ class TenantAccountRepository extends IRepository
                     $version = $account['version'];
 
                     // 如果冻结，可用余额小于冻结金额，取可用余额
-                    if ($field == 'balance_frozen'
-                        && TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE == $changeType
-                        && bccomp(strval($account['balance_available']), $amount, 4) < 0
+                    if ($field === 'balance_frozen'
+                        && TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE === $changeType
+                        && bccomp((string)($account['balance_available']), $amount, 4) < 0
                     ) {
                         if ($account['balance_available'] <= 0) {
                             $amount = 0;
@@ -84,7 +90,7 @@ class TenantAccountRepository extends IRepository
 
                     if (bccomp((string)$newBalance, '0', 4) < 0) {
                         // 如果解冻，冻结余额小于0，取冻结金额
-                        if ($field == 'balance_frozen'
+                        if ($field === 'balance_frozen'
                             && TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE == $changeType
                         ) {
                             $amount = -$oldBalance;
@@ -104,7 +110,7 @@ class TenantAccountRepository extends IRepository
                         'tenant_account_id'        => $id,
                         'account_id'               => $account['account_id'],
                         'account_type'             => $account['account_type'],
-                        'change_amount'            => abs(floatval($amount)),
+                        'change_amount'            => abs((float)$amount),
                         'balance_available_before' => $account['balance_available'],
                         'balance_available_after'  => $account['balance_available'],
                         'balance_frozen_before'    => $account['balance_frozen'],
@@ -124,12 +130,12 @@ class TenantAccountRepository extends IRepository
                         'updated_at' => $nowTime
                     ];
                     // 如果是冻结、解冻 还要更新可用余额
-                    if ($field == 'balance_frozen') {
-                        $change_balance_available = abs(floatval($amount));
-                        if (TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE == $changeType) {
+                    if ($field === 'balance_frozen') {
+                        $change_balance_available = abs((float)$amount);
+                        if (TenantAccountRecordChangeType::CHANGE_TYPE_FREEZE === $changeType) {
                             $updateData['balance_available'] = bcsub((string)$account['balance_available'], (string)$change_balance_available, 4);
                         }
-                        if (TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE == $changeType) {
+                        if (TenantAccountRecordChangeType::CHANGE_TYPE_UNFREEZE === $changeType) {
                             $updateData['balance_available'] = bcadd((string)$account['balance_available'], (string)$change_balance_available, 4);
                         }
                         $logData["balance_available_before"] = $account['balance_available'];
@@ -193,4 +199,5 @@ class TenantAccountRepository extends IRepository
     {
         return $this->updateBalanceWithLock($id, 'balance_frozen', $amount, $changeType, $transactionNo);
     }
+
 }

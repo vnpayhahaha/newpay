@@ -2,6 +2,7 @@
 
 namespace app\repository;
 
+use app\constants\TransactionVoucher;
 use app\model\ModelTransactionVoucher;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
@@ -73,5 +74,20 @@ class TransactionVoucherRepository extends IRepository
                 page: $page,
             );
         return $this->handlePage($result);
+    }
+
+    // 核销
+    public function writeOff(int $transactionVoucherId, string $platform_order_no): bool
+    {
+        return $this->model::where('id', $transactionVoucherId)
+                ->where(function (Builder $query) {
+                    $query->where('collection_status', TransactionVoucher::COLLECTION_STATUS_FAIL)
+                        ->orWhere('collection_status', TransactionVoucher::COLLECTION_STATUS_WAITING);
+                })
+                ->update([
+                    'collection_status' => TransactionVoucher::COLLECTION_STATUS_SUCCESS,
+                    'order_no'          => $platform_order_no,
+                    'collection_time'   => date('Y-m-d H:i:s'),
+                ]) > 0;
     }
 }

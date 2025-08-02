@@ -43,6 +43,7 @@ use Webman\Event\Event;
  * @property Carbon $actual_settlement_time 实际结算时间
  * @property string $counterparty 交易对手方标识
  * @property string $order_no 关联业务订单号
+ * @property int $order_id 关联业务订单ID
  * @property string $ref_transaction_no 关联原交易流水号
  * @property int $transaction_status 交易状态:0-等待结算 1-处理中 2-撤销 3-成功 4-失败
  * @property string $failed_msg 失败错误信息
@@ -85,6 +86,7 @@ final class ModelTransactionRecord extends BasicModel
         'actual_settlement_time',
         'counterparty',
         'order_no',
+        'order_id',
         'ref_transaction_no',
         'transaction_status',
         'failed_msg',
@@ -111,6 +113,7 @@ final class ModelTransactionRecord extends BasicModel
         'actual_settlement_time'   => 'datetime',
         'counterparty'             => 'string',
         'order_no'                 => 'string',
+        'order_id'                 => 'integer',
         'ref_transaction_no'       => 'string',
         'transaction_status'       => 'integer',
         'remark'                   => 'string',
@@ -121,16 +124,16 @@ final class ModelTransactionRecord extends BasicModel
     public static function boot()
     {
         parent::boot();
-        ModelTransactionRecord::creating(function (ModelTransactionRecord $model) {
+        self::creating(static function (ModelTransactionRecord $model) {
             if (empty($model->transaction_no)) {
                 // 设置 transaction_no
                 $milliseconds = (int)(microtime(true) * 1000);
-                $random = substr(md5(uniqid()), 0, 3); // 3位随机数
-                $model->transaction_no = 'TN' . date('YmdHis') .$random. substr($milliseconds, -3);
+                $random = substr(md5(uniqid('', true)), 0, 3); // 3位随机数
+                $model->transaction_no = 'TN' . date('YmdHis') . $random . substr($milliseconds, -3);
             }
         });
 
-        ModelTransactionRecord::created(function (ModelTransactionRecord $model) {
+        self::created(static function (ModelTransactionRecord $model) {
             Event::dispatch('app.transaction.created', $model);
         });
     }

@@ -49,7 +49,7 @@ class TransactionRecordRepository extends IRepository
     public function adjustFunds(int $admin_id, string $admin_username, ModelTenantAccount $account, float $amount, float $fee_amount = 0, string $remark = ''): bool
     {
 
-        return !!$this->model::query()->create([
+        return (bool)$this->model::query()->create([
             'tenant_account_id'        => $account->id,
             'account_id'               => $account->account_id,
             'tenant_id'                => $account->tenant_id,
@@ -60,8 +60,9 @@ class TransactionRecordRepository extends IRepository
             'transaction_type'         => $amount >= 0 ? TransactionRecord::TYPE_MANUAL_ADD : TransactionRecord::TYPE_MANUAL_SUB,
             'settlement_delay_mode'    => TransactionRecord::SETTLEMENT_DELAY_MODE_D0,
             'expected_settlement_time' => date('Y-m-d H:i:s'),
-            'counterparty'             => $admin_username,
-            'order_no'                 => $admin_id,
+            'counterparty'             => '',
+            'order_no'                 => $admin_username,
+            'order_id'                 => $admin_id,
             'remark'                   => $remark,
         ]);
     }
@@ -69,7 +70,7 @@ class TransactionRecordRepository extends IRepository
     // 冻结/解冻资金
     public function freezeFunds(int $admin_id, string $admin_username, ModelTenantAccount $account, float $amount, float $fee_amount = 0, string $remark = ''): bool
     {
-        return !!$this->model::query()->create([
+        return (bool)$this->model::query()->create([
             'tenant_account_id'        => $account->id,
             'account_id'               => $account->account_id,
             'tenant_id'                => $account->tenant_id,
@@ -80,8 +81,40 @@ class TransactionRecordRepository extends IRepository
             'transaction_type'         => $amount >= 0 ? TransactionRecord::TYPE_FREEZE : TransactionRecord::TYPE_UNFREEZE,
             'settlement_delay_mode'    => TransactionRecord::SETTLEMENT_DELAY_MODE_D0,
             'expected_settlement_time' => date('Y-m-d H:i:s'),
-            'counterparty'             => $admin_username,
-            'order_no'                 => $admin_id,
+            'counterparty'             => '',
+            'order_no'                 => $admin_username,
+            'order_id'                 => $admin_id,
+            'remark'                   => $remark,
+        ]);
+    }
+
+    // TYPE_ORDER_TRANSACTION
+    public function orderTransaction(int $order_id, string $platform_order_no, ModelTenantAccount $account, int $settlement_delay_mode, int $settlement_delay_days, float $amount, float $fee_amount = 0, string $remark = ''): bool
+    {
+//        $settlement_delay_mode = $account['tenant']['settlement_delay_mode'] ?? 1;
+//        $settlement_delay_days = $account['tenant']['settlement_delay_days'] ?? 0;
+
+        try {
+            $expected_settlement_time = calculateSettlementDate($settlement_delay_mode, $settlement_delay_days);
+        } catch (\Throwable $ex) {
+            var_dump('====待入账时间计算失败====', $ex);
+            throw new \Exception('The calculation of the estimated settlement time failed:' . $ex->getMessage());
+        }
+        return (bool)$this->model::query()->create([
+            'tenant_account_id'        => $account->id,
+            'account_id'               => $account->account_id,
+            'tenant_id'                => $account->tenant_id,
+            'amount'                   => $amount,
+            'fee_amount'               => $fee_amount,
+            'net_amount'               => bcsub((string)$amount, (string)$fee_amount, 4),
+            'account_type'             => $account->account_type,
+            'transaction_type'         => TransactionRecord::TYPE_ORDER_TRANSACTION,
+            'settlement_delay_mode'    => $settlement_delay_mode,
+            'settlement_delay_days'    => $settlement_delay_days,
+            'expected_settlement_time' => $expected_settlement_time->format('Y-m-d H:i:s'),
+            'counterparty'             => '',
+            'order_no'                 => $platform_order_no,
+            'order_id'                 => $order_id,
             'remark'                   => $remark,
         ]);
     }

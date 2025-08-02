@@ -4,6 +4,8 @@ namespace app\service;
 
 use app\constants\CollectionOrder;
 use app\constants\Tenant;
+use app\constants\TenantAccount;
+use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\exception\OpenApiException;
 use app\lib\enum\ResultCode;
@@ -13,13 +15,18 @@ use app\model\ModelTenantApp;
 use app\repository\BankAccountRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
+use app\repository\TenantAccountRepository;
 use app\repository\TenantRepository;
+use app\repository\TransactionRecordRepository;
+use app\repository\TransactionVoucherRepository;
 use app\upstream\Handle\TransactionCollectionOrderFactory;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Context;
+use support\Db;
 use support\Redis;
 use Webman\Http\Request;
 
@@ -30,9 +37,15 @@ final class CollectionOrderService extends IService
     #[Inject]
     protected TenantRepository $tenantRepository;
     #[Inject]
+    protected TenantAccountRepository $tenantAccountRepository;
+    #[Inject]
     protected BankAccountRepository $bankAccountRepository;
     #[Inject]
     protected ChannelAccountRepository $channelAccountRepository;
+    #[Inject]
+    protected TransactionVoucherRepository $transactionVoucherRepository;
+    #[Inject]
+    protected TransactionRecordRepository $transactionRecordRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): mixed
@@ -141,6 +154,7 @@ final class CollectionOrderService extends IService
             'total_fee'             => $calculate['total_fee'],
             'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
             'settlement_type'       => $findTenant->receipt_settlement_type,
+//            'settlement_type'       => CollectionOrder::SETTLEMENT_TYPE_NOT_SETTLED,
             'collection_type'       => CollectionOrder::COLLECTION_TYPE_BANK_ACCOUNT,
             'collection_channel_id' => $card->channel_id,
             'bank_account_id'       => $card->id,
@@ -291,4 +305,94 @@ final class CollectionOrderService extends IService
             ]);
     }
 
+    public function writeOff(int $collectionOrderId, int $transactionVoucherId): bool
+    {
+        /** @var ModelCollectionOrder $order */
+        $order = $this->repository->getQuery()->find($collectionOrderId, [
+            'id',
+            'status',
+            'platform_order_no',
+            'tenant_id',
+            'settlement_type',
+            'amount',
+            'paid_amount',
+            'rate_fee',
+            'fixed_fee',
+            'settlement_delay_mode',
+            'settlement_delay_days',
+        ]);
+        if (!$order) {
+            throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
+        }
+        if (!in_array($order->status, [CollectionOrder::STATUS_PROCESSING, CollectionOrder::STATUS_SUSPEND, CollectionOrder::STATUS_INVALID], true)) {
+            throw new BusinessException(ResultCode::ORDER_STATUS_ERROR);
+        }
+        $tenantAccount = $this->tenantAccountRepository->getQuery()
+            ->where('tenant_id', $order->tenant_id)
+            ->where('account_type', TenantAccount::ACCOUNT_TYPE_RECEIVE)
+            ->with('tenant')
+            ->first();
+        if (!$tenantAccount) {
+            throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
+        }
+        $transactionVoucher = $this->transactionVoucherRepository->findById($transactionVoucherId);
+        if (!$transactionVoucher) {
+            throw new BusinessException(ResultCode::TRANSACTION_VOUCHER_NOT_EXIST);
+        }
+        Db::beginTransaction();
+        try {
+            // 更新凭证表 collection_status order_no
+            $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
+            if (!$isOk) {
+                throw new Exception('The update of the voucher table failed');
+            }
+            // 加帐
+            $settlement_type = $order->settlement_type;
+            $settlement_amount = $transactionVoucher->amount;
+            if ($settlement_type === CollectionOrder::SETTLEMENT_TYPE_PAID_AMOUNT) {
+                $settlement_amount = $transactionVoucher->collection_amount;
+            }
+            $rate_fee_amount = bcdiv(bcmul((string)$settlement_amount, (string)$order->rate_fee, 4), '100', 4);
+            $fee_amount = bcadd($rate_fee_amount, $order->fixed_fee);
+            $isOk = $this->transactionRecordRepository->orderTransaction(
+                $order->id,
+                $order->platform_order_no,
+                $tenantAccount,
+                $order->settlement_delay_mode,
+                $order->settlement_delay_days,
+                $settlement_amount,
+                $fee_amount
+            );
+            if (!$isOk) {
+                throw new Exception('Failed to update the recharge record');
+            }
+            // 更新订单表 transaction_voucher_id  status
+            $isOk = $this->repository->getQuery()
+                ->where('id', $collectionOrderId)
+                ->where(function (Builder $query) {
+                    $query->where('status', CollectionOrder::STATUS_PROCESSING)
+                        ->orWhere('status', CollectionOrder::STATUS_SUSPEND)
+                        ->orWhere('status', CollectionOrder::STATUS_INVALID);
+                })
+                ->update([
+                    'status'                 => CollectionOrder::STATUS_SUCCESS,
+                    'transaction_voucher_id' => $transactionVoucherId,
+                    'settlement_type'        => $settlement_type,
+                    'rate_fee_amount'        => $rate_fee_amount,
+                    'total_fee'              => $fee_amount,
+                    'paid_amount'            => $transactionVoucher->collection_amount,
+                    'settlement_amount'      => bcsub((string)$settlement_amount, (string)$fee_amount, 4),
+                    'pay_time'               => date('Y-m-d H:i:s'),
+                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ? $transactionVoucher->transaction_voucher : '',
+                ]);
+            if (!$isOk) {
+                throw new Exception('Failed to update the order');
+            }
+            Db::commit();
+        } catch (\Throwable $exception) {
+            Db::rollBack();
+            throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
+        }
+        return $isOk;
+    }
 }

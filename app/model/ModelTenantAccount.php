@@ -58,7 +58,7 @@ final class ModelTenantAccount extends BasicModel
     ];
 
     // belongsTo tenant
-    public function tenant()
+    public function tenant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
     }

@@ -74,6 +74,9 @@ enum ResultCode: int
     // USER_NUM_LIMIT_EXCEEDED
     #[Message('result.user_num_limit_exceeded')]
     case USER_NUM_LIMIT_EXCEEDED = 201004;
+    // TENANT_ACCOUNT_NOT_EXIST
+    #[Message('result.tenant_account_not_exist')]
+    case TENANT_ACCOUNT_NOT_EXIST = 201005;
 
     // openApi
     // sign is required
@@ -128,4 +131,17 @@ enum ResultCode: int
     // ORDER_CREATE_FAILED
     #[Message('result.order.create_failed')]
     case ORDER_CREATE_FAILED = 203005;
+    // ORDER_NOT_FOUND
+    #[Message('result.order.not_found')]
+    case ORDER_NOT_FOUND = 203006;
+    // ORDER_STATUS_ERROR
+    #[Message('result.order.status_error')]
+    case ORDER_STATUS_ERROR = 203007;
+    // 订单核销失败
+    #[Message('result.order.verify_failed')]
+    case ORDER_VERIFY_FAILED = 203008;
+
+    // 交易凭证
+    #[Message('result.transaction.trade_voucher_not_exist')]
+    case TRANSACTION_VOUCHER_NOT_EXIST = 204001;
 }

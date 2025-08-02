@@ -2,6 +2,7 @@
 
 namespace http\backend\controller;
 
+use app\constants\TransactionVoucher;
 use app\controller\BasicController;
 use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
@@ -78,7 +79,8 @@ class TransactionVoucherController extends BasicController
         $validatedData = $validator->validate();
         return $this->service->create(array_merge(
             $validatedData + [
-                'content' => json_encode($validatedData)
+                'collection_source' => TransactionVoucher::COLLECTION_SOURCE_MANUAL,
+                'content'           => json_encode($validatedData)
             ],
             [
                 'operation_admin_id' => $request->user->id,

@@ -3,9 +3,12 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
+use app\lib\enum\ResultCode;
 use app\router\Annotations\GetMapping;
+use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\CollectionOrderService;
 use DI\Attribute\Inject;
@@ -30,5 +33,21 @@ class CollectionOrderController extends BasicController
                 $this->getPageSize(),
             )
         );
+    }
+
+    // 核销
+    #[Permission(code: 'transaction:collection_order:update')]
+    #[OperationLog('核销收款订单')]
+    #[PutMapping('/collection_order/write_off/{id}')]
+    public function writeOff(Request $request, int $id): Response
+    {
+        $validator = validate($request->all(), [
+            'transaction_voucher_id' => ['required', 'integer', 'between:1,9999999999'],
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        return $this->service->writeOff($id, $validatedData['transaction_voucher_id']) ? $this->success() : $this->error();
     }
 }

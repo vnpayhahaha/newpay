@@ -58,7 +58,7 @@ class TransactionConsumer implements Consumer
                 return Db::transaction(function () use ($data, $transaction_record, $tenant_account) {
                     /** @var ModelTransactionQueueStatus $transaction_queue */
                     $transaction_queue = ModelTransactionQueueStatus::query()->where('transaction_no', $data['transaction_no'])->firstOrFail();
-                    if ($transaction_queue->process_status == TransactionQueueStatus::STATUS_SUCCESS || $transaction_queue->process_status == TransactionQueueStatus::STATUS_FAIL) {
+                    if ($transaction_queue->process_status === TransactionQueueStatus::STATUS_SUCCESS || $transaction_queue->process_status === TransactionQueueStatus::STATUS_FAIL) {
                         return false;
                     }
                     $lock_version = $transaction_queue->lock_version;
