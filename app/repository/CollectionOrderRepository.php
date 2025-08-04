@@ -123,6 +123,7 @@ final class CollectionOrderRepository extends IRepository
             ->with('channel:id,channel_name,channel_code,channel_icon')
             ->with('channel_account:id,merchant_id')
             ->with('bank_account:id,branch_name')
+            ->with('cancel_operator:id,username,nickname')
             ->paginate(
                 perPage: $pageSize,
                 pageName: static::PER_PAGE_PARAM_NAME,

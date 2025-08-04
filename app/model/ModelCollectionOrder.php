@@ -200,4 +200,10 @@ final class ModelCollectionOrder extends BasicModel
     {
         return $this->belongsTo(ModelBankAccount::class, 'bank_account_id', 'id');
     }
+
+    // cancel_operator
+    public function cancel_operator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelUser::class, 'cancelled_by', 'id');
+    }
 }
