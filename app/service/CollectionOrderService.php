@@ -105,10 +105,10 @@ final class CollectionOrderService extends IService
             'fixed_fee' => 0.00,
             'rate_fee'  => 0.00,
         ];
-        if (in_array(Tenant::RECEIPT_FEE_TYPE_FIXED, $findTenant->receipt_fee_type)) {
+        if (in_array(Tenant::RECEIPT_FEE_TYPE_FIXED, $findTenant->receipt_fee_type, true)) {
             $calculate['fixed_fee'] = $findTenant->receipt_fixed_fee;
         }
-        if (in_array(Tenant::RECEIPT_FEE_TYPE_RATE, $findTenant->receipt_fee_type)) {
+        if (in_array(Tenant::RECEIPT_FEE_TYPE_RATE, $findTenant->receipt_fee_type, true)) {
             $calculate['rate_fee'] = $findTenant->receipt_fee_rate;
             $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
         }

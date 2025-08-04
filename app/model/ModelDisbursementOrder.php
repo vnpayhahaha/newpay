@@ -17,6 +17,7 @@ use Carbon\Carbon;
  * @property float $paid_amount 订单实付金额
  * @property float $fixed_fee 固定手续费
  * @property float $rate_fee 费率手续费
+ * @property float $rate_fee_amount 费率手续费金额
  * @property float $total_fee 总手续费
  * @property float $settlement_amount 租户入账金额
  * @property float $upstream_fee 上游手续费
@@ -27,6 +28,7 @@ use Carbon\Carbon;
  * @property string $payee_account_name 收款人账户姓名
  * @property string $payee_account_no 收款人银行卡号
  * @property string $payee_upi 收款人UPI账号
+ * @property string $payee_phone 收款人电话号码
  * @property string $utr 实际交易的凭证/UTR
  * @property string $tenant_id 租户编号
  * @property int $app_id 应用ID
@@ -75,6 +77,7 @@ final class ModelDisbursementOrder extends BasicModel
         'paid_amount',
         'fixed_fee',
         'rate_fee',
+        'rate_fee_amount',
         'total_fee',
         'settlement_amount',
         'upstream_fee',
@@ -84,6 +87,7 @@ final class ModelDisbursementOrder extends BasicModel
         'payee_bank_code',
         'payee_account_name',
         'payee_account_no',
+        'payee_phone',
         'payee_upi',
         'utr',
         'tenant_id',
@@ -110,6 +114,7 @@ final class ModelDisbursementOrder extends BasicModel
         'paid_amount'                => 'float',
         'fixed_fee'                  => 'float',
         'rate_fee'                   => 'float',
+        'rate_fee_amount'            => 'float',
         'total_fee'                  => 'float',
         'settlement_amount'          => 'float',
         'upstream_fee'               => 'float',
@@ -123,4 +128,15 @@ final class ModelDisbursementOrder extends BasicModel
         'created_at'                 => 'datetime',
         'updated_at'                 => 'datetime',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(static function (ModelDisbursementOrder $model) {
+            var_dump('run ModelCollectionOrder creating==');
+            if (empty($model->platform_order_no)) {
+                $model->platform_order_no = buildPlatformOrderNo('DO');
+            }
+        });
+    }
 }
