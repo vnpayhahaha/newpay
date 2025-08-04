@@ -90,8 +90,12 @@ final class CollectionOrderRepository extends IRepository
             $query->where('payer_upi', $params['payer_upi']);
         }
 
-        if (isset($params['status'])) {
-            $query->where('status', $params['status']);
+        if (isset($params['status']) && filled($params['status'])) {
+            if ($params['status'] === 40) {
+                $query->where('status', '>=', $params['status']);
+            } else {
+                $query->where('status', $params['status']);
+            }
         }
 
         if (isset($params['channel_transaction_no'])) {
