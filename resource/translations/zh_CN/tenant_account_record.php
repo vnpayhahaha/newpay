@@ -4,7 +4,7 @@ return [
 
     'enums' => [
         'change_type' => [
-            'transaction'  => '订单交易',
+            'transaction'  => '订单成功',
             'refund'       => '订单退款',
             'manual_add'   => '人工加帐',
             'manual_sub'   => '人工减帐',

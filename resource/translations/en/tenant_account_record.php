@@ -4,7 +4,7 @@ return [
 
     'enums' => [
         'change_type' => [
-            'transaction'  => 'Order trading',
+            'transaction'  => 'Order successful',
             'refund'       => 'Order refund',
             'manual_add'   => 'Manual add',
             'manual_sub'   => 'Manual sub',
