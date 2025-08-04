@@ -50,4 +50,21 @@ class CollectionOrderController extends BasicController
         $validatedData = $validator->validate();
         return $this->service->writeOff($id, $validatedData['transaction_voucher_id']) ? $this->success() : $this->error();
     }
+
+    #[PutMapping('/collection_order/cancel')]
+    #[Permission(code: 'transaction:collection_order:update')]
+    #[OperationLog('取消收款订单')]
+    public function cancel(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'data' => ['required', 'array'],
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $user = $request->user;
+        $this->service->cancelById($validatedData['data'], $user['id']);
+        return $this->success();
+    }
 }

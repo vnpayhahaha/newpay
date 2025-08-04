@@ -64,6 +64,8 @@ use support\Db;
  * @property int $settlement_delay_mode 入账类型(1:D0 2:D1 3:T0)
  * @property int $settlement_delay_days 入账延迟天数（自然日）
  * @property int $transaction_voucher_id 核销凭证id
+ * @property Carbon $cancelled_at 取消时间
+ * @property int $cancelled_by 取消管理员
  */
 final class ModelCollectionOrder extends BasicModel
 {
@@ -134,6 +136,8 @@ final class ModelCollectionOrder extends BasicModel
         'settlement_delay_mode',
         'settlement_delay_days',
         'transaction_voucher_id',
+        'cancelled_at',
+        'cancelled_by',
     ];
 
     protected $casts = [
@@ -163,7 +167,9 @@ final class ModelCollectionOrder extends BasicModel
         'updated_at'                 => 'datetime',
         'settlement_delay_mode'      => 'integer',
         'settlement_delay_days'      => 'integer',
-        'transaction_voucher_id'      => 'integer',
+        'transaction_voucher_id'     => 'integer',
+        'cancelled_by'               => 'integer',
+        'cancelled_at'               => 'datetime',
     ];
 
     public static function boot()
@@ -180,18 +186,18 @@ final class ModelCollectionOrder extends BasicModel
     // belongsTo channel
     public function channel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(ModelChannel::class, 'collection_channel_id','id' );
+        return $this->belongsTo(ModelChannel::class, 'collection_channel_id', 'id');
     }
 
     // belongsTo channel_account
     public function channel_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(ModelChannelAccount::class, 'channel_account_id','id' );
+        return $this->belongsTo(ModelChannelAccount::class, 'channel_account_id', 'id');
     }
 
     // belongsTo bank_account
     public function bank_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(ModelBankAccount::class, 'bank_account_id','id' );
+        return $this->belongsTo(ModelBankAccount::class, 'bank_account_id', 'id');
     }
 }

@@ -395,4 +395,29 @@ final class CollectionOrderService extends IService
         }
         return $isOk;
     }
+
+    public function cancelById(mixed $id, int $operatorId): int
+    {
+        return Db::transaction(function () use ($id, $operatorId) {
+            if (is_array($id)) {
+                return $this->repository->getModel()
+                    ->whereIn('id', $id)
+                    ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
+                    ->update([
+                        'status'       => CollectionOrder::STATUS_CANCEL,
+                        'cancelled_by' => $operatorId,
+                        'cancelled_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            return $this->repository->getModel()
+                ->where('id', $id)
+                ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
+                ->update([
+                    'status'       => CollectionOrder::STATUS_CANCEL,
+                    'cancelled_by' => $operatorId,
+                    'cancelled_at' => date('Y-m-d H:i:s'),
+                ]);
+        });
+    }
 }
