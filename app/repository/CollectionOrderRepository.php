@@ -91,7 +91,7 @@ final class CollectionOrderRepository extends IRepository
         }
 
         if (isset($params['status']) && filled($params['status'])) {
-            if ($params['status'] === 40) {
+            if ($params['status'] == 40) {
                 $query->where('status', '>=', $params['status']);
             } else {
                 $query->where('status', $params['status']);
