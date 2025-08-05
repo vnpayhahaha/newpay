@@ -36,7 +36,8 @@ final class DisbursementOrderService extends IService
             'fixed_fee' => $findTenant->receipt_fixed_fee,
             'rate_fee'  => $findTenant->receipt_fee_rate,
         ];
-        $rate_fee_amount = bcmul($data['amount'], $calculate['rate_fee'], 4);
+        $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
+        $rate_fee_amount = bcmul($data['amount'], $rate_fee, 4);
         $calculate['rate_fee_amount'] = $rate_fee_amount;
         $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $rate_fee_amount, 4);
         $disbursementOrder = $this->repository->create([
