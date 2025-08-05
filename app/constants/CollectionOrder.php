@@ -42,11 +42,11 @@ class CollectionOrder
     ];
 
     // settlement_type 入账结算类型:0-未入账 1-实付金额 2-订单金额
-    public const SETTLEMENT_TYPE_NOT_SETTLED = 0;
+//    public const SETTLEMENT_TYPE_NOT_SETTLED = 0;
     public const SETTLEMENT_TYPE_PAID_AMOUNT = 1;
     public const SETTLEMENT_TYPE_ORDER_AMOUNT = 2;
     public static array $settlement_type_list = [
-        self::SETTLEMENT_TYPE_NOT_SETTLED  => 'collection_order.enums.settlement_type.not_settled',
+//        self::SETTLEMENT_TYPE_NOT_SETTLED  => 'collection_order.enums.settlement_type.not_settled',
         self::SETTLEMENT_TYPE_PAID_AMOUNT  => 'collection_order.enums.settlement_type.paid_amount',
         self::SETTLEMENT_TYPE_ORDER_AMOUNT => 'collection_order.enums.settlement_type.order_amount',
     ];

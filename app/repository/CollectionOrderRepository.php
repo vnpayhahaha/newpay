@@ -41,6 +41,12 @@ final class CollectionOrderRepository extends IRepository
         if (isset($params['collection_channel_id'])) {
             $query->where('collection_channel_id', $params['collection_channel_id']);
         }
+        if (isset($params['bank_account_id'])) {
+            $query->where('bank_account_id', $params['bank_account_id']);
+        }
+        if (isset($params['channel_account_id'])) {
+            $query->where('channel_account_id', $params['channel_account_id']);
+        }
 
         if (isset($params['pay_time'])) {
             $query->where('pay_time', $params['pay_time']);

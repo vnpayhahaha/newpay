@@ -171,7 +171,7 @@ class TenantController extends BasicController
             'expired_at',
         ];
         return $this->success(
-            $this->service->getList([])->map(static fn($model) => $model->only($fields))
+            $this->service->getList($request->all())->map(static fn($model) => $model->only($fields))
         );
     }
 

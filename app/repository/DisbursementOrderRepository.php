@@ -18,6 +18,13 @@ final class DisbursementOrderRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
+        if (isset($params['allocation']) && filled($params['allocation'])) {
+            if ($params['allocation'][0] == 1) {
+                $query->where('disbursement_channel_id', 0);
+            } elseif ($params['allocation'][0] == 2) {
+                $query->where('disbursement_channel_id', '>', 0);
+            }
+        }
         if (isset($params['platform_order_no'])) {
             $query->where('platform_order_no', $params['platform_order_no']);
         }
@@ -42,8 +49,11 @@ final class DisbursementOrderRepository extends IRepository
             $query->where('disbursement_channel_id', $params['disbursement_channel_id']);
         }
 
-        if (isset($params['disbursement_bank_id'])) {
-            $query->where('disbursement_bank_id', $params['disbursement_bank_id']);
+        if (isset($params['bank_account_id'])) {
+            $query->where('bank_account_id', $params['bank_account_id']);
+        }
+        if (isset($params['channel_account_id'])) {
+            $query->where('channel_account_id', $params['channel_account_id']);
         }
 
         if (isset($params['payment_type'])) {
