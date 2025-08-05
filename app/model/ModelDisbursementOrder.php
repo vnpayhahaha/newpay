@@ -48,6 +48,7 @@ use Carbon\Carbon;
  * @property Carbon $updated_at
  * @property Carbon $cancelled_at 取消时间
  * @property int $cancelled_by 取消时间管理员
+ * @property int $transaction_voucher_id 核销凭证id
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -108,6 +109,7 @@ final class ModelDisbursementOrder extends BasicModel
         'updated_at',
         'cancelled_at',
         'cancelled_by',
+        'transaction_voucher_id ',
     ];
 
     protected $casts = [
@@ -127,12 +129,13 @@ final class ModelDisbursementOrder extends BasicModel
         'app_id'                     => 'integer',
         'status'                     => 'integer',
         'expire_time'                => 'datetime',
-        'notify_count'             => 'integer',
+        'notify_count'               => 'integer',
         'notify_status'              => 'integer',
         'created_at'                 => 'datetime',
         'updated_at'                 => 'datetime',
         'cancelled_at'               => 'datetime',
         'cancelled_by'               => 'integer',
+        'transaction_voucher_id '    => 'integer',
     ];
 
     public static function boot()

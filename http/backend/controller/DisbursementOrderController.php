@@ -3,9 +3,12 @@
 namespace http\backend\controller;
 
 use app\controller\BasicController;
+use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
+use app\lib\enum\ResultCode;
 use app\router\Annotations\GetMapping;
+use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\DisbursementOrderService;
 use DI\Attribute\Inject;
@@ -30,5 +33,38 @@ class DisbursementOrderController extends BasicController
                 $this->getPageSize(),
             )
         );
+    }
+
+    // 核销
+    #[Permission(code: 'transaction:disbursement_order:update')]
+    #[OperationLog('核销付款订单')]
+    #[PutMapping('/disbursement_order/write_off/{id}')]
+    public function writeOff(Request $request, int $id): Response
+    {
+        $validator = validate($request->all(), [
+            'transaction_voucher_id' => ['required', 'integer', 'between:1,9999999999'],
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        return $this->service->writeOff($id, $validatedData['transaction_voucher_id']) ? $this->success() : $this->error();
+    }
+
+    #[PutMapping('/disbursement_order/cancel')]
+    #[Permission(code: 'transaction:disbursement_order:update')]
+    #[OperationLog('取消付款订单')]
+    public function cancel(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'data' => ['required', 'array'],
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $user = $request->user;
+        $this->service->cancelById($validatedData['data'], $user['id']);
+        return $this->success();
     }
 }

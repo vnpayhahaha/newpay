@@ -358,10 +358,10 @@ final class CollectionOrderService extends IService
                 $order->id,
                 $order->platform_order_no,
                 $tenantAccount,
+                $settlement_amount,
+                $fee_amount,
                 $order->settlement_delay_mode,
                 $order->settlement_delay_days,
-                $settlement_amount,
-                $fee_amount
             );
             if (!$isOk) {
                 throw new Exception('Failed to update the recharge record');

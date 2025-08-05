@@ -4,14 +4,24 @@ namespace app\service;
 
 use app\constants\DisbursementOrder;
 use app\constants\Tenant;
+use app\constants\TenantAccount;
+use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
-use app\exception\OpenApiException;
 use app\lib\enum\ResultCode;
+use app\model\ModelDisbursementOrder;
 use app\model\ModelTenantApp;
+use app\repository\BankAccountRepository;
+use app\repository\ChannelAccountRepository;
 use app\repository\DisbursementOrderRepository;
+use app\repository\TenantAccountRepository;
 use app\repository\TenantRepository;
+use app\repository\TransactionRecordRepository;
+use app\repository\TransactionVoucherRepository;
 use DI\Attribute\Inject;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use support\Context;
+use support\Db;
 use Webman\Http\Request;
 
 final class DisbursementOrderService extends IService
@@ -20,6 +30,16 @@ final class DisbursementOrderService extends IService
     public DisbursementOrderRepository $repository;
     #[Inject]
     protected TenantRepository $tenantRepository;
+    #[Inject]
+    protected TenantAccountRepository $tenantAccountRepository;
+    #[Inject]
+    protected BankAccountRepository $bankAccountRepository;
+    #[Inject]
+    protected ChannelAccountRepository $channelAccountRepository;
+    #[Inject]
+    protected TransactionVoucherRepository $transactionVoucherRepository;
+    #[Inject]
+    protected TransactionRecordRepository $transactionRecordRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -80,5 +100,94 @@ final class DisbursementOrderService extends IService
             'amount'            => $disbursementOrder->amount,
             'status'            => $disbursementOrder->status,
         ];
+    }
+
+    public function writeOff(int $disbursementOrderId, int $transactionVoucherId): bool
+    {
+        /** @var ModelDisbursementOrder $order */
+        $order = $this->repository->getQuery()->find($disbursementOrderId);
+        if (!$order) {
+            throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
+        }
+        if (!in_array($order->status, [DisbursementOrder::STATUS_WAIT_PAY, DisbursementOrder::STATUS_SUSPEND, DisbursementOrder::STATUS_INVALID], true)) {
+            throw new BusinessException(ResultCode::ORDER_STATUS_ERROR);
+        }
+        $tenantAccount = $this->tenantAccountRepository->getQuery()
+            ->where('tenant_id', $order->tenant_id)
+            ->where('account_type', TenantAccount::ACCOUNT_TYPE_PAY)
+            ->with('tenant')
+            ->first();
+        if (!$tenantAccount) {
+            throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
+        }
+        $transactionVoucher = $this->transactionVoucherRepository->findById($transactionVoucherId);
+        if (!$transactionVoucher) {
+            throw new BusinessException(ResultCode::TRANSACTION_VOUCHER_NOT_EXIST);
+        }
+        Db::beginTransaction();
+        try {
+            // 更新凭证表 collection_status order_no
+            $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
+            if (!$isOk) {
+                throw new Exception('The update of the voucher table failed');
+            }
+            $isOk = $this->transactionRecordRepository->orderTransaction(
+                $order->id,
+                $order->platform_order_no,
+                $tenantAccount,
+                $order->amount,
+                $order->total_fee
+            );
+            if (!$isOk) {
+                throw new Exception('Failed to update the recharge record');
+            }
+            // 更新订单表 transaction_voucher_id  status
+            $isOk = $this->repository->getQuery()
+                ->where('id', $disbursementOrderId)
+                ->where(function (Builder $query) {
+                    $query->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+                        ->orWhere('status', DisbursementOrder::STATUS_SUSPEND)
+                        ->orWhere('status', DisbursementOrder::STATUS_INVALID);
+                })
+                ->update([
+                    'status'                 => DisbursementOrder::STATUS_SUCCESS,
+                    'transaction_voucher_id' => $transactionVoucherId,
+                    'pay_time'               => date('Y-m-d H:i:s'),
+                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ? $transactionVoucher->transaction_voucher : '',
+                ]);
+            if (!$isOk) {
+                throw new Exception('Failed to update the order');
+            }
+            Db::commit();
+        } catch (\Throwable $exception) {
+            Db::rollBack();
+            throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
+        }
+        return $isOk;
+    }
+
+    public function cancelById(mixed $id, int $operatorId): int
+    {
+        return Db::transaction(function () use ($id, $operatorId) {
+            if (is_array($id)) {
+                return $this->repository->getModel()
+                    ->whereIn('id', $id)
+                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->update([
+                        'status'       => DisbursementOrder::STATUS_CANCEL,
+                        'cancelled_by' => $operatorId,
+                        'cancelled_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            return $this->repository->getModel()
+                ->where('id', $id)
+                ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                ->update([
+                    'status'       => DisbursementOrder::STATUS_CANCEL,
+                    'cancelled_by' => $operatorId,
+                    'cancelled_at' => date('Y-m-d H:i:s'),
+                ]);
+        });
     }
 }

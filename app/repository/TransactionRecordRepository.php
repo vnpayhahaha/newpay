@@ -89,7 +89,7 @@ class TransactionRecordRepository extends IRepository
     }
 
     // TYPE_ORDER_TRANSACTION
-    public function orderTransaction(int $order_id, string $platform_order_no, ModelTenantAccount $account, int $settlement_delay_mode, int $settlement_delay_days, float $amount, float $fee_amount = 0, string $remark = ''): bool
+    public function orderTransaction(int $order_id, string $platform_order_no, ModelTenantAccount $account, float $amount, float $fee_amount = 0, int $settlement_delay_mode = 1, int $settlement_delay_days = 0, string $remark = ''): bool
     {
 //        $settlement_delay_mode = $account['tenant']['settlement_delay_mode'] ?? 1;
 //        $settlement_delay_days = $account['tenant']['settlement_delay_days'] ?? 0;
