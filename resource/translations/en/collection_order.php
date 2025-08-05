@@ -4,7 +4,7 @@ return [
     'enums' => [
         'status'          => [
             0  => 'Created',
-            10 => 'Processing',
+            10 => 'Pending payment',
             20 => 'Success',
             30 => 'Suspended',
             40 => 'Failed',

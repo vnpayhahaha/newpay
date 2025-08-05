@@ -12,9 +12,9 @@ use Carbon\Carbon;
  * @property Carbon $pay_time 支付时间
  * @property string $order_source 订单来源:App-API 管理后台 导入
  * @property int $disbursement_channel_id 代付渠道D
- * @property int $disbursement_bank_id 代付银行卡ID
+ * @property int $bank_account_id 代付银行卡ID
+ * @property int $channel_account_id 代付渠道ID
  * @property float $amount 订单金额
- * @property float $paid_amount 订单实付金额
  * @property float $fixed_fee 固定手续费
  * @property float $rate_fee 费率手续费
  * @property float $rate_fee_amount 费率手续费金额
@@ -37,8 +37,8 @@ use Carbon\Carbon;
  * 0-创建 10-待支付 11-待回填 20-成功 30-挂起
  * 40-失败 41-已取消 43-已失效 44-已退款
  * @property Carbon $expire_time 订单失效时间
- * @property string $callback_url 回调地址
- * @property int $callback_count 回调次数
+ * @property string $notify_url 回调地址
+ * @property int $notify_count 回调次数
  * @property int $notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
  * @property string $channel_transaction_no 渠道交易号
  * @property string $error_code 错误代码
@@ -46,6 +46,8 @@ use Carbon\Carbon;
  * @property string $request_id 关联API请求ID
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property Carbon $cancelled_at 取消时间
+ * @property int $cancelled_by 取消时间管理员
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -72,9 +74,9 @@ final class ModelDisbursementOrder extends BasicModel
         'pay_time',
         'order_source',
         'disbursement_channel_id',
-        'disbursement_bank_id',
+        'bank_account_id',
+        'channel_account_id',
         'amount',
-        'paid_amount',
         'fixed_fee',
         'rate_fee',
         'rate_fee_amount',
@@ -95,23 +97,25 @@ final class ModelDisbursementOrder extends BasicModel
         'description',
         'status',
         'expire_time',
-        'callback_url',
-        'callback_count',
+        'notify_url',
+        'notify_count',
         'notify_status',
         'channel_transaction_no',
         'error_code',
         'error_message',
         'request_id',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'cancelled_at',
+        'cancelled_by',
     ];
 
     protected $casts = [
         'pay_time'                   => 'datetime',
         'disbursement_channel_id'    => 'integer',
-        'disbursement_bank_id'       => 'integer',
+        'bank_account_id'            => 'integer',
+        'channel_account_id'         => 'integer',
         'amount'                     => 'float',
-        'paid_amount'                => 'float',
         'fixed_fee'                  => 'float',
         'rate_fee'                   => 'float',
         'rate_fee_amount'            => 'float',
@@ -123,10 +127,12 @@ final class ModelDisbursementOrder extends BasicModel
         'app_id'                     => 'integer',
         'status'                     => 'integer',
         'expire_time'                => 'datetime',
-        'callback_count'             => 'integer',
+        'notify_count'             => 'integer',
         'notify_status'              => 'integer',
         'created_at'                 => 'datetime',
         'updated_at'                 => 'datetime',
+        'cancelled_at'               => 'datetime',
+        'cancelled_by'               => 'integer',
     ];
 
     public static function boot()
@@ -138,5 +144,30 @@ final class ModelDisbursementOrder extends BasicModel
                 $model->platform_order_no = buildPlatformOrderNo('DO');
             }
         });
+    }
+
+
+    // belongsTo channel
+    public function channel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannel::class, 'disbursement_channel_id', 'id');
+    }
+
+    // belongsTo channel_account
+    public function channel_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannelAccount::class, 'channel_account_id', 'id');
+    }
+
+    // belongsTo bank_account
+    public function bank_account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelBankAccount::class, 'bank_account_id', 'id');
+    }
+
+    // cancel_operator
+    public function cancel_operator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelUser::class, 'cancelled_by', 'id');
     }
 }

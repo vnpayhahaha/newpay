@@ -19,4 +19,5 @@ return [
     'tenant_api_interface'     => app\constants\TenantApiInterface::class, // 租户接口状态
     'transaction_voucher'      => app\constants\TransactionVoucher::class, // 交易凭证状态
     'collection_order'         => app\constants\CollectionOrder::class, // 收款订单状态
+    'disbursement_order'       => app\constants\DisbursementOrder::class, // 提现订单状态
 ];
