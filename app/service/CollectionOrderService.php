@@ -102,19 +102,19 @@ final class CollectionOrderService extends IService
 
         // 计算收款费率
         $calculate = [
-            'fixed_fee' => 0.00,
-            'rate_fee'  => 0.00,
+            'fixed_fee'       => 0.00,
+            'rate_fee'        => 0.00,
+            'rate_fee_amount' => 0.00,
         ];
+        $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
         if (in_array(Tenant::RECEIPT_FEE_TYPE_FIXED, $findTenant->receipt_fee_type, true)) {
             $calculate['fixed_fee'] = $findTenant->receipt_fixed_fee;
         }
         if (in_array(Tenant::RECEIPT_FEE_TYPE_RATE, $findTenant->receipt_fee_type, true)) {
             $calculate['rate_fee'] = $findTenant->receipt_fee_rate;
-            $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
+            $calculate['rate_fee_amount'] = bcmul($data['amount'], $rate_fee, 4);
         }
-        $rate_fee_amount = bcmul($data['amount'], $rate_fee, 4);
-        $calculate['rate_fee_amount'] = $rate_fee_amount;
-        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $rate_fee_amount, 4);
+        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee_amount'], 4);
 
         $payable_amount = $data['amount'];
         if ($findTenant->float_enabled) {

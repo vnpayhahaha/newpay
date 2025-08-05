@@ -3,6 +3,7 @@
 namespace app\service;
 
 use app\constants\DisbursementOrder;
+use app\constants\Tenant;
 use app\exception\BusinessException;
 use app\exception\OpenApiException;
 use app\lib\enum\ResultCode;
@@ -33,13 +34,19 @@ final class DisbursementOrderService extends IService
         }
         // 计算收款费率
         $calculate = [
-            'fixed_fee' => $findTenant->receipt_fixed_fee,
-            'rate_fee'  => $findTenant->receipt_fee_rate,
+            'fixed_fee'       => 0.00,
+            'rate_fee'        => 0.00,
+            'rate_fee_amount' => 0.00,
         ];
-        $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
-        $rate_fee_amount = bcmul($data['amount'], $rate_fee, 4);
-        $calculate['rate_fee_amount'] = $rate_fee_amount;
-        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $rate_fee_amount, 4);
+        $rate_fee = bcdiv($findTenant->payment_fee_rate, '100', 4);
+        if (in_array(Tenant::PAYMENT_FEE_TYPE_FIXED, $findTenant->payment_fee_type, true)) {
+            $calculate['fixed_fee'] = $findTenant->payment_fixed_fee;
+        }
+        if (in_array(Tenant::PAYMENT_FEE_TYPE_RATE, $findTenant->payment_fee_type, true)) {
+            $calculate['rate_fee'] = $findTenant->payment_fee_rate;
+            $calculate['rate_fee_amount'] = bcmul($data['amount'], $rate_fee, 4);
+        }
+        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee_amount'], 4);
         $disbursementOrder = $this->repository->create([
             'tenant_id'          => $data['tenant_id'],
             'tenant_order_no'    => $data['tenant_order_no'],
@@ -52,6 +59,7 @@ final class DisbursementOrderService extends IService
             'rate_fee_amount'    => $calculate['rate_fee_amount'],
             'total_fee'          => $calculate['total_fee'],
             'settlement_amount'  => bcadd($data['amount'], $calculate['total_fee'], 4),
+            'expire_time'        => date('Y-m-d H:i:s', strtotime('+' . $findTenant->payment_expire_minutes . ' minutes')),
             'payment_type'       => $data['payment_type'],
             'payee_bank_name'    => $data['payee_bank_name'] ?? '',
             'payee_bank_code'    => $data['payee_bank_code'] ?? '',
