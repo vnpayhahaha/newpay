@@ -88,7 +88,7 @@ final class DisbursementOrderService extends IService
             'payee_phone'        => $data['payee_phone'] ?? '',
             'payee_upi'          => $data['payee_upi'] ?? '',
             'app_id'             => $app->id ?? '',
-            'status'             => DisbursementOrder::STATUS_WAIT_PAY,
+            'status'             => DisbursementOrder::STATUS_CREATE,
             'request_id'         => $request->requestId,
         ]);
         if (!filled($disbursementOrder)) {
@@ -187,6 +187,23 @@ final class DisbursementOrderService extends IService
                     'status'       => DisbursementOrder::STATUS_CANCEL,
                     'cancelled_by' => $operatorId,
                     'cancelled_at' => date('Y-m-d H:i:s'),
+                ]);
+        });
+    }
+
+    public function distribute(array $params, int $operatorId): int
+    {
+        return Db::transaction(function () use ($params, $operatorId) {
+            return $this->repository->getModel()
+                ->whereIn('id', $params['ids'])
+                ->where('status', '=', DisbursementOrder::STATUS_CREATE)
+                ->update([
+                    'status'                  => DisbursementOrder::STATUS_WAIT_PAY,
+                    'disbursement_channel_id' => $params['disbursement_channel_id'],
+                    'channel_type'            => $params['channel_type'],
+                    'bank_account_id'         => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_BANK ? $params['bank_account_id'] : 0,
+                    'channel_account_id'      => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_UPSTREAM ? $params['channel_account_id'] : 0,
+                    'updated_at'              => date('Y-m-d H:i:s'),
                 ]);
         });
     }

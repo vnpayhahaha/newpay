@@ -12,6 +12,7 @@ use Carbon\Carbon;
  * @property Carbon $pay_time 支付时间
  * @property string $order_source 订单来源:App-API 管理后台 导入
  * @property int $disbursement_channel_id 代付渠道D
+ * @property int $channel_type 渠道类型：1-银行 2-上游第三方
  * @property int $bank_account_id 代付银行卡ID
  * @property int $channel_account_id 代付渠道ID
  * @property float $amount 订单金额
@@ -75,6 +76,7 @@ final class ModelDisbursementOrder extends BasicModel
         'pay_time',
         'order_source',
         'disbursement_channel_id',
+        'channel_type',
         'bank_account_id',
         'channel_account_id',
         'amount',
@@ -115,6 +117,7 @@ final class ModelDisbursementOrder extends BasicModel
     protected $casts = [
         'pay_time'                   => 'datetime',
         'disbursement_channel_id'    => 'integer',
+        'channel_type'               => 'integer',
         'bank_account_id'            => 'integer',
         'channel_account_id'         => 'integer',
         'amount'                     => 'float',

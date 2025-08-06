@@ -24,5 +24,9 @@ return [
             'bank_card' => '银行卡',
             'upi'       => 'UPI',
         ],
+        'channel_type'  => [
+            'bank'     => '银行',
+            'upstream' => '上游',
+        ],
     ],
 ];

@@ -30,6 +30,14 @@ class DisbursementOrder
         self::STATUS_REFUND    => 'disbursement_order.enums.status.44',
     ];
 
+    // `channel_type` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '渠道类型：1-银行 2-上游第三方',
+    public const CHANNEL_TYPE_BANK = 1;
+    public const CHANNEL_TYPE_UPSTREAM = 2;
+    public static array $channel_type_list = [
+        self::CHANNEL_TYPE_BANK     => 'disbursement_order.enums.channel_type.bank',
+        self::CHANNEL_TYPE_UPSTREAM => 'disbursement_order.enums.channel_type.upstream',
+    ];
+
     //  `payment_type` tinyint(2) NOT NULL COMMENT '付款类型:1-银行卡 2-UPI',
     public const PAYMENT_TYPE_BANK_CARD = 1;
     public const PAYMENT_TYPE_UPI = 2;

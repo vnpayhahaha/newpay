@@ -64,7 +64,41 @@ class DisbursementOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $this->service->cancelById($validatedData['data'], $user['id']);
-        return $this->success();
+        $updateNum = $this->service->cancelById($validatedData['data'], $user['id']);
+        return $updateNum > 0 ? $this->success() : $this->error();
+    }
+
+    // distribute
+    #[PutMapping('/disbursement_order/distribute')]
+    #[Permission(code: 'transaction:disbursement_order:update')]
+    #[OperationLog('分配订单')]
+    public function distribute(Request $request): Response
+    {
+        $validator = validate($request->post(), [
+            'ids'                     => 'required|array',
+            'ids.*'                   => 'required|integer|max:9999999999',
+            'disbursement_channel_id' => 'required|integer|max:9999999999',
+            'channel_type'            => [
+                'required',
+                'in:1,2'
+            ],
+            'bank_account_id'         => [
+                'required_if:channel_type,1',
+                'integer',
+                'max:9999999999'
+            ],
+            'channel_account_id'      => [
+                'required_if:channel_type,2',
+                'integer',
+                'max:9999999999'
+            ]
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $user = $request->user;
+        $updateNum = $this->service->distribute($validatedData, $user['id']);
+        return $updateNum > 0 ? $this->success() : $this->error();
     }
 }
