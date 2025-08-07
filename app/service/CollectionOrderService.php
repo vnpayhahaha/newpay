@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Context;
 use support\Db;
+use support\Log;
 use support\Redis;
 use Webman\Http\Request;
 
@@ -48,7 +49,7 @@ final class CollectionOrderService extends IService
     protected TransactionRecordRepository $transactionRecordRepository;
 
     // 创建订单
-    public function createOrder(array $data, string $source = ''): mixed
+    public function createOrder(array $data, string $source = ''): array
     {
         // 查询租户获取配置
         $findTenant = $this->tenantRepository->getQuery()
@@ -64,17 +65,40 @@ final class CollectionOrderService extends IService
         $upstream_enabled = $findTenant->upstream_enabled;
 
         $result = [];
+        $fail_result = '';
         foreach ($findTenant->collection_use_method as $method) {
             if ($method === Tenant::COLLECTION_USE_METHOD_UPSTREAM && $upstream_enabled && filled($findTenant->upstream_items)) {
+                var_dump('上游第三方收款');
                 // 上游第三方收款
-                $result = $this->upstreamCollection($data, $findTenant, $source);
-                break;
+                try {
+                    $result = $this->upstreamCollection($data, $findTenant, $source);
+                    var_dump('上游第三方收款结果：',$result);
+                } catch (\Throwable $e) {
+                    $fail_result = $e->getMessage();
+                    Log::warning('upstream_collection_error: ' . $e->getMessage());
+                    continue;
+                }
+                if (filled($result)) {
+                    break;
+                }
+
             }
             if ($method === Tenant::COLLECTION_USE_METHOD_BANK_ACCOUNT) {
                 // 银行收款
-                $result = $this->bankCollection($data, $findTenant, $source);
-                break;
+                try {
+                    $result = $this->bankCollection($data, $findTenant, $source);
+                } catch (\Throwable $e) {
+                    $fail_result = $e->getMessage();
+                    Log::warning('bank_collection_error: ' . $e->getMessage());
+                    continue;
+                }
+                if (filled($result)) {
+                    break;
+                }
             }
+        }
+        if(filled($fail_result) && filled($result) === false){
+            throw new BusinessException(ResultCode::ORDER_CREATE_FAILED, $fail_result);
         }
         return $result;
     }
@@ -273,25 +297,44 @@ final class CollectionOrderService extends IService
     // createOrderOfUpstream
     public function upstreamCollection(array $data, ModelTenant $findTenant, string $source = ''): array
     {
+        $createOrderResult = [];
+        $fail_message = '';
         foreach ($findTenant->upstream_items as $channelAccountId) {
             // 查询 渠道状态 且 满足限额
             $channel_account = $this->channelAccountRepository
                 ->getChannelAccountOfCollectionQuery($channelAccountId, $data['amount'])
                 ->first();
+
             if ($channel_account && isset($channel_account['channel']['channel_code'])) {
-                $className = Tenant::$upstream_options[$channel_account['channel']['channel_code']];
-                $service = TransactionCollectionOrderFactory::getInstance($className)->init($channel_account);
-                $result = $service->createOrder($data['tenant_order_no'], $data['amount']);
-                if ($result['ok']) {
-                    return $result;
+                $className = Tenant::$upstream_options[$channel_account['channel']['channel_code']] ?? '';
+                var_dump('$className ',$className);
+                if(filled($className)){
+                    try {
+                        $service = TransactionCollectionOrderFactory::getInstance($className)->init($channel_account);
+                        $createOrderResult = $service->createOrder($data['tenant_order_no'], $data['amount']);
+                    }catch (\Throwable $e){
+                        $fail_message = $e->getMessage();
+                        Log::warning($className.' 创建订单失败'.$e->getMessage());
+                        continue;
+                    }
+                    if(filled($createOrderResult)){
+                        // todo 创建订单 [
+                        //        'ok'     => 'bool',
+                        //        'origin' => 'string',
+                        //        'data'   => [
+                        //            '_upstream_order_no' => 'string',
+                        //            '_order_amount'      => 'string',
+                        //            '_pay_url'           => 'string',
+                        //            '_utr'               => 'string'
+                        //        ]
+                    }
                 }
-                // TODO 记录订单日志
             }
         }
-        return [
-            'ok'      => false,
-            'message' => 'Failed to create order',
-        ];
+        if(filled($fail_message) && filled($createOrderResult) === false){
+            throw new \RuntimeException($fail_message);
+        }
+        return $createOrderResult;
     }
 
     // 定时任务监听订单失效

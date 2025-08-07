@@ -76,6 +76,10 @@ class CollectionOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $successData = $this->service->createOrder($validatedData, $validatedData['app_key']);
-        return $this->success([$successData]);
+        var_dump('订单创建结果：',$successData);
+        if(filled($successData)){
+            return $this->success($successData);
+        }
+        return $this->error(ResultCode::ORDER_NO_AVAILABLE_COLLECTION_METHOD);
     }
 }

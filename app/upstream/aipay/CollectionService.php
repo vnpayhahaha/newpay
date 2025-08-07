@@ -24,6 +24,7 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
         ]
     ])] public function createOrder(string $tenant_order_no, float $amount): array
     {
+        throw new \Exception('未实现');
         // TODO: Implement createOrder() method.
     }
 
