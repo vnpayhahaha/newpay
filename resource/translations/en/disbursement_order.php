@@ -8,7 +8,7 @@ return [
             10 => 'Pending payment',
             11 => 'Processing',
             20 => 'Success',
-            30 => 'Suspended',
+            30 => 'Suspend',
             40 => 'Failed',
             41 => 'Cancelled',
             43 => 'Invalid',
