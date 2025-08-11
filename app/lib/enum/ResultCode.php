@@ -102,18 +102,6 @@ enum ResultCode: int
     // app is disabled
     #[Message('result.openapi.app_is_disabled')]
     case OPENAPI_APP_IS_DISABLED = 202007;
-//    // 没有可用的收款方式
-//    #[Message('result.openapi.no_available_collection_method')]
-//    case OPENAPI_NO_AVAILABLE_COLLECTION_METHOD = 202008;
-//    // 没有匹配可用的银行卡
-//    #[Message('result.openapi.no_matching_bank_card')]
-//    case OPENAPI_NO_MATCHING_BANK_CARD = 202009;
-//    // 收款浮动金额配置错误
-//    #[Message('result.openapi.collection_float_amount_error')]
-//    case OPENAPI_COLLECTION_FLOAT_AMOUNT_ERROR = 202010;
-//    // 收款金额不能小于配置的浮动金额最小值
-//    #[Message('result.openapi.collection_amount_less_than_min_float_amount')]
-//    case OPENAPI_COLLECTION_AMOUNT_LESS_THAN_MIN_FLOAT_AMOUNT = 202011;
 
     // 订单模块
     // 没有可用的收款方式
