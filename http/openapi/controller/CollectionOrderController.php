@@ -93,9 +93,8 @@ class CollectionOrderController extends BasicController
     public function query_order(Request $request): Response
     {
         $params = $request->all();
-        var_dump($params);
         // 参数验证
-        $validator = validate($request->all(), [
+        $validator = validate($params, [
             'tenant_id'         => [
                 'required',
                 'string',

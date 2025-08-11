@@ -85,7 +85,7 @@ class DisbursementOrderController extends BasicController
                 }
             ],
             'amount'             => 'required|numeric|min:0.01',
-            'notify_url'         => 'string|max:255',
+            'notify_url'         => 'string|active_ur|max:255',
             'notify_remark'      => 'string|max:255',
             'payment_type'       => ['required', 'integer', 'in:' . DisbursementOrder::PAYMENT_TYPE_BANK_CARD . ',' . DisbursementOrder::PAYMENT_TYPE_UPI],
             'payee_bank_name'    => [
@@ -125,5 +125,76 @@ class DisbursementOrderController extends BasicController
         $validatedData = $validator->validate();
         $successData = $this->service->createOrder($validatedData, $validatedData['app_key']);
         return $this->success($successData);
+    }
+
+    // 根据订单号查询订单
+    #[PostMapping('/query_order')]
+    public function query_order(Request $request): Response
+    {
+        $params = $request->all();
+        // 参数验证
+        $validator = validate($params, [
+            'tenant_id'         => [
+                'required',
+                'string',
+                'max:20',
+                function ($attribute, $value, $fail) use ($params) {
+                    if ((
+                            !isset($params['tenant_order_no']) ||
+                            !filled($params['tenant_order_no'])
+                        ) &&
+                        (
+                            !isset($params['platform_order_no']) ||
+                            !filled($params['platform_order_no'])
+                        )) {
+                        $fail(trans('required_if_declined', [
+                            ':other'     => 'tenant_order_no',
+                            ':attribute' => 'platform_order_no'
+                        ], 'validation'));
+                    }
+                }
+            ],
+            'tenant_order_no'   => [
+                'string',
+                'max:64',
+            ],
+            'platform_order_no' => [
+                'string',
+                'max:32',
+            ],
+        ]);
+        if ($validator->fails()) {
+            throw new OpenApiException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $orderFind = $this->service->repository->getQuery()
+            ->select([
+                'id',
+                'tenant_id',
+                'tenant_order_no',
+                'platform_order_no',
+                'amount',
+                'utr',
+                'status',
+                'pay_time',
+                'notify_url',
+                'notify_count',
+                'notify_status',
+                'created_at',
+            ])
+            ->where('tenant_id', $validatedData['tenant_id'])
+            ->where(function ($query) use ($validatedData) {
+                if (isset($validatedData['tenant_order_no'])) {
+                    $query->where('tenant_order_no', $validatedData['tenant_order_no']);
+                }
+                if (isset($validatedData['platform_order_no'])) {
+                    $query->where('platform_order_no', $validatedData['platform_order_no']);
+                }
+            })
+            ->first();
+        if (!$orderFind) {
+            return $this->error(ResultCode::ORDER_NOT_FOUND);
+        }
+        return $this->success($orderFind->makeHidden(['id'])->toArray());
     }
 }
