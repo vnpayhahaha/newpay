@@ -9,8 +9,10 @@ use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\lib\enum\ResultCode;
 use app\lib\LdlExcel\PhpOffice;
+use app\model\ModelBankDisbursementDownload;
 use app\model\ModelDisbursementOrder;
 use app\model\ModelTenantApp;
+use app\repository\AttachmentRepository;
 use app\repository\BankAccountRepository;
 use app\repository\BankDisbursementDownloadRepository;
 use app\repository\ChannelAccountRepository;
@@ -45,6 +47,8 @@ final class DisbursementOrderService extends IService
     protected TransactionRecordRepository $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
+    #[Inject]
+    protected AttachmentRepository $attachmentRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -114,7 +118,11 @@ final class DisbursementOrderService extends IService
         if (!$order) {
             throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
         }
-        if (!in_array($order->status, [DisbursementOrder::STATUS_WAIT_PAY, DisbursementOrder::STATUS_SUSPEND, DisbursementOrder::STATUS_INVALID], true)) {
+        if (!in_array($order->status, [
+            DisbursementOrder::STATUS_WAIT_PAY,
+            DisbursementOrder::STATUS_SUSPEND,
+            DisbursementOrder::STATUS_INVALID
+        ], true)) {
             throw new BusinessException(ResultCode::ORDER_STATUS_ERROR);
         }
         $tenantAccount = $this->tenantAccountRepository->getQuery()
@@ -158,7 +166,8 @@ final class DisbursementOrderService extends IService
                     'status'                 => DisbursementOrder::STATUS_SUCCESS,
                     'transaction_voucher_id' => $transactionVoucherId,
                     'pay_time'               => date('Y-m-d H:i:s'),
-                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ? $transactionVoucher->transaction_voucher : '',
+                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ?
+                        $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
                 throw new Exception('Failed to update the order');
@@ -206,61 +215,103 @@ final class DisbursementOrderService extends IService
                     'status'                  => DisbursementOrder::STATUS_WAIT_PAY,
                     'disbursement_channel_id' => $params['disbursement_channel_id'],
                     'channel_type'            => $params['channel_type'],
-                    'bank_account_id'         => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_BANK ? $params['bank_account_id'] : 0,
-                    'channel_account_id'      => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_UPSTREAM ? $params['channel_account_id'] : 0,
+                    'bank_account_id'         => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_BANK ?
+                        $params['bank_account_id'] : 0,
+                    'channel_account_id'      => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_UPSTREAM ?
+                        $params['channel_account_id'] : 0,
                     'updated_at'              => date('Y-m-d H:i:s'),
                 ]);
         });
     }
 
-    public function downloadBankBill(array $params)
+    public function downloadBankBill(array $params): Response
     {
         $bill_template_id = $params['bill_template_id'] ?? 'icici';
         $ids = $params['ids'] ?? [];
         $created_at = $params['created_at'] ?? [];
-        $bill_config = config('bankbill.'.$bill_template_id);
-        if(!filled($bill_config)){
+        $bill_config = config('bankbill.' . $bill_template_id);
+        if (!filled($bill_config)) {
             throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_NOT_EXIST);
         }
-        if(!filled($ids)){
+        if (!filled($ids)) {
             throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
         }
         $disbursementOrders = $this->repository->getQuery()
             ->whereIn('id', $ids)
             ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
             ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_BANK)
-            ->where(function (Builder $query) use ($created_at){
-                if(is_array($created_at) && filled($created_at) && count($created_at) === 2){
-                    $query->whereBetween('created_at', [$created_at[0], $created_at[1]]);
+            ->where(function (Builder $query) use ($created_at) {
+                if (is_array($created_at) && filled($created_at) && count($created_at) === 2) {
+                    $query->whereBetween('created_at', [
+                        $created_at[0],
+                        $created_at[1]
+                    ]);
                 }
             })
             ->with('bank_account:id,branch_name,account_holder,account_number,bank_code')
             ->get();
-        if(!$disbursementOrders){
+        if (!$disbursementOrders) {
             throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
         }
-        try{
-           $excelData = $bill_config['down_dto_class']::formatData($disbursementOrders);
-        }catch (\Throwable $e){
+        try {
+            $excelData = $bill_config['down_dto_class']::formatData($disbursementOrders);
+        } catch (\Throwable $e) {
             throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR, $e->getMessage());
         }
-        $down_filename = $bill_config['down_filename'] ?? 'order_' .date('YmdHis');
+        $down_filename = $bill_config['down_filename'] ?? 'order_' . date('YmdHis');
         $down_filepath = $bill_config['down_filepath'] ?? '/public/download/file/';
-        $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename,$down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
+        $base_path = str_replace('/public', '', $down_filepath);
+        $hash = md5($base_path . $down_filename);
+        /** @var ModelBankDisbursementDownload $filesInfo */
+        if ($filesInfo = $this->downloadFileRepository->getModel()->where(['hash' => $hash])->first()) {
+            return (new Response(200, [
+                'Server'                        => env('APP_NAME', 'LangDaLang'),
+                'access-control-expose-headers' => 'content-disposition',
+            ]))->download($filesInfo->url, $filesInfo->file_name . 'xlsx');
+        }
+        $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename, $down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
         // 将文件大小转换为MB（注意：1MB = 1048576字节）
-        $address = BASE_PATH.$down_filepath.$down_filename.'.xlsx';
+        $address = BASE_PATH . $down_filepath . $down_filename . '.xlsx';
         $fileSizeBytes = filesize($address);
         $fileSizeMB = formatSize($fileSizeBytes);
 
+        // 检查文件是否已存在
+        $attachment = $this->downloadFileRepository->getModel()->where(['hash' => $hash])->first();
+        if (!$attachment) {
+            $inData = [
+                'storage_mode' => 'local',
+                'origin_name'  => $down_filename,
+                'object_name'  => $down_filename,
+                'hash'         => $hash,
+                'mime_type'    => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'storage_path' => $address,
+                'base_path'    => $base_path,
+                'suffix'       => 'xlsx',
+                'size_byte'    => $fileSizeBytes,
+                'size_info'    => formatBytes($fileSizeBytes),
+                'url'          => env('APP_DOMAIN', 'http://127.0.0.1:9501') . $base_path . $down_filename . '.xlsx',
+            ];
+            $attachment = $this->attachmentRepository->getModel()->create($inData);
+        }
+
         $downloadData = [
-            'file_name'    => $down_filename,
-            'url' => $down_filepath.$down_filename,
-            'file_size'    => $fileSizeMB,
-            'record_count' => count($excelData),
-            'created_by'   => 1,
-            'created_at'  => date('Y-m-d H:i:s'),
+            'file_name'     => $down_filename,
+            'attachment_id' => $attachment->id,
+            'url'           => $down_filepath . $down_filename,
+            'hash'          => $hash,
+            'file_size'     => $fileSizeMB,
+            'record_count'  => count($excelData),
+            'created_by'    => 1,
+            'created_at'    => date('Y-m-d H:i:s'),
         ];
         $this->downloadFileRepository->create($downloadData);
+
+        // 更新订单状态
+        $this->repository->getModel()->whereIn('id', $ids)
+            ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+            ->update([
+                'status' => DisbursementOrder::STATUS_WAIT_FILL,
+            ]);
 
         return $result;
 
