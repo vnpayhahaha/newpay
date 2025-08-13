@@ -5,11 +5,9 @@ namespace app\service;
 use app\exception\BusinessException;
 use app\exception\UnprocessableEntityException;
 use app\lib\enum\ResultCode;
-use app\model\ModelTenantUser;
 use app\repository\TenantRepository;
 use app\repository\TenantUserRepository;
 use DI\Attribute\Inject;
-use support\Db;
 
 /**
  * @extends IService<TenantUserRepository>
