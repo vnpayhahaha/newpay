@@ -20,7 +20,7 @@ return [
         [\http\tenant\Service\PassportService::class, 'loginLog'],
     ],
     // 在服务停止时清理监听器跟踪
-    'stop'                    => function () {
+    'stop'                    => static function () {
         \app\process\CacheableProcessor::clearListeners();
     }
 ];

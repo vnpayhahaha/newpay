@@ -52,6 +52,8 @@ return [
     'order.not_found'                                    => 'Order does not exist',
     'order.status_error'                                 => 'Order status error',
     'order.verify_failed'                                => 'The order verification failed',
+    'order.bank_bill_template_not_exist'                 => 'The bank statement template does not exist',
+    'order.bank_bill_template_runtime_error'             => 'The bank statement template runtime error',
 
     // 交易凭证
     'transaction.trade_voucher_not_exist'                => 'The transaction voucher does not exist',

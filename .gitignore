@@ -8,4 +8,5 @@
 .DS_Store
 /var
 public/upload/*
+public/download/*
 CLAUDE.md

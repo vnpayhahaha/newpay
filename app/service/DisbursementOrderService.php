@@ -8,9 +8,11 @@ use app\constants\TenantAccount;
 use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\lib\enum\ResultCode;
+use app\lib\LdlExcel\PhpOffice;
 use app\model\ModelDisbursementOrder;
 use app\model\ModelTenantApp;
 use app\repository\BankAccountRepository;
+use app\repository\BankDisbursementDownloadRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\DisbursementOrderRepository;
 use app\repository\TenantAccountRepository;
@@ -22,6 +24,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use support\Context;
 use support\Db;
+use support\Response;
 use Webman\Http\Request;
 
 final class DisbursementOrderService extends IService
@@ -40,6 +43,8 @@ final class DisbursementOrderService extends IService
     protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
     protected TransactionRecordRepository $transactionRecordRepository;
+    #[Inject]
+    protected BankDisbursementDownloadRepository $downloadFileRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -206,5 +211,58 @@ final class DisbursementOrderService extends IService
                     'updated_at'              => date('Y-m-d H:i:s'),
                 ]);
         });
+    }
+
+    public function downloadBankBill(array $params)
+    {
+        $bill_template_id = $params['bill_template_id'] ?? 'icici';
+        $ids = $params['ids'] ?? [];
+        $created_at = $params['created_at'] ?? [];
+        $bill_config = config('bankbill.'.$bill_template_id);
+        if(!filled($bill_config)){
+            throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_NOT_EXIST);
+        }
+        if(!filled($ids)){
+            throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
+        }
+        $disbursementOrders = $this->repository->getQuery()
+            ->whereIn('id', $ids)
+            ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+            ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_BANK)
+            ->where(function (Builder $query) use ($created_at){
+                if(is_array($created_at) && filled($created_at) && count($created_at) === 2){
+                    $query->whereBetween('created_at', [$created_at[0], $created_at[1]]);
+                }
+            })
+            ->with('bank_account:id,branch_name,account_holder,account_number,bank_code')
+            ->get();
+        if(!$disbursementOrders){
+            throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
+        }
+        try{
+           $excelData = $bill_config['down_dto_class']::formatData($disbursementOrders);
+        }catch (\Throwable $e){
+            throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR, $e->getMessage());
+        }
+        $down_filename = $bill_config['down_filename'] ?? 'order_' .date('YmdHis');
+        $down_filepath = $bill_config['down_filepath'] ?? '/public/download/file/';
+        $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename,$down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
+        // 将文件大小转换为MB（注意：1MB = 1048576字节）
+        $address = BASE_PATH.$down_filepath.$down_filename.'.xlsx';
+        $fileSizeBytes = filesize($address);
+        $fileSizeMB = formatSize($fileSizeBytes);
+
+        $downloadData = [
+            'file_name'    => $down_filename,
+            'url' => $down_filepath.$down_filename,
+            'file_size'    => $fileSizeMB,
+            'record_count' => count($excelData),
+            'created_by'   => 1,
+            'created_at'  => date('Y-m-d H:i:s'),
+        ];
+        $this->downloadFileRepository->create($downloadData);
+
+        return $result;
+
     }
 }

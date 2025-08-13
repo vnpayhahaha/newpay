@@ -57,4 +57,34 @@ class DisbursementOrder
         self::NOTIFY_STATUS_NOTIFY_FAIL    => 'disbursement_order.enums.notify_status.notify_fail',
         self::NOTIFY_STATUS_CALLBACK_ING   => 'disbursement_order.enums.notify_status.callback_ing',
     ];
+
+    // 账单模板
+    const BILL_TEMPLATE_ICICI        = 'icici';
+    const BILL_TEMPLATE_ICICI2       = 'icici2';
+    const BILL_TEMPLATE_BANDHAN      = 'bandhan';
+    const BILL_TEMPLATE_FEDERAL      = 'federal';
+    const BILL_TEMPLATE_YES_MSME     = 'yesmsme';
+    const BILL_TEMPLATE_YES_BUSINESS = 'yesbusiness';
+    const BILL_TEMPLATE_AXIS         = 'axis';
+    const BILL_TEMPLATE_AXIS_NEFT    = 'axisneft';
+    const BILL_TEMPLATE_AXIS_NEO     = 'axisneo';
+    const BILL_TEMPLATE_IDFC         = 'idfc';
+    const BILL_TEMPLATE_IOB_SAME     = 'iobsamebank';
+    const BILL_TEMPLATE_IOB_OTHER    = 'iobotherbank';
+
+    public static array $bill_template_list = [
+        self::BILL_TEMPLATE_ICICI        =>  'disbursement_order.enums.bill_template.icici',
+        self::BILL_TEMPLATE_ICICI2       =>  'disbursement_order.enums.bill_template.icici2',
+        self::BILL_TEMPLATE_BANDHAN      =>  'disbursement_order.enums.bill_template.bandhan',
+        self::BILL_TEMPLATE_FEDERAL      =>  'disbursement_order.enums.bill_template.federal',
+        self::BILL_TEMPLATE_YES_MSME     =>  'disbursement_order.enums.bill_template.yesmsme',
+        self::BILL_TEMPLATE_YES_BUSINESS =>  'disbursement_order.enums.bill_template.yesbusiness',
+        self::BILL_TEMPLATE_AXIS         =>  'disbursement_order.enums.bill_template.axis',
+        self::BILL_TEMPLATE_AXIS_NEFT    =>  'disbursement_order.enums.bill_template.axisneft',
+        self::BILL_TEMPLATE_AXIS_NEO     =>  'disbursement_order.enums.bill_template.axisneo',
+        self::BILL_TEMPLATE_IDFC         =>  'disbursement_order.enums.bill_template.idfc',
+        self::BILL_TEMPLATE_IOB_SAME     =>  'disbursement_order.enums.bill_template.iobsamebank',
+        self::BILL_TEMPLATE_IOB_OTHER    =>  'disbursement_order.enums.bill_template.iobotherbank',
+    ];
+
 }

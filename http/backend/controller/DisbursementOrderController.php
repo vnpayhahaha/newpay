@@ -4,6 +4,7 @@ namespace http\backend\controller;
 
 use app\controller\BasicController;
 use app\exception\UnprocessableEntityException;
+use app\lib\annotation\NoNeedLogin;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
@@ -100,5 +101,14 @@ class DisbursementOrderController extends BasicController
         $user = $request->user;
         $updateNum = $this->service->distribute($validatedData, $user['id']);
         return $updateNum > 0 ? $this->success() : $this->error();
+    }
+
+    // 下载银行账单
+    #[GetMapping('/disbursement_order/download_bank_bill')]
+    #[Permission(code: 'transaction:disbursement_order:list')]
+    #[NoNeedLogin]
+    public function downloadBankBill(Request $request): Response
+    {
+        return $this->service->downloadBankBill($request->all());
     }
 }

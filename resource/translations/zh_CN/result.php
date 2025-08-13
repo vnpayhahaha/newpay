@@ -52,6 +52,8 @@ return [
     'order.not_found'                                    => '订单不存在',
     'order.status_error'                                 => '订单状态错误',
     'order.verify_failed'                                => '订单核销失败',
+    'order.bank_bill_template_not_exist'                 => '银行帐单模板不存在',
+    'order.bank_bill_template_runtime_error'             => '银行帐单模板运行时错误',
 
     // 交易凭证
     'transaction.trade_voucher_not_exist'                => '交易凭证不存在',

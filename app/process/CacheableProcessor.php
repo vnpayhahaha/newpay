@@ -17,7 +17,7 @@ class CacheableProcessor
     private static array $listeners  = [];
 
     // 定义注解缓存前缀（兼容所有存储类型）
-    const ANNOTATION_PREFIX = 'annotation_cache_';
+    public const ANNOTATION_PREFIX = 'annotation_cache_';
 
     public static function handle($instance, $method, $args)
     {

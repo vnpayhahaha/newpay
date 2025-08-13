@@ -242,3 +242,11 @@ if (!function_exists('calculateSettlementDate')) {
         return $currentDate;
     }
 }
+
+if (!function_exists('formatSize')) {
+    function formatSize($size): string
+    {
+        $sizes = array(' Bytes', ' KB', ' MB', ' GB', ' TB');
+        return round($size / (1024 ** ($i = floor(log($size, 1024)))), 2) . $sizes[$i];
+    }
+}

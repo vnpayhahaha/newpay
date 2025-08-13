@@ -28,5 +28,19 @@ return [
             'bank'     => '银行',
             'upstream' => '上游',
         ],
+        'bill_template' => [
+            'icici'        => 'ICICI',
+            'icici2'       => 'ICICI2',
+            'bandhan'      => 'Bandhan',
+            'federal'      => 'Federal',
+            'yesmsme'      => 'YES MSME',
+            'yesbusiness'  => 'YES Business',
+            'axis'         => 'Axis',
+            'axisneft'     => 'Axis NEFT',
+            'axisneo'      => 'Axis NEO',
+            'idfc'         => 'IDFC',
+            'iobsamebank'  => 'IOB Same Bank',
+            'iobotherbank' => 'IOB Other Bank',
+        ]
     ],
 ];

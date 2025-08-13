@@ -85,7 +85,7 @@ class DisbursementOrderController extends BasicController
                 }
             ],
             'amount'             => 'required|numeric|min:0.01',
-            'notify_url'         => 'string|active_ur|max:255',
+            'notify_url'         => 'string|active_url|max:255',
             'notify_remark'      => 'string|max:255',
             'payment_type'       => ['required', 'integer', 'in:' . DisbursementOrder::PAYMENT_TYPE_BANK_CARD . ',' . DisbursementOrder::PAYMENT_TYPE_UPI],
             'payee_bank_name'    => [

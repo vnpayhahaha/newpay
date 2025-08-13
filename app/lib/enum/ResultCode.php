@@ -128,6 +128,12 @@ enum ResultCode: int
     // 订单核销失败
     #[Message('result.order.verify_failed')]
     case ORDER_VERIFY_FAILED = 203008;
+    // BANK_BILL_TEMPLATE_NOT_EXIST
+    #[Message('result.order.bank_bill_template_not_exist')]
+    case ORDER_BANK_BILL_TEMPLATE_NOT_EXIST = 203009;
+    // ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR
+    #[Message('result.order.bank_bill_template_runtime_error')]
+    case ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR = 203010;
 
     // 交易凭证
     #[Message('result.transaction.trade_voucher_not_exist')]
