@@ -1,6 +1,7 @@
 <?php
 
 namespace app\lib\LdlExcel;
+
 use app\lib\annotation\ExcelProperty;
 use support\Response;
 
@@ -23,7 +24,7 @@ abstract class LdlExcel
 
     public function __construct(string $dto)
     {
-        if (! (new $dto()) instanceof ModelExcel) {
+        if (!(new $dto()) instanceof ModelExcel) {
             throw new \Exception('dto does not implement an interface of the ModelExcel', 500);
         }
         $dtoObject = new $dto();
@@ -47,7 +48,7 @@ abstract class LdlExcel
 
     protected function parseProperty(): void
     {
-        if (empty($this->annotationMate) || ! isset($this->annotationMate['_c'])) {
+        if (empty($this->annotationMate) || !isset($this->annotationMate['_c'])) {
             throw new \Exception('dto annotation info is empty', 500);
         }
 
@@ -58,17 +59,18 @@ abstract class LdlExcel
 
         foreach ($this->annotationMate['_p'] as $name => $mate) {
             $tmp = [
-                'name' => $name,
-                'value' => $mate[self::ANNOTATION_NAME]->value,
-                'width' => $mate[self::ANNOTATION_NAME]->width ?? null,
-                'align' => $mate[self::ANNOTATION_NAME]->align ?? null,
-                'headColor' => $mate[self::ANNOTATION_NAME]->headColor ?? null,
+                'name'        => $name,
+                'value'       => $mate[self::ANNOTATION_NAME]->value,
+                'width'       => $mate[self::ANNOTATION_NAME]->width ?? null,
+                'align'       => $mate[self::ANNOTATION_NAME]->align ?? null,
+                'headColor'   => $mate[self::ANNOTATION_NAME]->headColor ?? null,
                 'headBgColor' => $mate[self::ANNOTATION_NAME]->headBgColor ?? null,
-                'color' => $mate[self::ANNOTATION_NAME]->color ?? null,
-                'bgColor' => $mate[self::ANNOTATION_NAME]->bgColor ?? null,
-                'dictData' => $mate[self::ANNOTATION_NAME]->dictData,
-                'dictName' => empty($mate[self::ANNOTATION_NAME]->dictName) ? null : $this->getDictData($mate[self::ANNOTATION_NAME]->dictName),
-                'path' => $mate[self::ANNOTATION_NAME]->path ?? null,
+                'color'       => $mate[self::ANNOTATION_NAME]->color ?? null,
+                'bgColor'     => $mate[self::ANNOTATION_NAME]->bgColor ?? null,
+                'dictData'    => $mate[self::ANNOTATION_NAME]->dictData,
+                'dictName'    => empty($mate[self::ANNOTATION_NAME]->dictName) ? null :
+                    $this->getDictData($mate[self::ANNOTATION_NAME]->dictName),
+                'path'        => $mate[self::ANNOTATION_NAME]->path ?? null,
             ];
 
             if ($this->orderByIndex) {
@@ -91,9 +93,11 @@ abstract class LdlExcel
         //            ->withHeader('content-transfer-encoding', 'binary')
         //            ->withHeader('pragma', 'public');
         return (new Response(200, [
-            'Server' => env('APP_NAME', 'LangDaLang'),
+            'Server'                        => env('APP_NAME', 'LangDaLang'),
             'access-control-expose-headers' => 'content-disposition',
-        ],$get_contents))->download($file_path, $filename.'.xlsx');
+        ], $get_contents))->download($file_path, $filename)
+            ->header('Content-Disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename));
+
 
     }
 

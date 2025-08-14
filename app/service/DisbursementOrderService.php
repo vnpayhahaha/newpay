@@ -262,12 +262,14 @@ final class DisbursementOrderService extends IService
         $down_filepath = $bill_config['down_filepath'] ?? '/public/download/file/';
         $base_path = str_replace('/public', '', $down_filepath);
         $hash = md5($base_path . $down_filename);
+        $filename = $down_filename . '.xlsx';
         /** @var ModelBankDisbursementDownload $filesInfo */
         if ($filesInfo = $this->downloadFileRepository->getModel()->where(['hash' => $hash])->first()) {
             return (new Response(200, [
                 'Server'                        => env('APP_NAME', 'LangDaLang'),
                 'access-control-expose-headers' => 'content-disposition',
-            ]))->download($filesInfo->url, $filesInfo->file_name . 'xlsx');
+            ]))->download($filesInfo->url, $filename)
+                ->header('Content-Disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename));
         }
         $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename, $down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
         // 将文件大小转换为MB（注意：1MB = 1048576字节）

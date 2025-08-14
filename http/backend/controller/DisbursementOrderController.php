@@ -9,6 +9,7 @@ use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\GetMapping;
+use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\DisbursementOrderService;
@@ -104,8 +105,8 @@ class DisbursementOrderController extends BasicController
     }
 
     // 下载银行账单
-    #[GetMapping('/disbursement_order/download_bank_bill')]
-    #[Permission(code: 'transaction:disbursement_order:list')]
+    #[PostMapping('/disbursement_order/download_bank_bill')]
+    #[Permission(code: 'transaction:disbursement_order:update')]
     #[NoNeedLogin]
     public function downloadBankBill(Request $request): Response
     {
