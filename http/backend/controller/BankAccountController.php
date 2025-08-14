@@ -166,4 +166,12 @@ class BankAccountController extends BasicController
         );
     }
 
+    // 获取付款账单模板ID项by账户ID
+    #[GetMapping('/down_bill_template_ids/{id}')]
+    public function getDownBillTemplateIds(Request $request, int $id): Response
+    {
+        return $this->success(
+            $this->service->getDownBillTemplateIds($id)
+        );
+    }
 }
