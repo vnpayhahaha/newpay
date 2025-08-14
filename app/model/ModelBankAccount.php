@@ -38,6 +38,7 @@ use Carbon\Carbon;
  * @property int $status 状态(1启用 2停用)
  * @property int $support_collection 支持代收
  * @property int $support_disbursement 支持代付
+ * @property array $down_bill_template_id 付款账单模板ID项
  */
 final class ModelBankAccount extends BasicModel
 {
@@ -91,6 +92,7 @@ final class ModelBankAccount extends BasicModel
         'status',
         'support_collection',
         'support_disbursement',
+        'down_bill_template_id',
     ];
 
     protected $casts = [
@@ -126,6 +128,7 @@ final class ModelBankAccount extends BasicModel
         'status'                  => 'boolean',
         'support_collection'      => 'boolean',
         'support_disbursement'    => 'boolean',
+        'down_bill_template_id'   => 'array',
     ];
 
     // belongsTo channel

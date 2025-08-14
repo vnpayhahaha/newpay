@@ -111,7 +111,7 @@ final class ModelDisbursementOrder extends BasicModel
         'updated_at',
         'cancelled_at',
         'cancelled_by',
-        'transaction_voucher_id ',
+        'transaction_voucher_id',
     ];
 
     protected $casts = [
@@ -138,7 +138,7 @@ final class ModelDisbursementOrder extends BasicModel
         'updated_at'                 => 'datetime',
         'cancelled_at'               => 'datetime',
         'cancelled_by'               => 'integer',
-        'transaction_voucher_id '    => 'integer',
+        'transaction_voucher_id'     => 'integer',
     ];
 
     public static function boot()
