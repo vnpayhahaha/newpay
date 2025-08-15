@@ -10,7 +10,7 @@ return [
         'upload_filepath'     => '/public/upload/bill/icici/',
         'down_dto_class'      => \app\service\bankbill\down\DtoBillOfICICI::class,
         'down_sheetIndex'     => 0,
-        'down_suffix'         => 'xlsx',
+        'down_suffix'         => 'csv',
     ],
     DisbursementOrder::BILL_TEMPLATE_ICICI2 => [
 

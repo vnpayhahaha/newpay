@@ -278,7 +278,7 @@ final class DisbursementOrderService extends IService
         }
         $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename, $down_suffix, $down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
         // 将文件大小转换为MB（注意：1MB = 1048576字节）
-        $address = BASE_PATH . $down_filepath . $down_filename . '.xlsx';
+        $address = BASE_PATH . $down_filepath . $down_filename . '.' . $down_suffix;
         $fileSizeBytes = filesize($address);
         $fileSizeMB = formatSize($fileSizeBytes);
 
