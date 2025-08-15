@@ -50,6 +50,8 @@ use Carbon\Carbon;
  * @property Carbon $cancelled_at 取消时间
  * @property int $cancelled_by 取消时间管理员
  * @property int $transaction_voucher_id 核销凭证id
+ * @property string $down_bill_template_id 付款账单模板
+ * @property int $bank_disbursement_download_id 银行支付账单下载ID
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -112,33 +114,36 @@ final class ModelDisbursementOrder extends BasicModel
         'cancelled_at',
         'cancelled_by',
         'transaction_voucher_id',
+        'down_bill_template_id',
+        'bank_disbursement_download_id',
     ];
 
     protected $casts = [
-        'pay_time'                   => 'datetime',
-        'disbursement_channel_id'    => 'integer',
-        'channel_type'               => 'integer',
-        'bank_account_id'            => 'integer',
-        'channel_account_id'         => 'integer',
-        'amount'                     => 'float',
-        'fixed_fee'                  => 'float',
-        'rate_fee'                   => 'float',
-        'rate_fee_amount'            => 'float',
-        'total_fee'                  => 'float',
-        'settlement_amount'          => 'float',
-        'upstream_fee'               => 'float',
-        'upstream_settlement_amount' => 'float',
-        'payment_type'               => 'integer',
-        'app_id'                     => 'integer',
-        'status'                     => 'integer',
-        'expire_time'                => 'datetime',
-        'notify_count'               => 'integer',
-        'notify_status'              => 'integer',
-        'created_at'                 => 'datetime',
-        'updated_at'                 => 'datetime',
-        'cancelled_at'               => 'datetime',
-        'cancelled_by'               => 'integer',
-        'transaction_voucher_id'     => 'integer',
+        'pay_time'                      => 'datetime',
+        'disbursement_channel_id'       => 'integer',
+        'channel_type'                  => 'integer',
+        'bank_account_id'               => 'integer',
+        'channel_account_id'            => 'integer',
+        'amount'                        => 'float',
+        'fixed_fee'                     => 'float',
+        'rate_fee'                      => 'float',
+        'rate_fee_amount'               => 'float',
+        'total_fee'                     => 'float',
+        'settlement_amount'             => 'float',
+        'upstream_fee'                  => 'float',
+        'upstream_settlement_amount'    => 'float',
+        'payment_type'                  => 'integer',
+        'app_id'                        => 'integer',
+        'status'                        => 'integer',
+        'expire_time'                   => 'datetime',
+        'notify_count'                  => 'integer',
+        'notify_status'                 => 'integer',
+        'created_at'                    => 'datetime',
+        'updated_at'                    => 'datetime',
+        'cancelled_at'                  => 'datetime',
+        'cancelled_by'                  => 'integer',
+        'transaction_voucher_id'        => 'integer',
+        'bank_disbursement_download_id' => 'integer',
     ];
 
     public static function boot()
@@ -175,5 +180,11 @@ final class ModelDisbursementOrder extends BasicModel
     public function cancel_operator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelUser::class, 'cancelled_by', 'id');
+    }
+
+    // belongsTo ModelBankDisbursementDownload
+    public function bank_disbursement_download(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelBankDisbursementDownload::class, 'bank_disbursement_download_id', 'id');
     }
 }

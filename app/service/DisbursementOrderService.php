@@ -226,10 +226,9 @@ final class DisbursementOrderService extends IService
 
     public function downloadBankBill(array $params): Response
     {
-        $bill_template_id = $params['bill_template_id'] ?? 'icici';
+        $down_bill_template_id = $params['down_bill_template_id'] ?? 'icici';
         $ids = $params['ids'] ?? [];
-        $created_at = $params['created_at'] ?? [];
-        $bill_config = config('bankbill.' . $bill_template_id);
+        $bill_config = config('bankbill.' . $down_bill_template_id);
         if (!filled($bill_config)) {
             throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_NOT_EXIST);
         }
@@ -240,14 +239,6 @@ final class DisbursementOrderService extends IService
             ->whereIn('id', $ids)
             ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
             ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_BANK)
-            ->where(function (Builder $query) use ($created_at) {
-                if (is_array($created_at) && filled($created_at) && count($created_at) === 2) {
-                    $query->whereBetween('created_at', [
-                        $created_at[0],
-                        $created_at[1]
-                    ]);
-                }
-            })
             ->with('bank_account:id,branch_name,account_holder,account_number,bank_code')
             ->get();
         if (!$disbursementOrders) {
@@ -312,13 +303,15 @@ final class DisbursementOrderService extends IService
             'created_at'    => date('Y-m-d H:i:s'),
             'suffix'        => $down_suffix,
         ];
-        $this->downloadFileRepository->create($downloadData);
+        $downloadFile = $this->downloadFileRepository->create($downloadData);
 
         // 更新订单状态
         $this->repository->getModel()->whereIn('id', $ids)
             ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
             ->update([
-                'status' => DisbursementOrder::STATUS_WAIT_FILL,
+                'status'                        => DisbursementOrder::STATUS_WAIT_FILL,
+                'down_bill_template_id'         => $down_bill_template_id,
+                'bank_disbursement_download_id' => $downloadFile->id,
             ]);
 
         return $result;
