@@ -19,14 +19,14 @@ class TenantAccountRecordRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['tenant_id'])) {
+        if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
             $query->where('tenant_id', $params['tenant_id']);
         }
 
-        if (isset($params['account_type'])) {
+        if (isset($params['account_type']) && filled($params['account_type'])) {
             $query->where('account_type', $params['account_type']);
         }
-        if (isset($params['account_id'])) {
+        if (isset($params['account_id']) && filled($params['account_id'])) {
             $query->where('account_id', $params['account_id']);
         }
 
@@ -38,7 +38,7 @@ class TenantAccountRecordRepository extends IRepository
             }
         }
 
-        if (isset($params['transaction_no'])) {
+        if (isset($params['transaction_no']) && filled($params['transaction_no'])) {
             $query->where('transaction_no', $params['transaction_no']);
         }
 

@@ -22,19 +22,19 @@ class TransactionQueueStatusRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['transaction_no'])) {
+        if (isset($params['transaction_no']) && filled($params['transaction_no'])) {
             $query->where('transaction_no', $params['transaction_no']);
         }
 
-        if (isset($params['transaction_type'])) {
+        if (isset($params['transaction_type']) && filled($params['transaction_type'])) {
             $query->where('transaction_type', $params['transaction_type']);
         }
 
-        if (isset($params['queue_type'])) {
+        if (isset($params['queue_type']) && filled($params['queue_type'])) {
             $query->where('queue_type', $params['queue_type']);
         }
 
-        if (isset($params['process_status'])) {
+        if (isset($params['process_status']) && filled($params['process_status'])) {
             $query->where('process_status', $params['process_status']);
         }
 

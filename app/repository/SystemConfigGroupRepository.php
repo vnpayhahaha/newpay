@@ -23,32 +23,32 @@ final class SystemConfigGroupRepository extends IRepository
         $query->with('info');
 
         // 主键
-        if (isset($params['id'])) {
+        if (isset($params['id']) && filled($params['id'])) {
             $query->where('id', '=', $params['id']);
         }
 
         // 配置组名称
-        if (isset($params['name'])) {
+        if (isset($params['name']) && filled($params['name'])) {
             $query->where('name', 'like', '%' . $params['name'] . '%');
         }
 
         // 配置组标识
-        if (isset($params['code'])) {
+        if (isset($params['code']) && filled($params['code'])) {
             $query->where('code', 'like', '%' . $params['code'] . '%');
         }
 
         // 配置组图标
-        if (isset($params['icon'])) {
+        if (isset($params['icon']) && filled($params['icon'])) {
             $query->where('icon', 'like', '%' . $params['icon'] . '%');
         }
 
         // 创建者
-        if (isset($params['created_by'])) {
+        if (isset($params['created_by']) && filled($params['created_by'])) {
             $query->where('created_by', '=', $params['created_by']);
         }
 
         // 更新者
-        if (isset($params['updated_by'])) {
+        if (isset($params['updated_by']) && filled($params['updated_by'])) {
             $query->where('updated_by', '=', $params['updated_by']);
         }
 
@@ -69,7 +69,7 @@ final class SystemConfigGroupRepository extends IRepository
         }
 
         // 备注
-        if (isset($params['remark'])) {
+        if (isset($params['remark']) && filled($params['remark'])) {
             $query->where('remark', 'like', '%' . $params['remark'] . '%');
         }
 

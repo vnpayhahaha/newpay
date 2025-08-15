@@ -20,35 +20,35 @@ final class SystemConfigRepository extends IRepository
      */
     public function handleSearch(Builder $query, array $params): Builder
     {
-        if (isset($params['group_id'])) {
+        if (isset($params['group_id']) && filled($params['group_id'])) {
             $query->where('group_id', '=', $params['group_id']);
         }
 
-        if (isset($params['key'])) {
+        if (isset($params['key']) && filled($params['key'])) {
             $query->where('key', '=', $params['key']);
         }
 
-        if (isset($params['value'])) {
+        if (isset($params['value']) && filled($params['value'])) {
             $query->where('value', '=', $params['value']);
         }
 
-        if (isset($params['name'])) {
+        if (isset($params['name']) && filled($params['name'])) {
             $query->where('name', '=', $params['name']);
         }
 
-        if (isset($params['input_type'])) {
+        if (isset($params['input_type']) && filled($params['input_type'])) {
             $query->where('input_type', '=', $params['input_type']);
         }
 
-        if (isset($params['config_select_data'])) {
+        if (isset($params['config_select_data']) && filled($params['config_select_data'])) {
             $query->where('config_select_data', '=', $params['config_select_data']);
         }
 
-        if (isset($params['sort'])) {
+        if (isset($params['sort']) && filled($params['sort'])) {
             $query->where('sort', '=', $params['sort']);
         }
 
-        if (isset($params['remark'])) {
+        if (isset($params['remark']) && filled($params['remark'])) {
             $query->where('remark', '=', $params['remark']);
         }
 

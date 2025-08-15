@@ -19,31 +19,31 @@ final class ChannelAccountDailyStatsRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['channel_account_id'])) {
+        if (isset($params['channel_account_id']) && filled($params['channel_account_id'])) {
             $query->where('channel_account_id', $params['channel_account_id']);
         }
 
-        if (isset($params['bank_account_id'])) {
+        if (isset($params['bank_account_id']) && filled($params['bank_account_id'])) {
             $query->where('bank_account_id', $params['bank_account_id']);
         }
 
-        if (isset($params['channel_id'])) {
+        if (isset($params['channel_id']) && filled($params['channel_id'])) {
             $query->where('channel_id', $params['channel_id']);
         }
 
-        if (isset($params['stat_date'])) {
+        if (isset($params['stat_date']) && filled($params['stat_date'])) {
             $query->where('stat_date', $params['stat_date']);
         }
 
-        if (isset($params['success_rate'])) {
+        if (isset($params['success_rate']) && filled($params['success_rate'])) {
             $query->where('success_rate', $params['success_rate']);
         }
 
-        if (isset($params['limit_status'])) {
+        if (isset($params['limit_status']) && filled($params['limit_status'])) {
             $query->where('limit_status', $params['limit_status']);
         }
 
-        if (isset($params['created_at'])) {
+        if (isset($params['created_at']) && filled($params['created_at'])) {
             $query->where('created_at', $params['created_at']);
         }
 

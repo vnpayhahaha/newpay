@@ -29,23 +29,23 @@ final class ChannelRepository extends IRepository
             $query->where('channel_name', 'like', '%' . $params['channel_name'] . '%');
         }
 
-        if (isset($params['channel_type'])) {
+        if (isset($params['channel_type']) && filled($params['channel_type'])) {
             $query->where('channel_type', $params['channel_type']);
         }
 
-        if (isset($params['country_code'])) {
+        if (isset($params['country_code']) && filled($params['country_code'])) {
             $query->where('country_code', $params['country_code']);
         }
 
-        if (isset($params['currency'])) {
+        if (isset($params['currency']) && filled($params['currency'])) {
             $query->where('currency', $params['currency']);
         }
 
-        if (isset($params['support_collection'])) {
+        if (isset($params['support_collection']) && filled($params['support_collection'])) {
             $query->where('support_collection', $params['support_collection']);
         }
 
-        if (isset($params['support_disbursement'])) {
+        if (isset($params['support_disbursement']) && filled($params['support_disbursement'])) {
             $query->where('support_disbursement', $params['support_disbursement']);
         }
 

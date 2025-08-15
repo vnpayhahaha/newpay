@@ -18,27 +18,27 @@ final class ChannelCallbackRecordRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['callback_id'])) {
+        if (isset($params['callback_id']) && filled($params['callback_id'])) {
             $query->where('callback_id', $params['callback_id']);
         }
 
-        if (isset($params['channel_id'])) {
+        if (isset($params['channel_id']) && filled($params['channel_id'])) {
             $query->where('channel_id', $params['channel_id']);
         }
 
-        if (isset($params['original_request_id'])) {
+        if (isset($params['original_request_id']) && filled($params['original_request_id'])) {
             $query->where('original_request_id', $params['original_request_id']);
         }
 
-        if (isset($params['callback_type'])) {
+        if (isset($params['callback_type']) && filled($params['callback_type'])) {
             $query->where('callback_type', $params['callback_type']);
         }
 
-        if (isset($params['callback_body'])) {
+        if (isset($params['callback_body']) && filled($params['callback_body'])) {
             $query->where('callback_body', $params['callback_body']);
         }
 
-        if (isset($params['verification_status'])) {
+        if (isset($params['verification_status']) && filled($params['verification_status'])) {
             $query->where('verification_status', $params['verification_status']);
         }
 

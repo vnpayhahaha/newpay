@@ -18,11 +18,11 @@ class BankDisbursementDownloadRepository  extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['file_name'])) {
+        if (isset($params['file_name']) && filled($params['file_name'])) {
             $query->where('file_name', $params['file_name']);
         }
 
-        if (isset($params['hash'])) {
+        if (isset($params['hash']) && filled($params['hash'])) {
             $query->where('hash', $params['hash']);
         }
 

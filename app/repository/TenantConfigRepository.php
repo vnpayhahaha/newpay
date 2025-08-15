@@ -18,23 +18,23 @@ class TenantConfigRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['tenant_id'])) {
+        if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
             $query->where('tenant_id', $params['tenant_id']);
         }
 
-        if (isset($params['group_code'])) {
+        if (isset($params['group_code']) && filled($params['group_code'])) {
             $query->where('group_code', $params['group_code']);
         }
 
-        if (isset($params['code'])) {
+        if (isset($params['code']) && filled($params['code'])) {
             $query->where('code', $params['code']);
         }
 
-        if (isset($params['name'])) {
+        if (isset($params['name']) && filled($params['name'])) {
             $query->where('name', $params['name']);
         }
 
-        if (isset($params['enabled'])) {
+        if (isset($params['enabled']) && filled($params['enabled'])) {
             $query->where('enabled', $params['enabled']);
         }
 

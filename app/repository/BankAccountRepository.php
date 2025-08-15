@@ -20,35 +20,35 @@ final class BankAccountRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['channel_id'])) {
+        if (isset($params['channel_id']) && filled($params['channel_id'])) {
             $query->where('channel_id', $params['channel_id']);
         }
 
-        if (isset($params['branch_name'])) {
+        if (isset($params['branch_name']) && filled($params['branch_name'])) {
             $query->where('branch_name', $params['branch_name']);
         }
 
-        if (isset($params['account_holder'])) {
+        if (isset($params['account_holder']) && filled($params['account_holder'])) {
             $query->where('account_holder', $params['account_holder']);
         }
 
-        if (isset($params['account_number'])) {
+        if (isset($params['account_number']) && filled($params['account_number'])) {
             $query->where('account_number', $params['account_number']);
         }
 
-        if (isset($params['bank_code'])) {
+        if (isset($params['bank_code']) && filled($params['bank_code'])) {
             $query->where('bank_code', $params['bank_code']);
         }
 
-        if (isset($params['status'])) {
+        if (isset($params['status']) && filled($params['status'])) {
             $query->where('status', $params['status']);
         }
 
-        if (isset($params['support_collection'])) {
+        if (isset($params['support_collection']) && filled($params['support_collection'])) {
             $query->where('support_collection', $params['support_collection']);
         }
 
-        if (isset($params['support_disbursement'])) {
+        if (isset($params['support_disbursement']) && filled($params['support_disbursement'])) {
             $query->where('support_disbursement', $params['support_disbursement']);
         }
 

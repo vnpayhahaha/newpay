@@ -18,15 +18,15 @@ class TenantApiInterfaceRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['api_name'])) {
+        if (isset($params['api_name']) && filled($params['api_name'])) {
             $query->where('api_name', $params['api_name']);
         }
 
-        if (isset($params['api_uri'])) {
+        if (isset($params['api_uri']) && filled($params['api_uri'])) {
             $query->where('api_uri', $params['api_uri']);
         }
 
-        if (isset($params['http_method'])) {
+        if (isset($params['http_method']) && filled($params['http_method'])) {
             $query->where('http_method', $params['http_method']);
         }
 

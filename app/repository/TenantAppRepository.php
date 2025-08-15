@@ -18,19 +18,19 @@ class TenantAppRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['tenant_id'])) {
+        if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
             $query->where('tenant_id', $params['tenant_id']);
         }
 
-        if (isset($params['app_name'])) {
+        if (isset($params['app_name']) && filled($params['app_name'])) {
             $query->where('app_name', $params['app_name']);
         }
 
-        if (isset($params['app_key'])) {
+        if (isset($params['app_key']) && filled($params['app_key'])) {
             $query->where('app_key', $params['app_key']);
         }
 
-        if (isset($params['status'])) {
+        if (isset($params['status']) && filled($params['status'])) {
             $query->where('status', $params['status']);
         }
 

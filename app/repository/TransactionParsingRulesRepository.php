@@ -14,15 +14,15 @@ class TransactionParsingRulesRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['channel_id'])) {
+        if (isset($params['channel_id']) && filled($params['channel_id'])) {
             $query->where('channel_id', $params['channel_id']);
         }
 
-        if (isset($params['variable_name'])) {
+        if (isset($params['variable_name']) && filled($params['variable_name'])) {
             $query->where('variable_name', $params['variable_name']);
         }
 
-        if (isset($params['status'])) {
+        if (isset($params['status']) && filled($params['status'])) {
             $query->where('status', $params['status']);
         }
 

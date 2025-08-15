@@ -25,27 +25,27 @@ final class TenantUserRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['tenant_id'])) {
+        if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
             $query->where('tenant_id', $params['tenant_id']);
         }
 
-        if (isset($params['username'])) {
+        if (isset($params['username']) && filled($params['username'])) {
             $query->where('username', $params['username']);
         }
 
-        if (isset($params['phone'])) {
+        if (isset($params['phone']) && filled($params['phone'])) {
             $query->where('phone', $params['phone']);
         }
 
-        if (isset($params['status'])) {
+        if (isset($params['status']) && filled($params['status'])) {
             $query->where('status', $params['status']);
         }
 
-        if (isset($params['is_enabled_google'])) {
+        if (isset($params['is_enabled_google']) && filled($params['is_enabled_google'])) {
             $query->where('is_enabled_google', $params['is_enabled_google']);
         }
 
-        if (isset($params['remark'])) {
+        if (isset($params['remark']) && filled($params['remark'])) {
             $query->where('remark', $params['remark']);
         }
 

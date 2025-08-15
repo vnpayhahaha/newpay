@@ -122,27 +122,27 @@ class TransactionRecordRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['transaction_no'])) {
+        if (isset($params['transaction_no']) && filled($params['transaction_no'])) {
             $query->where('transaction_no', $params['transaction_no']);
         }
 
-        if (isset($params['account_type'])) {
+        if (isset($params['account_type']) && filled($params['account_type'])) {
             $query->where('account_type', $params['account_type']);
         }
 
-        if (isset($params['transaction_type'])) {
+        if (isset($params['transaction_type']) && filled($params['transaction_type'])) {
             $query->where('transaction_type', $params['transaction_type']);
         }
 
-        if (isset($params['settlement_delay_mode'])) {
+        if (isset($params['settlement_delay_mode']) && filled($params['settlement_delay_mode'])) {
             $query->where('settlement_delay_mode', $params['settlement_delay_mode']);
         }
 
-        if (isset($params['holiday_adjustment'])) {
+        if (isset($params['holiday_adjustment']) && filled($params['holiday_adjustment'])) {
             $query->where('holiday_adjustment', $params['holiday_adjustment']);
         }
 
-        if (isset($params['transaction_status'])) {
+        if (isset($params['transaction_status']) && filled($params['transaction_status'])) {
             $query->where('transaction_status', $params['transaction_status']);
         }
 

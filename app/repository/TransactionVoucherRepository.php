@@ -19,43 +19,43 @@ class TransactionVoucherRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['channel_id'])) {
+        if (isset($params['channel_id']) && filled($params['channel_id'])) {
             $query->where('channel_id', $params['channel_id']);
         }
 
-        if (isset($params['channel_account_id'])) {
+        if (isset($params['channel_account_id']) && filled($params['channel_account_id'])) {
             $query->where('channel_account_id', $params['channel_account_id']);
         }
 
-        if (isset($params['bank_account_id'])) {
+        if (isset($params['bank_account_id']) && filled($params['bank_account_id'])) {
             $query->where('bank_account_id', $params['bank_account_id']);
         }
 
-        if (isset($params['collection_card_no'])) {
+        if (isset($params['collection_card_no']) && filled($params['collection_card_no'])) {
             $query->where('collection_card_no', $params['collection_card_no']);
         }
 
-        if (isset($params['collection_time'])) {
+        if (isset($params['collection_time']) && filled($params['collection_time'])) {
             $query->where('collection_time', $params['collection_time']);
         }
 
-        if (isset($params['collection_status'])) {
+        if (isset($params['collection_status']) && filled($params['collection_status'])) {
             $query->where('collection_status', $params['collection_status']);
         }
 
-        if (isset($params['collection_source'])) {
+        if (isset($params['collection_source']) && filled($params['collection_source'])) {
             $query->where('collection_source', $params['collection_source']);
         }
 
-        if (isset($params['transaction_voucher_type'])) {
+        if (isset($params['transaction_voucher_type']) && filled($params['transaction_voucher_type'])) {
             $query->where('transaction_voucher_type', $params['transaction_voucher_type']);
         }
 
-        if (isset($params['order_no'])) {
+        if (isset($params['order_no']) && filled($params['order_no'])) {
             $query->where('order_no', $params['order_no']);
         }
 
-        if (isset($params['transaction_type'])) {
+        if (isset($params['transaction_type']) && filled($params['transaction_type'])) {
             $query->where('transaction_type', $params['transaction_type']);
         }
 

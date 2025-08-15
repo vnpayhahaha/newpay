@@ -20,13 +20,14 @@ class BankDisbursementDownloadService extends IService
         $filesInfo = $this->repository->getModel()->where(['id' => $id])->first();
         if ($filesInfo) {
             $filename = $filesInfo->file_name . '.'.$filesInfo->suffix ;
-            return (new Response(200, [
+            $result = (new Response(200, [
                 'Server'                        => env('APP_NAME', 'LangDaLang'),
                 'access-control-expose-headers' => 'content-disposition',
             ]))->download(BASE_PATH . $filesInfo->path, $filename)
                 ->header('Content-Disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename));
+            $this->repository->getModel()->where(['id' => $id])->increment('record_count', 1);
+            return $result;
         }
-        var_dump('throw ====');
         throw new ResourceNotFoundException(ResultCode::NOT_FOUND);
     }
 }

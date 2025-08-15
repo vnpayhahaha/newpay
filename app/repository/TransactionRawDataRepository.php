@@ -15,15 +15,15 @@ class TransactionRawDataRepository extends IRepository
     public function handleSearch(Builder $query, array $params): Builder
     {
 
-        if (isset($params['content'])) {
+        if (isset($params['content']) && filled($params['content'])) {
             $query->where('content', $params['content']);
         }
 
-        if (isset($params['source'])) {
+        if (isset($params['source']) && filled($params['source'])) {
             $query->where('source', $params['source']);
         }
 
-        if (isset($params['status'])) {
+        if (isset($params['status']) && filled($params['status'])) {
             $query->where('status', $params['status']);
         }
 
