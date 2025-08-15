@@ -6,6 +6,7 @@ use app\controller\BasicController;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\router\Annotations\GetMapping;
+use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use app\service\BankDisbursementDownloadService;
 use DI\Attribute\Inject;
@@ -30,5 +31,11 @@ class BankDisbursementDownloadController extends BasicController
                 $this->getPageSize(),
             )
         );
+    }
+
+    #[PostMapping('/bank_disbursement_download/download/{id}')]
+    public function download(Request $request, int $id): Response
+    {
+        return $this->service->download($id);
     }
 }

@@ -258,20 +258,25 @@ final class DisbursementOrderService extends IService
         } catch (\Throwable $e) {
             throw new BusinessException(ResultCode::ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR, $e->getMessage());
         }
+
         $down_filename = $bill_config['down_filename'] ?? 'order_' . date('YmdHis');
+        // $down_filename 如果值带bank_card_no，替换bank_card_no为变量 account_number
+        $down_filename = str_replace('bank_card_no', $disbursementOrders[0]['bank_account']['account_number'], $down_filename);
         $down_filepath = $bill_config['down_filepath'] ?? '/public/download/file/';
-        $base_path = str_replace('/public', '', $down_filepath);
-        $hash = md5($base_path . $down_filename);
-        $filename = $down_filename . '.xlsx';
+        $down_suffix = $bill_config['down_suffix'] ?? 'xlsx';
+        $download_path = str_replace('/public', '', $down_filepath);
+        $hash = md5(json_encode($excelData, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+        $filename = $down_filename . '.' . $down_suffix;
+
         /** @var ModelBankDisbursementDownload $filesInfo */
         if ($filesInfo = $this->downloadFileRepository->getModel()->where(['hash' => $hash])->first()) {
             return (new Response(200, [
                 'Server'                        => env('APP_NAME', 'LangDaLang'),
                 'access-control-expose-headers' => 'content-disposition',
-            ]))->download($filesInfo->url, $filename)
+            ]))->download(BASE_PATH . $filesInfo->path, $filename)
                 ->header('Content-Disposition', "attachment; filename={$filename}; filename*=UTF-8''" . rawurlencode($filename));
         }
-        $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename, $down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
+        $result = (new PhpOffice($bill_config['down_dto_class']))->export($down_filename, $down_suffix, $down_filepath, $excelData, null, $bill_config['down_sheetIndex'] ?? 0);
         // 将文件大小转换为MB（注意：1MB = 1048576字节）
         $address = BASE_PATH . $down_filepath . $down_filename . '.xlsx';
         $fileSizeBytes = filesize($address);
@@ -287,11 +292,11 @@ final class DisbursementOrderService extends IService
                 'hash'         => $hash,
                 'mime_type'    => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'storage_path' => $address,
-                'base_path'    => $base_path,
+                'base_path'    => $download_path,
                 'suffix'       => 'xlsx',
                 'size_byte'    => $fileSizeBytes,
                 'size_info'    => formatBytes($fileSizeBytes),
-                'url'          => env('APP_DOMAIN', 'http://127.0.0.1:9501') . $base_path . $down_filename . '.xlsx',
+                'url'          => env('APP_DOMAIN', 'http://127.0.0.1:9501') . $download_path . $down_filename . '.xlsx',
             ];
             $attachment = $this->attachmentRepository->getModel()->create($inData);
         }
@@ -299,12 +304,13 @@ final class DisbursementOrderService extends IService
         $downloadData = [
             'file_name'     => $down_filename,
             'attachment_id' => $attachment->id,
-            'url'           => $down_filepath . $down_filename,
+            'path'          => $down_filepath . $down_filename . '.' . $down_suffix,
             'hash'          => $hash,
             'file_size'     => $fileSizeMB,
             'record_count'  => count($excelData),
             'created_by'    => 1,
             'created_at'    => date('Y-m-d H:i:s'),
+            'suffix'        => $down_suffix,
         ];
         $this->downloadFileRepository->create($downloadData);
 

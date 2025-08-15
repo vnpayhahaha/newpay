@@ -11,13 +11,13 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Psr\Http\Message\ResponseInterface;
 
-class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
+class PhpOffice extends LdlExcel implements ExcelPropertyInterface
 {
 
 
     public function import(BasicModel $model, ?\Closure $closure = null): mixed
     {
-        $request= request();
+        $request = request();
         $data = [];
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -52,7 +52,7 @@ class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
         return true;
     }
 
-    public function export(string $filename,string $down_filepath, array|\Closure $closure, ?\Closure $callbackData = null, int $sheetIndex = 0): \support\Response
+    public function export(string $filename, string $suffix, string $down_filepath, array|\Closure $closure, ?\Closure $callbackData = null, int $sheetIndex = 0): \support\Response
     {
         $spread = new Spreadsheet();
         // 确保Sheet存在
@@ -62,7 +62,7 @@ class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
         }
 
         $sheet = $spread->setActiveSheetIndex($sheetIndex);
-        $filename .= '.xlsx';
+        $filename .= '.' . $suffix;
 
         is_array($closure) ? $data = &$closure : $data = $closure();
 
@@ -74,7 +74,8 @@ class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
             $style = $sheet->getStyle($headerColumn)->getFont()->setBold(true);
             $columnDimension = $sheet->getColumnDimension($headerColumn[0]);
 
-            empty($item['width']) ? $columnDimension->setAutoSize(true) : $columnDimension->setWidth((float)$item['width']);
+            empty($item['width']) ? $columnDimension->setAutoSize(true) :
+                $columnDimension->setWidth((float)$item['width']);
 
             empty($item['align']) || $sheet->getStyle($headerColumn)->getAlignment()->setHorizontal($item['align']);
 
@@ -139,7 +140,7 @@ class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
         } catch (\RuntimeException $e) {
         }
 
-        $path = BASE_PATH.$down_filepath;
+        $path = BASE_PATH . $down_filepath;
         if (!is_dir($path)) {
             if (!mkdir($path, 0777, true) && !is_dir($path)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $path));
@@ -147,10 +148,12 @@ class PhpOffice  extends LdlExcel implements ExcelPropertyInterface
         }
         $address = $path . $filename;
 
-        $writer = IOFactory::createWriter($spread, 'Xlsx');
+        // $writerType 等于 $suffix 的首字母大写;
+        $writerType = ucfirst($suffix);
+        $writer = IOFactory::createWriter($spread, $writerType);
         $writer->save($address);
         $get_contents = file_get_contents($address);
-        $res = $this->downloadExcel($filename, $address,$get_contents);
+        $res = $this->downloadExcel($filename, $address, $get_contents);
         $spread->disconnectWorksheets();
         return $res;
     }

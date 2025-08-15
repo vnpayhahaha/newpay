@@ -9,5 +9,5 @@ interface ExcelPropertyInterface
 {
     public function import(BasicModel $model, ?\Closure $closure = null): mixed;
 
-    public function export(string $filename, string $down_filepath, array|\Closure $closure): \support\Response;
+    public function export(string $filename, string $suffix, string $down_filepath, array|\Closure $closure): \support\Response;
 }
