@@ -41,4 +41,20 @@ final class ModelTransactionRawData extends BasicModel
         'created_at',
         'updated_at'
     ];
+
+    protected $casts = [
+        'id'            => 'integer',
+        'status'        => 'integer',
+        'repeat_count'  => 'integer',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(static function (ModelTransactionRawData $model) {
+            $model->hash = md5($model->content);
+        });
+    }
 }

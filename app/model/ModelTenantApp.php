@@ -85,11 +85,11 @@ final class ModelTenantApp extends BasicModel
 //            $model->app_secret = md5($randomStr);
 //        });
 
-        ModelTenantApp::updating(function (ModelTenantApp $model) {
+        self::updating(static function (ModelTenantApp $model) {
             $model->updated_by = request()->user->id ?? 0;
         });
 
-        ModelTenantApp::deleting(function (ModelTenantApp $model) {
+        self::deleting(static function (ModelTenantApp $model) {
             if ($model->isForceDeleting()) {
                 return; // 硬删除不记录
             }

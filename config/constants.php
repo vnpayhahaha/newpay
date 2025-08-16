@@ -41,4 +41,6 @@ return [
     // 提现订单状态
     'transaction_parsing_rules' => app\constants\TransactionParsingRules::class,
     // 交易解析规则
+    'transaction_raw_data'      => app\constants\TransactionRawData::class,
+    // 交易原始数据
 ];
