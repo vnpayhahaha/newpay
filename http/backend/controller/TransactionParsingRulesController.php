@@ -68,6 +68,24 @@ class TransactionParsingRulesController extends BasicController
         return $this->success();
     }
 
+
+    // 单个或批量真实删除数据 （清空回收站）
+    #[DeleteMapping('/transaction_parsing_rules/real_delete')]
+    #[Permission(code: 'transaction:transaction_parsing_rules:real_delete')]
+    #[OperationLog('清空交易解析规则')]
+    public function real_delete(Request $request): Response
+    {
+        return $this->service->realDelete((array)$request->all()) ? $this->success() : $this->error();
+    }
+
+    // 单个或批量恢复在回收站的数据
+    #[PutMapping('/transaction_parsing_rules/recovery')]
+    #[Permission(code: 'transaction:transaction_parsing_rules:recovery')]
+    #[OperationLog('交易解析规则回收站恢复')]
+    public function recovery(Request $request): Response
+    {
+        return $this->service->recovery((array)$request->input('ids', [])) ? $this->success() : $this->error();
+    }
     // 编辑
     #[PutMapping('/transaction_parsing_rules/{id}')]
     #[Permission(code: 'transaction:transaction_parsing_rules:update')]
