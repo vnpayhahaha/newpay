@@ -55,4 +55,9 @@ final class ModelTransactionParsingRules extends BasicModel
         'updated_at'    => 'datetime',
         'deleted_at'    => 'datetime',
     ];
+
+    public function channel()
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id' );
+    }
 }

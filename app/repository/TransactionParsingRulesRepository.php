@@ -28,4 +28,14 @@ class TransactionParsingRulesRepository extends IRepository
 
         return $query;
     }
+
+    public function page(array $params = [], ?int $page = null, ?int $pageSize = null): array
+    {
+        $result = $this->perQuery($this->getQuery(), $params)->with('channel:id,channel_name,channel_code,channel_icon')->paginate(
+            perPage: $pageSize,
+            pageName: static::PER_PAGE_PARAM_NAME,
+            page: $page,
+        );
+        return $this->handlePage($result);
+    }
 }
