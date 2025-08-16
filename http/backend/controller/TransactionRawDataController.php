@@ -7,7 +7,7 @@ use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
-use app\service\TransactionRecordService;
+use app\service\TransactionRawDataService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
@@ -16,7 +16,7 @@ use support\Response;
 class TransactionRawDataController extends BasicController
 {
     #[Inject]
-    protected TransactionRecordService $service;
+    protected TransactionRawDataService $service;
 
     #[GetMapping('/transaction_raw_data/list')]
     #[Permission(code: 'transaction:transaction_raw_data:list')]

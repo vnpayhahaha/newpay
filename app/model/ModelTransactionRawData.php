@@ -2,6 +2,8 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
+
 /**
 * @property int $id 主键 自增id
 * @property string $hash 哈希值
@@ -9,8 +11,8 @@ namespace app\model;
 * @property string $source 来源
 * @property int $status 状态：0未解析 1解析成功 2解析失败
 * @property int $repeat_count 计数
-* @property \Carbon\Carbon $created_at 创建时间
-* @property \Carbon\Carbon $updated_at 更新时间
+* @property Carbon $created_at 创建时间
+* @property Carbon $updated_at 更新时间
 */
 final class ModelTransactionRawData extends BasicModel
 {
