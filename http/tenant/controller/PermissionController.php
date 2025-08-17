@@ -660,8 +660,8 @@ class PermissionController extends BasicController
         "componentSuffix": ".vue",
         "breadcrumbEnable": true
       },
-      "path": "/DisbursementOrder/Suspend",
-      "component": "transaction/views/DisbursementOrder/Suspend",
+      "path": "/DisbursementOrder/suspend",
+      "component": "transaction/views/DisbursementOrder/suspend",
       "redirect": "",
       "status": 1,
       "sort": 0,
