@@ -3,16 +3,16 @@
 namespace app\model;
 
 /**
-* @property int $id 主键 自增ID
-* @property int $raw_data_id 原始数据ID
-* @property int $rule_id 规则ID
-* @property string $rule_text 规则内容
-* @property string $variable_name 记录匹配变量名称
-* @property int $status 状态：1解析成功 2失败或部分失败
-* @property int $voucher_id 凭证ID
-* @property \Carbon\Carbon $created_at 创建时间
-* @property string $desc 失败原因说明
-*/
+ * @property int $id 主键 自增ID
+ * @property int $raw_data_id 原始数据ID
+ * @property int $rule_id 规则ID
+ * @property string $rule_text 规则内容
+ * @property string $variable_name 记录匹配变量名称
+ * @property int $status 状态：1解析成功 2失败或部分失败
+ * @property int $voucher_id 凭证ID
+ * @property \Carbon\Carbon $created_at 创建时间
+ * @property string $desc 失败原因说明
+ */
 final class ModelTransactionParsingLog extends BasicModel
 {
     /**
@@ -26,7 +26,7 @@ final class ModelTransactionParsingLog extends BasicModel
      * @var string
      */
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      * @var array
@@ -40,5 +40,17 @@ final class ModelTransactionParsingLog extends BasicModel
         'voucher_id',
         'created_at',
         'desc'
+    ];
+
+    protected $casts = [
+        'id'            => 'integer',
+        'raw_data_id'   => 'integer',
+        'rule_id'       => 'integer',
+        'rule_text'     => 'string',
+        'variable_name' => 'array',
+        'status'        => 'boolean',
+        'voucher_id'    => 'integer',
+        'created_at'    => 'datetime',
+        'desc'          => 'string',
     ];
 }
