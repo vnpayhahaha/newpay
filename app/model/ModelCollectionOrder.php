@@ -66,6 +66,8 @@ use support\Db;
  * @property int $transaction_voucher_id 核销凭证id
  * @property Carbon $cancelled_at 取消时间
  * @property int $cancelled_by 取消管理员
+ * @property int $customer_cancelled_by 取消客户
+ * @property int $customer_created_by 创建客户
  */
 final class ModelCollectionOrder extends BasicModel
 {
@@ -138,6 +140,8 @@ final class ModelCollectionOrder extends BasicModel
         'transaction_voucher_id',
         'cancelled_at',
         'cancelled_by',
+        'customer_cancelled_by',
+        'customer_created_by',
     ];
 
     protected $casts = [
@@ -169,6 +173,8 @@ final class ModelCollectionOrder extends BasicModel
         'settlement_delay_days'      => 'integer',
         'transaction_voucher_id'     => 'integer',
         'cancelled_by'               => 'integer',
+        'customer_cancelled_by'      => 'integer',
+        'customer_created_by'      => 'integer',
         'cancelled_at'               => 'datetime',
     ];
 
@@ -205,5 +211,17 @@ final class ModelCollectionOrder extends BasicModel
     public function cancel_operator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelUser::class, 'cancelled_by', 'id');
+    }
+
+    // cancel_customer
+    public function cancel_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenantUser::class, 'customer_cancelled_by', 'id');
+    }
+
+    // created_customer
+    public function created_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenantUser::class, 'customer_created_by', 'id');
     }
 }

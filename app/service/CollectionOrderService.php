@@ -34,19 +34,19 @@ use Webman\Http\Request;
 final class CollectionOrderService extends IService
 {
     #[Inject]
-    public CollectionOrderRepository $repository;
+    public CollectionOrderRepository       $repository;
     #[Inject]
-    protected TenantRepository $tenantRepository;
+    protected TenantRepository             $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository $tenantAccountRepository;
+    protected TenantAccountRepository      $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository $bankAccountRepository;
+    protected BankAccountRepository        $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository $channelAccountRepository;
+    protected ChannelAccountRepository     $channelAccountRepository;
     #[Inject]
     protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository $transactionRecordRepository;
+    protected TransactionRecordRepository  $transactionRecordRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -72,7 +72,7 @@ final class CollectionOrderService extends IService
                 // 上游第三方收款
                 try {
                     $result = $this->upstreamCollection($data, $findTenant, $source);
-                    var_dump('上游第三方收款结果：',$result);
+                    var_dump('上游第三方收款结果：', $result);
                 } catch (\Throwable $e) {
                     $fail_result = $e->getMessage();
                     Log::warning('upstream_collection_error: ' . $e->getMessage());
@@ -97,7 +97,7 @@ final class CollectionOrderService extends IService
                 }
             }
         }
-        if(filled($fail_result) && filled($result) === false){
+        if (filled($fail_result) && filled($result) === false) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED, $fail_result);
         }
         return $result;
@@ -161,11 +161,8 @@ final class CollectionOrderService extends IService
             $payable_amount = $floatAmount;
         }
         $request = Context::get(Request::class);
+        $user = $request->user ?? null;
         $app = Context::get(ModelTenantApp::class);
-        // test 调试使用
-        if (!$app) {
-            $app = ModelTenantApp::getQuery()->where('app_key', $data['app_key'])->first();
-        }
         // 收款订单创建
         $collectionOrder = $this->repository->create([
             'tenant_id'             => $data['tenant_id'],
@@ -178,7 +175,7 @@ final class CollectionOrderService extends IService
             'total_fee'             => $calculate['total_fee'],
             'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
             'settlement_type'       => $findTenant->receipt_settlement_type,
-//            'settlement_type'       => CollectionOrder::SETTLEMENT_TYPE_NOT_SETTLED,
+            //            'settlement_type'       => CollectionOrder::SETTLEMENT_TYPE_NOT_SETTLED,
             'collection_type'       => CollectionOrder::COLLECTION_TYPE_BANK_ACCOUNT,
             'collection_channel_id' => $card->channel_id,
             'bank_account_id'       => $card->id,
@@ -187,7 +184,7 @@ final class CollectionOrderService extends IService
             'notify_remark'         => $data['notify_remark'] ?? '',
             'return_url'            => $data['return_url'] ?? '',
             'notify_url'            => $data['notify_url'] ?? '',
-            'app_id'                => $app->id ?? '',
+            'app_id'                => $app->id ?? 0,
             'payer_name'            => $card->account_holder,
             'payer_account'         => $card->account_number,
             'payer_bank'            => $card->branch_name,
@@ -195,6 +192,7 @@ final class CollectionOrderService extends IService
             'payer_upi'             => $card->upi_id,
             'status'                => CollectionOrder::STATUS_PROCESSING,
             'request_id'            => $request->requestId,
+            'customer_created_by'   => $user->id ?? 0,
             'settlement_delay_mode' => $findTenant->settlement_delay_mode,
             'settlement_delay_days' => $findTenant->settlement_delay_days,
         ]);
@@ -307,17 +305,17 @@ final class CollectionOrderService extends IService
 
             if ($channel_account && isset($channel_account['channel']['channel_code'])) {
                 $className = Tenant::$upstream_options[$channel_account['channel']['channel_code']] ?? '';
-                var_dump('$className ',$className);
-                if(filled($className)){
+                var_dump('$className ', $className);
+                if (filled($className)) {
                     try {
                         $service = TransactionCollectionOrderFactory::getInstance($className)->init($channel_account);
                         $createOrderResult = $service->createOrder($data['tenant_order_no'], $data['amount']);
-                    }catch (\Throwable $e){
+                    } catch (\Throwable $e) {
                         $fail_message = $e->getMessage();
-                        Log::warning($className.' 创建订单失败'.$e->getMessage());
+                        Log::warning($className . ' 创建订单失败' . $e->getMessage());
                         continue;
                     }
-                    if(filled($createOrderResult)){
+                    if (filled($createOrderResult)) {
                         // todo 创建订单 [
                         //        'ok'     => 'bool',
                         //        'origin' => 'string',
@@ -331,7 +329,7 @@ final class CollectionOrderService extends IService
                 }
             }
         }
-        if(filled($fail_message) && filled($createOrderResult) === false){
+        if (filled($fail_message) && filled($createOrderResult) === false) {
             throw new \RuntimeException($fail_message);
         }
         return $createOrderResult;
@@ -460,6 +458,31 @@ final class CollectionOrderService extends IService
                     'status'       => CollectionOrder::STATUS_CANCEL,
                     'cancelled_by' => $operatorId,
                     'cancelled_at' => date('Y-m-d H:i:s'),
+                ]);
+        });
+    }
+
+    public function cancelByCustomerId(mixed $id, int $customerId): int
+    {
+        return Db::transaction(function () use ($id, $customerId) {
+            if (is_array($id)) {
+                return $this->repository->getModel()
+                    ->whereIn('id', $id)
+                    ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
+                    ->update([
+                        'status'                => CollectionOrder::STATUS_CANCEL,
+                        'customer_cancelled_by' => $customerId,
+                        'cancelled_at'          => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            return $this->repository->getModel()
+                ->where('id', $id)
+                ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
+                ->update([
+                    'status'                => CollectionOrder::STATUS_CANCEL,
+                    'customer_cancelled_by' => $customerId,
+                    'cancelled_at'          => date('Y-m-d H:i:s'),
                 ]);
         });
     }
