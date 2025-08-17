@@ -174,7 +174,7 @@ final class ModelCollectionOrder extends BasicModel
         'transaction_voucher_id'     => 'integer',
         'cancelled_by'               => 'integer',
         'customer_cancelled_by'      => 'integer',
-        'customer_created_by'      => 'integer',
+        'customer_created_by'        => 'integer',
         'cancelled_at'               => 'datetime',
     ];
 

@@ -127,6 +127,7 @@ final class DisbursementOrderRepository extends IRepository
             ->with('bank_account:id,branch_name')
             ->with('cancel_operator:id,username,nickname')
             ->with('bank_disbursement_download:id,file_name,suffix,hash')
+            ->with('created_customer:id,username,avatar')
             ->paginate(
                 perPage: $pageSize,
                 pageName: static::PER_PAGE_PARAM_NAME,

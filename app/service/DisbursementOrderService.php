@@ -32,23 +32,23 @@ use Webman\Http\Request;
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository $repository;
+    public DisbursementOrderRepository           $repository;
     #[Inject]
-    protected TenantRepository $tenantRepository;
+    protected TenantRepository                   $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository $tenantAccountRepository;
+    protected TenantAccountRepository            $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository $bankAccountRepository;
+    protected BankAccountRepository              $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository $channelAccountRepository;
+    protected ChannelAccountRepository           $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository $transactionVoucherRepository;
+    protected TransactionVoucherRepository       $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository $transactionRecordRepository;
+    protected TransactionRecordRepository        $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository $attachmentRepository;
+    protected AttachmentRepository               $attachmentRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -56,11 +56,9 @@ final class DisbursementOrderService extends IService
         // 查询租户获取配置
         $findTenant = $this->tenantRepository->getQuery()->where('tenant_id', $data['tenant_id'])->first();
         $request = Context::get(Request::class);
+        $user = $request->user ?? null;
         $app = Context::get(ModelTenantApp::class);
-        // test 调试使用
-        if (!$app) {
-            $app = ModelTenantApp::getQuery()->where('app_key', $data['app_key'])->first();
-        }
+
         // 计算收款费率
         $calculate = [
             'fixed_fee'       => 0.00,
@@ -77,28 +75,29 @@ final class DisbursementOrderService extends IService
         }
         $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee_amount'], 4);
         $disbursementOrder = $this->repository->create([
-            'tenant_id'          => $data['tenant_id'],
-            'tenant_order_no'    => $data['tenant_order_no'],
-            'amount'             => $data['amount'],
-            'order_source'       => $source,
-            'notify_remark'      => $data['notify_remark'] ?? '',
-            'notify_url'         => $data['notify_url'] ?? '',
-            'fixed_fee'          => $calculate['fixed_fee'],
-            'rate_fee'           => $calculate['rate_fee'],
-            'rate_fee_amount'    => $calculate['rate_fee_amount'],
-            'total_fee'          => $calculate['total_fee'],
-            'settlement_amount'  => bcadd($data['amount'], $calculate['total_fee'], 4),
-            'expire_time'        => date('Y-m-d H:i:s', strtotime('+' . $findTenant->payment_expire_minutes . ' minutes')),
-            'payment_type'       => $data['payment_type'],
-            'payee_bank_name'    => $data['payee_bank_name'] ?? '',
-            'payee_bank_code'    => $data['payee_bank_code'] ?? '',
-            'payee_account_name' => $data['payee_account_name'] ?? '',
-            'payee_account_no'   => $data['payee_account_no'] ?? '',
-            'payee_phone'        => $data['payee_phone'] ?? '',
-            'payee_upi'          => $data['payee_upi'] ?? '',
-            'app_id'             => $app->id ?? '',
-            'status'             => DisbursementOrder::STATUS_CREATE,
-            'request_id'         => $request->requestId,
+            'tenant_id'           => $data['tenant_id'],
+            'tenant_order_no'     => $data['tenant_order_no'],
+            'amount'              => $data['amount'],
+            'order_source'        => $source,
+            'notify_remark'       => $data['notify_remark'] ?? '',
+            'notify_url'          => $data['notify_url'] ?? '',
+            'fixed_fee'           => $calculate['fixed_fee'],
+            'rate_fee'            => $calculate['rate_fee'],
+            'rate_fee_amount'     => $calculate['rate_fee_amount'],
+            'total_fee'           => $calculate['total_fee'],
+            'settlement_amount'   => bcadd($data['amount'], $calculate['total_fee'], 4),
+            'expire_time'         => date('Y-m-d H:i:s', strtotime('+' . $findTenant->payment_expire_minutes . ' minutes')),
+            'payment_type'        => $data['payment_type'],
+            'payee_bank_name'     => $data['payee_bank_name'] ?? '',
+            'payee_bank_code'     => $data['payee_bank_code'] ?? '',
+            'payee_account_name'  => $data['payee_account_name'] ?? '',
+            'payee_account_no'    => $data['payee_account_no'] ?? '',
+            'payee_phone'         => $data['payee_phone'] ?? '',
+            'payee_upi'           => $data['payee_upi'] ?? '',
+            'app_id'              => $app->id ?? 0,
+            'status'              => DisbursementOrder::STATUS_CREATE,
+            'request_id'          => $request->requestId,
+            'customer_created_by' => $user->id ?? 0,
         ]);
         if (!filled($disbursementOrder)) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
@@ -201,6 +200,31 @@ final class DisbursementOrderService extends IService
                     'status'       => DisbursementOrder::STATUS_CANCEL,
                     'cancelled_by' => $operatorId,
                     'cancelled_at' => date('Y-m-d H:i:s'),
+                ]);
+        });
+    }
+
+    public function cancelByCustomerId(mixed $id, int $customerId): int
+    {
+        return Db::transaction(function () use ($id, $customerId) {
+            if (is_array($id)) {
+                return $this->repository->getModel()
+                    ->whereIn('id', $id)
+                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->update([
+                        'status'                => DisbursementOrder::STATUS_CANCEL,
+                        'customer_cancelled_by' => $customerId,
+                        'cancelled_at'          => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            return $this->repository->getModel()
+                ->where('id', $id)
+                ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                ->update([
+                    'status'                => DisbursementOrder::STATUS_CANCEL,
+                    'customer_cancelled_by' => $customerId,
+                    'cancelled_at'          => date('Y-m-d H:i:s'),
                 ]);
         });
     }

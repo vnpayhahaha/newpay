@@ -52,6 +52,8 @@ use Carbon\Carbon;
  * @property int $transaction_voucher_id 核销凭证id
  * @property string $down_bill_template_id 付款账单模板
  * @property int $bank_disbursement_download_id 银行支付账单下载ID
+ * @property int $customer_created_by 客户端创建ID
+ * @property int $customer_cancelled_by 客户端取消ID
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -116,6 +118,8 @@ final class ModelDisbursementOrder extends BasicModel
         'transaction_voucher_id',
         'down_bill_template_id',
         'bank_disbursement_download_id',
+        'customer_created_by',
+        'customer_cancelled_by',
     ];
 
     protected $casts = [
@@ -144,6 +148,8 @@ final class ModelDisbursementOrder extends BasicModel
         'cancelled_by'                  => 'integer',
         'transaction_voucher_id'        => 'integer',
         'bank_disbursement_download_id' => 'integer',
+        'customer_created_by'           => 'integer',
+        'customer_cancelled_by'         => 'integer',
     ];
 
     public static function boot()
@@ -186,5 +192,16 @@ final class ModelDisbursementOrder extends BasicModel
     public function bank_disbursement_download(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelBankDisbursementDownload::class, 'bank_disbursement_download_id', 'id');
+    }
+
+    // cancel_customer
+    public function cancel_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenantUser::class, 'customer_cancelled_by', 'id');
+    }
+
+    public function created_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenantUser::class, 'customer_created_by', 'id');
     }
 }
