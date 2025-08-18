@@ -43,8 +43,18 @@ class TransactionRawDataController extends BasicController
     public function create(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'content' => 'required|string|max:9999',
-            'source'  => 'required|string|max:255',
+            'channel_id'      => [
+                'required',
+                'integer',
+                'between:1,99999999999'
+            ],
+            'bank_account_id' => [
+                'required',
+                'integer',
+                'between:1,99999999999'
+            ],
+            'content'         => 'required|string|max:9999',
+            'source'          => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -61,8 +71,18 @@ class TransactionRawDataController extends BasicController
     public function update(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'content' => 'required|string|max:9999',
-            'source'  => 'required|string|max:255',
+            'channel_id'      => [
+                'required',
+                'integer',
+                'between:1,99999999999'
+            ],
+            'bank_account_id' => [
+                'required',
+                'integer',
+                'between:1,99999999999'
+            ],
+            'content'         => 'required|string|max:9999',
+            'source'          => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

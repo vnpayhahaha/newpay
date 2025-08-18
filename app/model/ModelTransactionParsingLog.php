@@ -2,6 +2,8 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
+
 /**
  * @property int $id 主键 自增ID
  * @property int $raw_data_id 原始数据ID
@@ -10,8 +12,9 @@ namespace app\model;
  * @property string $variable_name 记录匹配变量名称
  * @property int $status 状态：1解析成功 2失败或部分失败
  * @property int $voucher_id 凭证ID
- * @property \Carbon\Carbon $created_at 创建时间
- * @property string $desc 失败原因说明
+ * @property Carbon $created_at 创建时间
+ * @property string $fail_msg 失败原因说明
+ * @property string $fail_msg_en 失败原因说明
  */
 final class ModelTransactionParsingLog extends BasicModel
 {
@@ -39,7 +42,8 @@ final class ModelTransactionParsingLog extends BasicModel
         'status',
         'voucher_id',
         'created_at',
-        'desc'
+        'fail_msg',
+        'fail_msg_en'
     ];
 
     protected $casts = [
@@ -51,6 +55,7 @@ final class ModelTransactionParsingLog extends BasicModel
         'status'        => 'boolean',
         'voucher_id'    => 'integer',
         'created_at'    => 'datetime',
-        'desc'          => 'string',
+        'fail_msg'      => 'string',
+        'fail_msg_en'   => 'string',
     ];
 }
