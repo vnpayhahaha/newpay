@@ -179,7 +179,7 @@ final class ModelTenant extends BasicModel
     public static function boot()
     {
         parent::boot();
-        ModelTenant::creating(function (ModelTenant $model) {
+        self::creating(static function (ModelTenant $model) {
             var_dump('run  creating==');
             if (empty($model->tenant_id)) {
                 // 获取当前最大ID
@@ -191,15 +191,15 @@ final class ModelTenant extends BasicModel
             }
         });
 
-        ModelTenant::created(function (ModelTenant $model) {
+        self::created(static function (ModelTenant $model) {
             Event::dispatch('app.tenant.created', $model);
         });
 
-        ModelTenant::updating(function (ModelTenant $model) {
+        self::updating(static function (ModelTenant $model) {
             $model->updated_by = request()->user->id ?? 0;
         });
 
-        ModelTenant::deleting(function (ModelTenant $model) {
+        self::deleting(static function (ModelTenant $model) {
             if ($model->isForceDeleting()) {
                 return; // 硬删除不记录
             }
