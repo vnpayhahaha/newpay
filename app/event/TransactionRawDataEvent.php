@@ -2,6 +2,8 @@
 
 namespace app\event;
 
+use app\constants\CollectionOrder;
+use app\constants\TenantAccount;
 use app\constants\TransactionRawData;
 use app\constants\TransactionVoucher;
 use app\model\ModelTransactionRawData;
@@ -9,6 +11,7 @@ use app\repository\BankAccountRepository;
 use app\repository\TransactionParsingRulesRepository;
 use app\repository\TransactionVoucherRepository;
 use support\Container;
+use Webman\RedisQueue\Redis;
 
 class TransactionRawDataEvent
 {
@@ -29,6 +32,9 @@ class TransactionRawDataEvent
         /** @var BankAccountRepository $bankAccountRepository */
         $bankAccountRepository = Container::make(BankAccountRepository::class);
         $bank_account = $bankAccountRepository->findById($model->bank_account_id);
+        if (!$bank_account) {
+            throw new \Exception('未找到银行账户[id:' . $model->bank_account_id . ']');
+        }
 
         $parseResultKey = array_keys($parseResult);
         $transaction_voucher_type = 0;
@@ -43,11 +49,24 @@ class TransactionRawDataEvent
             $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_AMOUNT;
             $transaction_voucher = $parseResult['amount'];
         }
+        if (isset($parseResult['balance']) && filled($parseResult['balance'])) {
+            $bank_account->balance = $parseResult['balance'];
+            $bank_account->save();
+        }
 
         // 创建交易凭证 TransactionVoucherRepository
         /** @var TransactionVoucherRepository $transactionVoucherRepository */
         $transactionVoucherRepository = Container::make(TransactionVoucherRepository::class);
-        $transactionVoucherRepository->create([
+        // 先查询是否存在 collection_card_no  transaction_voucher_type  transaction_voucher
+        $transactionVoucher = $transactionVoucherRepository->getQuery()->where([
+            'collection_card_no'       => $bank_account->account_number,
+            'transaction_voucher_type' => $transaction_voucher_type,
+            'transaction_voucher'      => $transaction_voucher,
+        ])->first();
+        if ($transactionVoucher) {
+            return;
+        }
+        $tv = $transactionVoucherRepository->create([
             'channel_id'               => $model->channel_id,
             'bank_account_id'          => $model->bank_account_id,
             'collection_card_no'       => $bank_account->account_number,
@@ -61,6 +80,9 @@ class TransactionRawDataEvent
             'transaction_type'         => TransactionVoucher::TRANSACTION_TYPE_COLLECTION
         ]);
 
-        // todo 核销队列
+
+        Redis::send(CollectionOrder::COLLECTION_ORDER_WRITE_OFF_QUEUE_NAME, [
+            'transaction_voucher_id' => $tv->id,
+        ]);
     }
 }

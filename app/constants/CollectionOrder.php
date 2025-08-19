@@ -77,4 +77,5 @@ class CollectionOrder
         self::NOTIFY_STATUS_CALLBACK_ING   => 'collection_order.enums.notify_status.callback_ing',
     ];
 
+    public const COLLECTION_ORDER_WRITE_OFF_QUEUE_NAME = 'collection-order-write-off-consumer';
 }
