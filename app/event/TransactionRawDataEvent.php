@@ -12,6 +12,7 @@ class TransactionRawDataEvent
     {
         /** @var TransactionParsingRulesRepository $transactionParsingRulesRepository */
         $transactionParsingRulesRepository = Container::make(TransactionParsingRulesRepository::class);
+        var_dump('$model--==',$model->toArray());
         $parseResult = $transactionParsingRulesRepository->regularParsing($model->id, $model->channel_id, $model->content);
         var_dump('$parseResult==', $parseResult);
     }

@@ -30,6 +30,8 @@ final class ModelTransactionParsingLog extends BasicModel
      */
     protected $primaryKey = 'id';
 
+
+
     /**
      * The attributes that are mass assignable.
      * @var array

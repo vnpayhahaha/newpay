@@ -79,4 +79,10 @@ final class ModelTransactionRawData extends BasicModel
     {
         return $this->belongsTo(ModelBankAccount::class, 'bank_account_id', 'id');
     }
+
+    // has many transaction_parsing_log
+    public function transaction_parsing_log(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelTransactionParsingLog::class, 'raw_data_id', 'id');
+    }
 }
