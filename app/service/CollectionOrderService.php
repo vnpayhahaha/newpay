@@ -251,7 +251,7 @@ final class CollectionOrderService extends IService
             return $this->getFloatAmount($bank_card_id, $amount, $tenant);
         }
 
-        $exTime = abs(intval($tenant->receipt_expire_minutes) + intval($tenant->reconcile_retain_minutes)) * 60;
+        $exTime = abs((int)$tenant->receipt_expire_minutes + (int)$tenant->reconcile_retain_minutes) * 60;
         $ok = Redis::setex($cache_key . '_' . $resultAmount100, $exTime, 1);
         if (!$ok) {
             throw new Exception('Failed to set redis');

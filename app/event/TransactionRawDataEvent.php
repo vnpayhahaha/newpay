@@ -82,7 +82,11 @@ class TransactionRawDataEvent
 
 
         Redis::send(CollectionOrder::COLLECTION_ORDER_WRITE_OFF_QUEUE_NAME, [
-            'transaction_voucher_id' => $tv->id,
+            'transaction_voucher_id'   => $tv->id,
+            'transaction_voucher_type' => $tv->transaction_voucher_type,
+            'transaction_voucher'      => $tv->transaction_voucher,
+            'channel_id'               => $tv->channel_id,
+            'bank_account_id'          => $tv->bank_account_id,
         ]);
     }
 }
