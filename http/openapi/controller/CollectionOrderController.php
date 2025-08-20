@@ -136,6 +136,7 @@ class CollectionOrderController extends BasicController
                 'paid_amount',
                 'status',
                 'pay_time',
+                'expire_time',
                 'notify_url',
                 'notify_count',
                 'notify_status',

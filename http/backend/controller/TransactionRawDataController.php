@@ -53,13 +53,23 @@ class TransactionRawDataController extends BasicController
                 'integer',
                 'between:1,99999999999'
             ],
-            'content'         => 'required|string|max:9999',
+            'content'         => [
+                'required',
+                'string',
+                'max:65535',
+            ],
             'source'          => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
+        // 验证hash是否存在
+        $hash = md5($validatedData['content']);
+        if ($find = $this->service->repository->getQuery()->where('hash', $hash)->first()) {
+            $find->increment('repeat_count');
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY, trans('unique', [':attribute' => 'content'], 'validation'));
+        }
         $this->service->create($validatedData);
         return $this->success();
     }

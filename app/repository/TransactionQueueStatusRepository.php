@@ -58,7 +58,7 @@ class TransactionQueueStatusRepository extends IRepository
             Log::error("Transaction Queue Status Repository => addQueue  filed");
         }
         var_dump("Transaction Queue Status Repository => addQueue  success");
-        return !!$this->model::create([
+        return (bool)$this->model::create([
             'transaction_no'   => $transaction_no,
             'transaction_type' => $transaction_type,
             'process_status'   => TransactionQueueStatus::STATUS_PROCESSING,

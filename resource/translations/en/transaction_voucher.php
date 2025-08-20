@@ -17,9 +17,10 @@ return [
             'external'  => 'external',
         ],
         'transaction_voucher_type' => [
-            'order_no' => 'order_no',
-            'utr'      => 'utr',
-            'amount'   => 'amount',
+            'order_id' => 'Order Id',
+            'order_no' => 'Order No',
+            'utr'      => 'UTR',
+            'amount'   => 'Amount',
         ],
         'transaction_type'         => [
             'collection' => '代收',

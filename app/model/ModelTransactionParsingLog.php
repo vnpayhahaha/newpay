@@ -30,6 +30,8 @@ final class ModelTransactionParsingLog extends BasicModel
      */
     protected $primaryKey = 'id';
 
+
+
     /**
      * The attributes that are mass assignable.
      * @var array
@@ -52,7 +54,7 @@ final class ModelTransactionParsingLog extends BasicModel
         'rule_id'       => 'integer',
         'rule_text'     => 'string',
         'variable_name' => 'array',
-        'status'        => 'boolean',
+        'status'        => 'integer',
         'voucher_id'    => 'integer',
         'created_at'    => 'datetime',
         'fail_msg'      => 'string',

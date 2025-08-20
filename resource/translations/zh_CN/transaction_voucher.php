@@ -17,6 +17,7 @@ return [
             'external'  => '上游回调接口',
         ],
         'transaction_voucher_type' => [
+            'order_id' => '订单ID',
             'order_no' => '订单号',
             'utr'      => 'UTR',
             'amount'   => '金额',

@@ -89,7 +89,7 @@ class TransactionParsingRulesRepository extends IRepository
                     ];
                     $result = array_combine($rule['variable_name'], $non_empty_matches);
                     // 记录解析日志
-                    $this->create([
+                    $this->modelTransactionParsingLog->newQuery()->create([
                         'raw_data_id'   => $raw_data_id,
                         'rule_id'       => $rule['id'],
                         'rule_text'     => $rule['regex'],
@@ -112,7 +112,7 @@ class TransactionParsingRulesRepository extends IRepository
             }
 
             // 记录解析日志
-            $this->modelTransactionParsingLog->save([
+            $this->modelTransactionParsingLog->newQuery()->create([
                 'raw_data_id'   => $raw_data_id,
                 'rule_id'       => $rule['id'],
                 'rule_text'     => $rule['regex'],
