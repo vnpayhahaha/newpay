@@ -8,6 +8,7 @@ use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
+use app\model\ModelCollectionOrder;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
@@ -39,6 +40,7 @@ class CashierController extends BasicController
             throw new OpenApiException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
+        /** @var ModelCollectionOrder $orderFind */
         $orderFind = $this->service->repository->getQuery()
             ->select([
                 'id',
@@ -48,6 +50,7 @@ class CashierController extends BasicController
                 'payable_amount',
                 'status',
                 'pay_time',
+                'payer_upi',
                 'expire_time',
                 'return_url',
                 'created_at',
@@ -61,7 +64,8 @@ class CashierController extends BasicController
         if (!$orderFind) {
             return $this->error(ResultCode::ORDER_NOT_FOUND);
         }
-        return $this->success($orderFind->makeHidden(['id'])->toArray());
+        $formatCreatOrderResult = $this->service->formatCreatOrderResult($orderFind);
+        return $this->success($formatCreatOrderResult);
     }
 
     #[PutMapping('/submitted_utr')]

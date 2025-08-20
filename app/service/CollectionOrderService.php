@@ -266,15 +266,7 @@ final class CollectionOrderService extends IService
         return $resultAmount;
     }
 
-    #[ArrayShape([
-        'platform_order_no' => "string",
-        'tenant_order_no'   => "string",
-        'pay_url'           => "string",
-        'paytm'             => "string",
-        'upi'               => "string",
-        'gpay'              => "string",
-        'phonepe'           => "string"
-    ])]
+
     public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder): array
     {
         $platform_order_no = $collectionOrder->platform_order_no;
@@ -290,21 +282,35 @@ final class CollectionOrderService extends IService
             return [
                 'platform_order_no' => $platform_order_no,
                 'tenant_order_no'   => $tenant_order_no,
-                'pay_url'           => $pay_url,
-                'paytm'             => "paytmmp://cash_wallet?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}&featuretype=money_transfer",
-                'upi'               => "upi://pay?pa={$upi}&pn=Payment To {$upi_str[0]}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&tr={$collectionOrder->platform_order_no}",
-                'gpay'              => "gpay://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&mc=5641",
-                'phonepe'           => "phonepe://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}",
+                'meta'              => [
+                    'pay_url' => $pay_url,
+                    'paytm'   => "paytmmp://cash_wallet?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}&featuretype=money_transfer",
+                    'upi'     => "upi://pay?pa={$upi}&pn=Payment To {$upi_str[0]}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&tr={$collectionOrder->platform_order_no}",
+                    'gpay'    => "gpay://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&am={$collectionOrder->payable_amount}&tn={$order_id_code}&cu=INR&mc=5641",
+                    'phonepe' => "phonepe://pay?pa={$upi}&pn={$upi_str[0]}&tr={$collectionOrder->platform_order_no}&tn={$order_id_code}&am={$collectionOrder->payable_amount}&cu=INR&mc=5641&url=&mode=02&purpose=00&orgid=159002&sign={$sign}",
+
+                ],
             ];
         }
         return [
             'platform_order_no' => $platform_order_no,
             'tenant_order_no'   => $tenant_order_no,
-            'pay_url'           => $pay_url,
-            'paytm'             => '',
-            'upi'               => '',
-            'gpay'              => '',
-            'phonepe'           => '',
+            'amount'            => $collectionOrder->amount,
+            'payable_amount'    => $collectionOrder->payable_amount,
+            'status'            => $collectionOrder->status,
+            'payer_upi'         => $collectionOrder->payer_upi,
+            'pay_time'          => $collectionOrder->pay_time,
+            'expire_time'       => $collectionOrder->expire_time,
+            'return_url'        => $collectionOrder->return_url,
+            'created_at'        => $collectionOrder->created_at,
+            'meta'              => [
+                'pay_url' => $pay_url,
+                'paytm'   => '',
+                'upi'     => '',
+                'gpay'    => '',
+                'phonepe' => '',
+            ],
+
         ];
     }
 
