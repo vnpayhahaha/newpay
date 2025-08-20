@@ -19,6 +19,7 @@ use app\repository\TenantAccountRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
+use app\tools\Base62Converter;
 use app\upstream\Handle\TransactionCollectionOrderFactory;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
@@ -34,19 +35,19 @@ use Webman\Http\Request;
 final class CollectionOrderService extends IService
 {
     #[Inject]
-    public CollectionOrderRepository       $repository;
+    public CollectionOrderRepository $repository;
     #[Inject]
-    protected TenantRepository             $tenantRepository;
+    protected TenantRepository $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository      $tenantAccountRepository;
+    protected TenantAccountRepository $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository        $bankAccountRepository;
+    protected BankAccountRepository $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository     $channelAccountRepository;
+    protected ChannelAccountRepository $channelAccountRepository;
     #[Inject]
     protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository  $transactionRecordRepository;
+    protected TransactionRecordRepository $transactionRecordRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -145,7 +146,10 @@ final class CollectionOrderService extends IService
             if (count($findTenant->float_range) !== 2 || bccomp((string)$findTenant->float_range[0], (string)$findTenant->float_range[1], 2) !== -1) {
                 throw new BusinessException(ResultCode::ORDER_COLLECTION_FLOAT_AMOUNT_ERROR);
             }
-            [$min, $max] = $findTenant->float_range;
+            [
+                $min,
+                $max
+            ] = $findTenant->float_range;
             if (bcadd((string)$data['amount'], (string)$min) <= 0) {
                 throw new BusinessException(ResultCode::ORDER_COLLECTION_AMOUNT_LESS_THAN_MIN_FLOAT_AMOUNT);
             }
@@ -209,7 +213,10 @@ final class CollectionOrderService extends IService
      */
     public function getFloatAmount(int $bank_card_id, float $amount, ModelTenant $tenant): float
     {
-        [$min, $max] = $tenant->float_range;
+        [
+            $min,
+            $max
+        ] = $tenant->float_range;
         $min100 = floor($min * 100);
         $max100 = floor($max * 100);
         $amount100 = $amount * 100;
@@ -259,18 +266,27 @@ final class CollectionOrderService extends IService
         return $resultAmount;
     }
 
-    #[ArrayShape(['platform_order_no' => "string", 'tenant_order_no' => "string", 'pay_url' => "string", 'paytm' => "string", 'upi' => "string", 'gpay' => "string", 'phonepe' => "string"])]
+    #[ArrayShape([
+        'platform_order_no' => "string",
+        'tenant_order_no'   => "string",
+        'pay_url'           => "string",
+        'paytm'             => "string",
+        'upi'               => "string",
+        'gpay'              => "string",
+        'phonepe'           => "string"
+    ])]
     public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder): array
     {
         $platform_order_no = $collectionOrder->platform_order_no;
         $tenant_order_no = $collectionOrder->tenant_order_no;
         $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . '?order_no=' . $collectionOrder->platform_order_no;
 
+        $order_id_code = Base62Converter::decToBase62($collectionOrder->id, 5);
+
         if (filled($collectionOrder->payer_upi)) {
             $upi = $collectionOrder->payer_upi;
             $upi_str = explode('@', $collectionOrder->payer_upi);
             $sign = "MEYCIQCHBg/RU0nnqGczGT+3qmufIH0d4syWKuN/93J8Of+pVwIhAJRHuz0ouV+LC1+MLU9is5mIfphzIYAnLb9yRKM7lXA+";
-            $order_id_code = strtolower(dechex($collectionOrder->id));
             return [
                 'platform_order_no' => $platform_order_no,
                 'tenant_order_no'   => $tenant_order_no,
@@ -365,7 +381,11 @@ final class CollectionOrderService extends IService
         if (!$order) {
             throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
         }
-        if (!in_array($order->status, [CollectionOrder::STATUS_PROCESSING, CollectionOrder::STATUS_SUSPEND, CollectionOrder::STATUS_INVALID], true)) {
+        if (!in_array($order->status, [
+            CollectionOrder::STATUS_PROCESSING,
+            CollectionOrder::STATUS_SUSPEND,
+            CollectionOrder::STATUS_INVALID
+        ], true)) {
             throw new BusinessException(ResultCode::ORDER_STATUS_ERROR);
         }
         $tenantAccount = $this->tenantAccountRepository->getQuery()
@@ -424,7 +444,8 @@ final class CollectionOrderService extends IService
                     'paid_amount'            => $transactionVoucher->collection_amount,
                     'settlement_amount'      => bcsub((string)$settlement_amount, (string)$fee_amount, 4),
                     'pay_time'               => date('Y-m-d H:i:s'),
-                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ? $transactionVoucher->transaction_voucher : '',
+                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ?
+                        $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
                 throw new Exception('Failed to update the order');

@@ -6,6 +6,7 @@ use app\constants\CollectionOrder;
 use app\constants\TransactionVoucher;
 use app\service\CollectionOrderService;
 use app\service\TransactionVoucherService;
+use app\tools\Base62Converter;
 use DI\Attribute\Inject;
 use Exception;
 use support\Log;
@@ -37,17 +38,24 @@ class CollectionOrderWriteOffConsumer implements Consumer
         $bank_account_id = $data['bank_account_id'];
         var_dump('CollectionOrderWriteOffConsumer===', $data);
         switch ($transaction_voucher_type) {
-            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO:
-                $order = $this->collectionOrderService->repository->getQuery()
-                    ->where('id', $transaction_voucher)
-                    ->where('status', CollectionOrder::STATUS_PROCESSING)
-                    ->first();
-                break;
             case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR:
                 $order = $this->collectionOrderService->repository->getQuery()
                     ->where('collection_channel_id', $channel_id)
                     ->where('channel_account_id', $bank_account_id)
                     ->where('customer_submitted_utr', $transaction_voucher)
+                    ->where('status', CollectionOrder::STATUS_PROCESSING)
+                    ->first();
+                break;
+            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_ID:
+                $order_id = Base62Converter::base62ToDec($transaction_voucher);
+                $order = $this->collectionOrderService->repository->getQuery()
+                    ->where('id', $order_id)
+                    ->where('status', CollectionOrder::STATUS_PROCESSING)
+                    ->first();
+                break;
+            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO:
+                $order = $this->collectionOrderService->repository->getQuery()
+                    ->where('platform_order_no', $transaction_voucher)
                     ->where('status', CollectionOrder::STATUS_PROCESSING)
                     ->first();
                 break;

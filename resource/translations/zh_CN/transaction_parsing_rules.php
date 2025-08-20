@@ -2,15 +2,16 @@
 
 return [
     'enums' => [
-        'status' => [
+        'status'        => [
             'enable'  => '正常',
             'disable' => '停用',
         ],
         'variable_name' => [
-            'amount'  => '金额',
-            'utr'     => 'UTR',
-            'code'    => '编码',
-            'balance' => '余额',
+            'amount'   => '金额',
+            'utr'      => 'UTR',
+            'id_code'  => 'ID编码',
+            'order_no' => '订单号',
+            'balance'  => '余额',
         ],
     ]
 ];
