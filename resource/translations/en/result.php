@@ -26,6 +26,8 @@ return [
     'unprocessable_entity'                               => 'Request parameter error',
     'disabled'                                           => 'Account disabled',
     'enum_not_found'                                     => 'Enum not found',
+    'upload_failed'                                      => 'Upload failed',
+    'upload_chunk_failed'                                => 'Failed to upload shards',
 
     // 用户模块
     'user_login_failed'                                  => 'User login failed',

@@ -62,7 +62,7 @@ final class AttachmentService extends IService
                     'hash'         => $hash,
                     'mime_type'    => $data['mime_type'],
                     'base_path'    => $data['base_path'],
-                    'suffix'       => $data['extension'],
+                    'suffix'       => strtolower($data['extension']),
                     'size_byte'    => $data['size'],
                     'size_info'    => formatBytes($data['size']),
                     'url'          => $url,
@@ -78,5 +78,11 @@ final class AttachmentService extends IService
             throw new UploadException($e->getMessage());
         }
         return $resource;
+    }
+
+    public function chunkUpload(array $data): array
+    {
+        /* @var UploadFile $uploadFile */
+        $uploadFile = $data['package'];
     }
 }

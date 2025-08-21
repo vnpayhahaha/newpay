@@ -16,13 +16,13 @@ class AppExceptionHandle extends Handler
     {
         // 判断异常类型，进行不同的处理
         if ($e instanceof HttpException) {
-            return $this->renderHttpException($request, $e);
-        } else {
-            return $this->renderOtherException($request, $e);
+            return $this->renderHttpException($e);
         }
+
+        return $this->renderOtherException($e);
     }
 
-    protected function renderHttpException(Request $request, HttpException $e): Response
+    protected function renderHttpException(HttpException $e): Response
     {
         $statusCode = $e->getStatusCode();
         $data = config('app.debug') ? [
@@ -44,7 +44,7 @@ class AppExceptionHandle extends Handler
         return new \support\Response($statusCode, ['Content-Type' => 'application/json'], json_encode($resultData));
     }
 
-    protected function renderOtherException(Request $request, Throwable $e): Response
+    protected function renderOtherException(Throwable $e): Response
     {
         $data = config('app.debug') ? [
             'file'  => $e->getFile(),
@@ -52,9 +52,24 @@ class AppExceptionHandle extends Handler
             'trace' => $e->getTrace(),
         ] : null;
 
-        $getCode = intval($e->getCode());
+        $getCode = (int)$e->getCode();
         $statusCode = 500;
-        if (in_array($getCode, [500, 501, 502, 503, 400, 401, 402, 403, 404, 405, 406, 408, 409, 422])) {
+        if (in_array($getCode, [
+            500,
+            501,
+            502,
+            503,
+            400,
+            401,
+            402,
+            403,
+            404,
+            405,
+            406,
+            408,
+            409,
+            422
+        ])) {
             $statusCode = $getCode;
         }
         $request = Context::get(Request::class);

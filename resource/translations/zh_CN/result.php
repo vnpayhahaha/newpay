@@ -26,6 +26,8 @@ return [
     'unprocessable_entity'                               => '请求参数错误',
     'disabled'                                           => '账号已禁用',
     'enum_not_found'                                     => '枚举不存在',
+    'upload_failed'                                      => '上传失败',
+    'upload_chunk_failed'                                => '分片上传失败',
 
     // 用户模块
     'user_login_failed'                                  => '用户登录失败',

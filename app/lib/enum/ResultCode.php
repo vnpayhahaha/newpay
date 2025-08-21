@@ -60,6 +60,12 @@ enum ResultCode: int
     #[Message('result.enum_not_found')]
     case ENUM_NOT_FOUND = 102001;
 
+    // UPLOAD_CHUNK_FAILED
+    #[Message('result.upload_failed')]
+    case UPLOAD_FAILED = 103001;
+    #[Message('result.upload_chunk_failed')]
+    case UPLOAD_CHUNK_FAILED = 103002;
+
     // backend 错误码 2xxxxx  系统标识【1】-业务模块标识【2】-错误码【3】
 
     // 用户模块 201xxx
