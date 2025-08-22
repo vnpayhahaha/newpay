@@ -80,7 +80,7 @@ class ChunkUploadFile
     }
 
     // 合并分片
-    public function mergeChunks($fileId, $fileName, $totalChunks, $fileHash, $fileSize, $fileType): array
+    public function mergeChunks(string $fileId, string $fileName, int $totalChunks, string $fileHash, int $fileSize, string $fileType): array
     {
         $filePath = $this->getFilePath($fileName, $fileId);
 
@@ -137,7 +137,7 @@ class ChunkUploadFile
             'type' => $fileType,
             'size' => $fileSize,
             'path' => $filePath,
-            'url'  => $url . basename($filePath),
+            'url'  => $url,
             'hash' => $fileHash
         ];
 

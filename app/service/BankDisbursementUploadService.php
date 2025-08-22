@@ -17,11 +17,10 @@ class BankDisbursementUploadService extends IService
     #[Inject]
     public ChunkUploadFile $chunkUploadFile;
 
-    public function upload(array $params): array
+    public function upload($file,array $params): array
     {
         // 验证参数
-        if (!$params['file'] ||
-            !$params['fileId'] ||
+        if (!$params['fileId'] ||
             !$params['index'] ||
             !$params['total'] ||
             !$params['fileName'] ||
@@ -31,12 +30,12 @@ class BankDisbursementUploadService extends IService
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY);
         }
 
-        if (!$params['file'] instanceof UploadFile) {
+        if (!($file instanceof UploadFile)) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY);
         }
         try {
             // 保存分片
-            $result = $this->chunkUploadFile->saveChunk($params['file'], [
+            $saveChunkOK = $this->chunkUploadFile->saveChunk($file, [
                 'fileId' => $params['fileId'],
                 'index'  => $params['index'],
                 'total'  => $params['total'],
@@ -49,14 +48,14 @@ class BankDisbursementUploadService extends IService
             throw new BusinessException(ResultCode::UPLOAD_CHUNK_FAILED, $e->getMessage());
         }
 
-        if (!$result) {
+        if (!$saveChunkOK) {
             throw new BusinessException(ResultCode::UPLOAD_CHUNK_FAILED);
         }
-
+        $result['chunk'] = $params['index'];
         // 如果是最后一个分片，则合并
         if ($params['index'] === $params['total']) {
             try {
-                $result = $this->chunkUploadFile->mergeChunks($params['fileId'], $params['fileName'], $params['total'], $params['fileHash'], $params['fileSize'], $params['fileType']);
+                $result = $this->chunkUploadFile->mergeChunks($params['fileId'], $params['fileName'], (int)$params['total'], $params['fileHash'], (int)$params['fileSize'], $params['fileType']);
             } catch (\RuntimeException $e) {
                 throw new BusinessException(ResultCode::UPLOAD_FAILED, $e->getMessage());
             }

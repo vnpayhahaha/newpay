@@ -39,8 +39,10 @@ class BankDisbursementUploadController extends BasicController
     #[OperationLog('上传银行账单')]
     public function upload(Request $request): Response
     {
+        $file = $request->file('file');
         return $this->success(
             data: $this->service->upload(
+                $file,
                 $request->all(),
             )
         );
