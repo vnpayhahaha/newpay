@@ -57,4 +57,13 @@ class AttachmentController extends BasicController
         $this->service->deleteById($id);
         return $this->success();
     }
+
+    // 分片上传
+    #[PostMapping('/attachment/chunk/upload')]
+    #[Permission(code: 'dataCenter:attachment:chunk:upload')]
+    #[OperationLog('分片上传附件')]
+    public function chunkUpload(Request $request): Response
+    {
+        return $this->success($this->service->chunkUpload($request->file('file'), $request->all()));
+    }
 }

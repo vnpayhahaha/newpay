@@ -2,19 +2,28 @@
 
 namespace app\service;
 
+use app\exception\BusinessException;
+use app\exception\UnprocessableEntityException;
 use app\exception\UploadException;
 use app\lib\annotation\DataScope;
+use app\lib\enum\ResultCode;
 use app\model\enums\ScopeType;
 use app\repository\AttachmentRepository;
+use app\service\upload\ChunkUploadFile;
 use app\service\upload\UploadFile;
 use DI\Attribute\Inject;
+use support\Context;
 use support\Db;
+use Webman\Http\Request;
 
 
 final class AttachmentService extends IService
 {
     #[Inject]
     protected AttachmentRepository $repository;
+
+    #[Inject]
+    public ChunkUploadFile $chunkUploadFile;
 
 
     public function getRepository(): AttachmentRepository
@@ -80,9 +89,79 @@ final class AttachmentService extends IService
         return $resource;
     }
 
-    public function chunkUpload(array $data): array
+    public function chunkUpload($file, array $params, string $directory = ''): array
     {
-        /* @var UploadFile $uploadFile */
-        $uploadFile = $data['package'];
+        // 验证参数
+        if (!$params['fileId'] ||
+            !$params['index'] ||
+            !$params['total'] ||
+            !$params['fileName'] ||
+            !$params['fileSize'] ||
+            !$params['fileType'] ||
+            !$params['fileHash']) {
+            throw new UploadException(ResultCode::UNPROCESSABLE_ENTITY);
+        }
+
+        if (!($file instanceof \Webman\Http\UploadFile)) {
+            throw new UploadException(ResultCode::UNPROCESSABLE_ENTITY);
+        }
+        // 查询 hash 是否存在
+        if ($filesInfo = $this->repository->getModel()->where(['hash' => $params['fileHash']])->first()) {
+            return $filesInfo->toArray();
+        }
+
+        try {
+            // 保存分片
+            $saveChunkOK = $this->chunkUploadFile->saveChunk($file, [
+                'fileId' => $params['fileId'],
+                'index'  => $params['index'],
+                'total'  => $params['total'],
+                'name'   => $params['fileName'],
+                'size'   => $params['fileSize'],
+                'hash'   => $params['fileHash'],
+                'type'   => $params['fileType'],
+            ]);
+        } catch (\RuntimeException $e) {
+            throw new UploadException(ResultCode::UPLOAD_CHUNK_FAILED, $e->getMessage());
+        }
+
+        if (!$saveChunkOK) {
+            throw new UploadException(ResultCode::UPLOAD_CHUNK_FAILED);
+        }
+        $result['chunk'] = $params['index'];
+        // 如果是最后一个分片，则合并
+        if ($params['index'] === $params['total']) {
+            try {
+                $result = $this->chunkUploadFile->setPathName($directory)->mergeChunks($params['fileId'], $params['fileName'], (int)$params['total'], $params['fileHash'], (int)$params['fileSize'], $params['fileType']);
+                if ($result && filled($result)) {
+                    // 记录文件信息到数据库
+                    $data = [
+                        'storage_mode' => 'local',
+                        'origin_name'  => $params['fileName'],
+                        'object_name'  => $params['fileHash'] . '.' . $result['extension'],
+                        'hash'         => $params['fileHash'],
+                        'mime_type'    => $params['fileType'],
+                        'storage_path' => $result['path'],
+                        'base_path'    => $result['base_path'],
+                        'suffix'       => $result['extension'],
+                        'url'          => env('APP_DOMAIN', '') . $result['base_path'],
+                        'size_byte'    => $params['fileSize'],
+                        'size_info'    => formatBytes($params['fileSize']),
+                    ];
+                    $request = Context::get(Request::class);
+                    $user = $request->user ?? null;
+                    if (filled($user)) {
+                        $data['created_by'] = $user->id;
+                    }
+                    $filesInfo = $this->repository->create($data);
+                    if ($filesInfo) {
+                        return $filesInfo->toArray();
+                    }
+                }
+            } catch (\RuntimeException $e) {
+                throw new UploadException(ResultCode::UPLOAD_FAILED, $e->getMessage());
+            }
+        }
+        return $result;
     }
 }

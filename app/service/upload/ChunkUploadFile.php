@@ -45,12 +45,14 @@ class ChunkUploadFile
 
     public function setPathName(string $pathName): ChunkUploadFile
     {
-        $this->pathName = $pathName;
-        $filePath = public_path() . '/' . $this->pathName . '/';
-        if (!is_dir($filePath) && !mkdir($concurrentDirectory = $filePath, 0777, true) && !is_dir($concurrentDirectory)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        if (filled($pathName)) {
+            $this->pathName = $pathName;
+            $filePath = public_path() . '/upload/' . $this->pathName . '/';
+            if (!is_dir($filePath) && !mkdir($concurrentDirectory = $filePath, 0777, true) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
+            $this->filePath = $filePath;
         }
-        $this->filePath = $filePath;
         return $this;
     }
 
@@ -128,17 +130,18 @@ class ChunkUploadFile
         //     throw new \Exception("文件哈希不匹配");
         // }
 
-        // url等于 $filePath 去掉前面 public_path()
-        $url = str_replace(public_path(), '', $filePath);
+        // base_path等于 $filePath 去掉前面 public_path()
+        $base_path = str_replace(public_path(), '', $filePath);
 
         // 生成文件信息
         $fileInfo = [
-            'name' => $fileName,
-            'type' => $fileType,
-            'size' => $fileSize,
-            'path' => $filePath,
-            'url'  => $url,
-            'hash' => $fileHash
+            'name'      => $fileName,
+            'type'      => $fileType,
+            'size'      => $fileSize,
+            'path'      => $filePath,
+            'base_path' => $base_path,
+            'hash'      => $fileHash,
+            'extension' => strtolower(pathinfo($fileName, PATHINFO_EXTENSION)),
         ];
 
         // 记录文件信息到数据库（可选）
