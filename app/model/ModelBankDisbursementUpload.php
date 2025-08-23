@@ -17,6 +17,9 @@ use Carbon\Carbon;
  * @property string $suffix 文件扩展名
  * @property int $channel_id 渠道ID
  * @property string $upload_bill_template_id 上传模板IDi
+ * @property int $parsing_status 解析状态：0失败，1成功
+ * @property int $success_count 支付成功数
+ * @property int $failure_count 支付失败数
  */
 final class ModelBankDisbursementUpload extends BasicModel
 {
@@ -48,18 +51,25 @@ final class ModelBankDisbursementUpload extends BasicModel
         'suffix',
         'channel_id',
         'upload_bill_template_id',
+        'parsing_status',
+        'success_count',
+        'failure_count',
+
     ];
 
     protected $casts = [
-        'id'            => 'integer',
-        'attachment_id' => 'integer',
-        'record_count'  => 'integer',
-        'created_by'    => 'integer',
-        'channel_id'    => 'integer',
+        'id'             => 'integer',
+        'attachment_id'  => 'integer',
+        'record_count'   => 'integer',
+        'created_by'     => 'integer',
+        'channel_id'     => 'integer',
+        'parsing_status' => 'integer',
+        'success_count'  => 'integer',
+        'failure_count'  => 'integer',
     ];
 
     public function channel()
     {
-        return $this->belongsTo(ModelChannel::class, 'channel_id','id');
+        return $this->belongsTo(ModelChannel::class, 'channel_id', 'id');
     }
 }

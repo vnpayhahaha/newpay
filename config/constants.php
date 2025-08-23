@@ -43,4 +43,6 @@ return [
     // 交易解析规则
     'transaction_raw_data'      => app\constants\TransactionRawData::class,
     // 交易原始数据
+    'bank_disbursement_upload'  => app\constants\BankDisbursementUpload::class,
+    // 银行代付上传
 ];
