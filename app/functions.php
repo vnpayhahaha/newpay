@@ -48,7 +48,13 @@ if (!function_exists('formatBytes')) {
      */
     function formatBytes(string|int $bytes): string
     {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $units = [
+            'B',
+            'KB',
+            'MB',
+            'GB',
+            'TB'
+        ];
         for ($i = 0; $bytes > 1024; $i++) {
             $bytes /= 1024;
         }
@@ -188,7 +194,10 @@ if (!function_exists('isWeekend')) {
         // 使用 PHP 的 DateTime::format 方法获取星期几的数字表示
         // 1 表示星期一，7 表示星期日
         // 所以我们需要检查数字是否为 6（星期六）或 7（星期日）
-        return in_array($date->format('N'), [6, 7], true);
+        return in_array($date->format('N'), [
+            6,
+            7
+        ], true);
     }
 }
 // 根据延时结算类型 D0(当天) D(自然日) T(工作日) + 延时结算天数 计算 预计结算时间
@@ -246,7 +255,31 @@ if (!function_exists('calculateSettlementDate')) {
 if (!function_exists('formatSize')) {
     function formatSize($size): string
     {
-        $sizes = array(' Bytes', ' KB', ' MB', ' GB', ' TB');
+        $sizes = array(
+            ' Bytes',
+            ' KB',
+            ' MB',
+            ' GB',
+            ' TB'
+        );
         return round($size / (1024 ** ($i = floor(log($size, 1024)))), 2) . $sizes[$i];
+    }
+}
+
+// 构建印度电话号码
+if (!function_exists('generateIndianMobileNum')) {
+    // 构建电话号码，每次调用从[7,8,9]中随机一个作为开头，生成10位长度的随机数
+    function generateIndianMobileNum(): string
+    {
+        try {
+            $prefix = random_int(7, 9);
+            $suffix = '';
+            for ($i = 0; $i < 9; $i++) {
+                $suffix .= random_int(0, 9);
+            }
+        } catch (\Exception $e) {
+            return '00000000000';
+        }
+        return $prefix . $suffix;
     }
 }

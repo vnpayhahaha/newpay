@@ -53,7 +53,7 @@ final class SystemConfigGroupRepository extends IRepository
         }
 
         // 创建时间
-        if (isset($params['created_at']) && \is_array($params['created_at']) && \count($params['created_at']) === 2) {
+        if (isset($params['created_at']) && is_array($params['created_at']) && count($params['created_at']) === 2) {
             $query->whereBetween(
                 'created_at',
                 [$params['created_at'][0], $params['created_at'][1]]
@@ -61,7 +61,7 @@ final class SystemConfigGroupRepository extends IRepository
         }
 
         // 更新时间
-        if (isset($params['updated_at']) && \is_array($params['updated_at']) && \count($params['updated_at']) === 2) {
+        if (isset($params['updated_at']) && is_array($params['updated_at']) && count($params['updated_at']) === 2) {
             $query->whereBetween(
                 'updated_at',
                 [$params['updated_at'][0], $params['updated_at'][1]]

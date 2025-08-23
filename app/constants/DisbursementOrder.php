@@ -62,9 +62,7 @@ class DisbursementOrder
     const BILL_TEMPLATE_ICICI        = 'icici';
     const BILL_TEMPLATE_ICICI2       = 'icici2';
     const BILL_TEMPLATE_BANDHAN      = 'bandhan';
-    const BILL_TEMPLATE_FEDERAL      = 'federal';
     const BILL_TEMPLATE_YES_MSME     = 'yesmsme';
-    const BILL_TEMPLATE_YES_BUSINESS = 'yesbusiness';
     const BILL_TEMPLATE_AXIS         = 'axis';
     const BILL_TEMPLATE_AXIS_NEFT    = 'axisneft';
     const BILL_TEMPLATE_AXIS_NEO     = 'axisneo';
@@ -76,9 +74,9 @@ class DisbursementOrder
         self::BILL_TEMPLATE_ICICI        =>  'disbursement_order.enums.bill_template.icici',
         self::BILL_TEMPLATE_ICICI2       =>  'disbursement_order.enums.bill_template.icici2',
         self::BILL_TEMPLATE_BANDHAN      =>  'disbursement_order.enums.bill_template.bandhan',
-        self::BILL_TEMPLATE_FEDERAL      =>  'disbursement_order.enums.bill_template.federal',
+//        self::BILL_TEMPLATE_FEDERAL      =>  'disbursement_order.enums.bill_template.federal',
         self::BILL_TEMPLATE_YES_MSME     =>  'disbursement_order.enums.bill_template.yesmsme',
-        self::BILL_TEMPLATE_YES_BUSINESS =>  'disbursement_order.enums.bill_template.yesbusiness',
+//        self::BILL_TEMPLATE_YES_BUSINESS =>  'disbursement_order.enums.bill_template.yesbusiness',
         self::BILL_TEMPLATE_AXIS         =>  'disbursement_order.enums.bill_template.axis',
         self::BILL_TEMPLATE_AXIS_NEFT    =>  'disbursement_order.enums.bill_template.axisneft',
         self::BILL_TEMPLATE_AXIS_NEO     =>  'disbursement_order.enums.bill_template.axisneo',
