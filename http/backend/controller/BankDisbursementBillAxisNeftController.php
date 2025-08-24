@@ -11,14 +11,14 @@ use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
-#[RestController("/admin/bank_bill")]
+#[RestController("/admin/transaction")]
 class BankDisbursementBillAxisNeftController extends BasicController
 {
     #[Inject]
     protected BankDisbursementBillAxisNeftService $service;
 
-    #[GetMapping('/axis_neft/list')]
-    #[Permission(code: 'bank_bill:axis_neft:list')]
+    #[GetMapping('/bank_disbursement_bill_axis_neft/list')]
+    #[Permission(code: 'transaction:bank_disbursement_bill_axis_neft:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(

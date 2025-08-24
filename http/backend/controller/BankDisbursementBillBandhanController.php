@@ -11,14 +11,14 @@ use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
-#[RestController("/admin/bank_bill")]
+#[RestController("/admin/transaction")]
 class BankDisbursementBillBandhanController extends BasicController
 {
     #[Inject]
     protected BankDisbursementBillBandhanService $service;
 
-    #[GetMapping('/bandhan/list')]
-    #[Permission(code: 'bank_bill:bandhan:list')]
+    #[GetMapping('/bank_disbursement_bill_bandhan/list')]
+    #[Permission(code: 'transaction:bank_disbursement_bill_bandhan:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(

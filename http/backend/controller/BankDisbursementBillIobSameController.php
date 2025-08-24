@@ -11,14 +11,14 @@ use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
-#[RestController("/admin/bank_bill")]
+#[RestController("/admin/transaction")]
 class BankDisbursementBillIobSameController extends BasicController
 {
     #[Inject]
     protected BankDisbursementBillIobSameService $service;
 
-    #[GetMapping('/iob_same/list')]
-    #[Permission(code: 'bank_bill:iob_same:list')]
+    #[GetMapping('/bank_disbursement_bill_iob_same/list')]
+    #[Permission(code: 'transaction:bank_disbursement_bill_iob_same:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(

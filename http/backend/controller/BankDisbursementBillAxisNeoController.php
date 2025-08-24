@@ -13,14 +13,14 @@ use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
 
-#[RestController("/admin/bank_bill")]
+#[RestController("/admin/transaction")]
 class BankDisbursementBillAxisNeoController extends BasicController
 {
     #[Inject]
     protected BankDisbursementBillAxisNeoService $service;
 
-    #[GetMapping('/axis_neo/list')]
-    #[Permission(code: 'bank_bill:axis_neo:list')]
+    #[GetMapping('/bank_disbursement_bill_axis_neo/list')]
+    #[Permission(code: 'transaction:bank_disbursement_bill_axis_neo:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(
