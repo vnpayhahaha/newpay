@@ -17,6 +17,41 @@ class BankDisbursementBillBandhanRepository extends IRepository
         if (isset($params['bill_id']) && filled($params['bill_id'])) {
             $query->where('bill_id', $params['bill_id']);
         }
+        if (isset($params['core_ref_number']) && filled($params['core_ref_number'])) {
+            $query->where('core_ref_number', $params['core_ref_number']);
+        }
+
+        if (isset($params['status']) && filled($params['status'])) {
+            $query->where('status', $params['status']);
+        }
+
+        if (isset($params['payment_date']) && filled($params['payment_date'])) {
+            $query->where('payment_date', $params['payment_date']);
+        }
+
+        if (isset($params['payment_type']) && filled($params['payment_type'])) {
+            $query->where('payment_type', $params['payment_type']);
+        }
+
+        if (isset($params['source_account_number']) && filled($params['source_account_number'])) {
+            $query->where('source_account_number', $params['source_account_number']);
+        }
+
+        if (isset($params['destination_account_number']) && filled($params['destination_account_number'])) {
+            $query->where('destination_account_number', $params['destination_account_number']);
+        }
+
+        if (isset($params['beneficiary_name']) && filled($params['beneficiary_name'])) {
+            $query->where('beneficiary_name', $params['beneficiary_name']);
+        }
+
+        if (isset($params['beneficiary_code']) && filled($params['beneficiary_code'])) {
+            $query->where('beneficiary_code', $params['beneficiary_code']);
+        }
+
+        if (isset($params['beneficiary_account_type']) && filled($params['beneficiary_account_type'])) {
+            $query->where('beneficiary_account_type', $params['beneficiary_account_type']);
+        }
         if (isset($params['created_by']) && filled($params['created_by'])) {
             $query->where('created_by', $params['created_by']);
         }

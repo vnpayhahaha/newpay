@@ -17,6 +17,25 @@ class BankDisbursementBillIcici2Repository extends IRepository
         if (isset($params['bill_id']) && filled($params['bill_id'])) {
             $query->where('bill_id', $params['bill_id']);
         }
+        if (isset($params['credit_account_number']) && filled($params['credit_account_number'])) {
+            $query->where('credit_account_number', $params['credit_account_number']);
+        }
+
+        if (isset($params['debit_account_number']) && filled($params['debit_account_number'])) {
+            $query->where('debit_account_number', $params['debit_account_number']);
+        }
+
+        if (isset($params['ifsc_code']) && filled($params['ifsc_code'])) {
+            $query->where('ifsc_code', $params['ifsc_code']);
+        }
+
+        if (isset($params['host_reference_number']) && filled($params['host_reference_number'])) {
+            $query->where('host_reference_number', $params['host_reference_number']);
+        }
+
+        if (isset($params['transaction_status']) && filled($params['transaction_status'])) {
+            $query->where('transaction_status', $params['transaction_status']);
+        }
         if (isset($params['created_by']) && filled($params['created_by'])) {
             $query->where('created_by', $params['created_by']);
         }

@@ -17,6 +17,26 @@ class BankDisbursementBillAxisNeoRepository extends IRepository
         if (isset($params['bill_id']) && filled($params['bill_id'])) {
             $query->where('bill_id', $params['bill_id']);
         }
+        if (isset($params['srl_no']) && filled($params['srl_no'])) {
+            $query->where('srl_no', $params['srl_no']);
+        }
+
+        if (isset($params['tran_date']) && filled($params['tran_date'])) {
+            $query->where('tran_date', $params['tran_date']);
+        }
+
+        if (isset($params['chq_no']) && filled($params['chq_no'])) {
+            $query->where('chq_no', $params['chq_no']);
+        }
+
+        if (isset($params['dr_cr']) && filled($params['dr_cr'])) {
+            $query->where('dr_cr', $params['dr_cr']);
+        }
+
+        if (isset($params['created_at']) && filled($params['created_at'])) {
+            $query->where('created_at', $params['created_at']);
+        }
+
         if (isset($params['created_by']) && filled($params['created_by'])) {
             $query->where('created_by', $params['created_by']);
         }

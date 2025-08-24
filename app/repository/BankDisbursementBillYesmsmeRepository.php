@@ -17,6 +17,33 @@ class BankDisbursementBillYesmsmeRepository extends IRepository
         if (isset($params['bill_id']) && filled($params['bill_id'])) {
             $query->where('bill_id', $params['bill_id']);
         }
+        if (isset($params['record_ref_no']) && filled($params['record_ref_no'])) {
+            $query->where('record_ref_no', $params['record_ref_no']);
+        }
+
+        if (isset($params['file_ref_no']) && filled($params['file_ref_no'])) {
+            $query->where('file_ref_no', $params['file_ref_no']);
+        }
+
+        if (isset($params['ebanking_ref_no']) && filled($params['ebanking_ref_no'])) {
+            $query->where('ebanking_ref_no', $params['ebanking_ref_no']);
+        }
+
+        if (isset($params['contract_ref_no']) && filled($params['contract_ref_no'])) {
+            $query->where('contract_ref_no', $params['contract_ref_no']);
+        }
+
+        if (isset($params['record_status']) && filled($params['record_status'])) {
+            $query->where('record_status', $params['record_status']);
+        }
+
+        if (isset($params['status_code']) && filled($params['status_code'])) {
+            $query->where('status_code', $params['status_code']);
+        }
+
+        if (isset($params['status_description']) && filled($params['status_description'])) {
+            $query->where('status_description', $params['status_description']);
+        }
         if (isset($params['created_by']) && filled($params['created_by'])) {
             $query->where('created_by', $params['created_by']);
         }
