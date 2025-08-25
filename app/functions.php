@@ -283,3 +283,36 @@ if (!function_exists('generateIndianMobileNum')) {
         return $prefix . $suffix;
     }
 }
+
+// Excel 列索引转字符串
+if (!function_exists('columnIndexToString')) {
+    /**
+     * 将Excel列索引转换为字母表示（支持严格类型校验）
+     *
+     * @param int|float $columnIndex 列索引（自动转换为整数）
+     * @return string Excel列字母（如1->A, 26->Z, 27->AA）
+     * @throws InvalidArgumentException 当输入非正整数时
+     */
+    function columnIndexToString(int|float $columnIndex): string
+    {
+        // 类型转换与校验
+        $original = $columnIndex;
+        $columnIndex = (int) floor($columnIndex);
+
+        if ($columnIndex < 1 || $original !== $columnIndex) {
+            throw new InvalidArgumentException(
+                'Column index must be a positive integer. Received: ' . var_export($original, true)
+            );
+        }
+
+        // 转换逻辑
+        $letters = '';
+        while ($columnIndex > 0) {
+            $remainder = ($columnIndex - 1) % 26;
+            $letters = chr(65 + $remainder) . $letters;
+            $columnIndex = (int) floor(($columnIndex - $remainder) / 26);
+        }
+
+        return $letters;
+    }
+}

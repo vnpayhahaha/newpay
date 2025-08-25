@@ -65,6 +65,9 @@ enum ResultCode: int
     case UPLOAD_FAILED = 103001;
     #[Message('result.upload_chunk_failed')]
     case UPLOAD_CHUNK_FAILED = 103002;
+    // EXCEL_PARSE_FAILED
+    #[Message('result.excel_parse_failed')]
+    case EXCEL_PARSE_FAILED = 104001;
 
     // backend 错误码 2xxxxx  系统标识【1】-业务模块标识【2】-错误码【3】
 

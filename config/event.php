@@ -16,6 +16,9 @@ return [
     'app.transaction.raw_data_analysis' => [
         [\app\event\TransactionRawDataEvent::class, 'Created'],
     ],
+    'app.transaction.bank_disbursement_upload' => [
+        [\app\event\BankDisbursementUploadEvent::class, 'Created'],
+    ],
     'backend.user.login'      => [
         [\http\backend\Service\PassportService::class, 'loginLog'],
     ],

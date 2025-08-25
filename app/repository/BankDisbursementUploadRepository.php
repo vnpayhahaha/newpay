@@ -32,12 +32,10 @@ class BankDisbursementUploadRepository  extends IRepository
     /**
      * 通过hash获取上传文件的信息.
      */
-    public function getFileInfoByHash(string $hash, array $columns = ['*'])
+    public function getFileInfoByHash(string $hash, array $columns = ['*']): ?ModelBankDisbursementUpload
     {
         $model = $this->model::query()->where('hash', $hash)->first($columns);
         if (!$model) {
-            $model = $this->getModel()->withTrashed()->where('hash', $hash)->first(['id']);
-            $model && $model->forceDelete();
             return null;
         }
         return $model;

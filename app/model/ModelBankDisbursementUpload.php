@@ -3,6 +3,7 @@
 namespace app\model;
 
 use Carbon\Carbon;
+use Webman\Event\Event;
 
 /**
  * @property int $id 主键 主键ID
@@ -72,4 +73,14 @@ final class ModelBankDisbursementUpload extends BasicModel
     {
         return $this->belongsTo(ModelChannel::class, 'channel_id', 'id');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::created(static function (ModelBankDisbursementUpload $model) {
+            Event::dispatch('app.transaction.bank_disbursement_upload', $model);
+        });
+    }
+
 }
