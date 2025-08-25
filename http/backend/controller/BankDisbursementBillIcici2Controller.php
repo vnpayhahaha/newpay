@@ -17,8 +17,8 @@ class BankDisbursementBillIcici2Controller extends BasicController
     #[Inject]
     protected BankDisbursementBillIcici2Service $service;
 
-    #[GetMapping('/bank_disbursement_bill_icic2/list')]
-    #[Permission(code: 'transaction:bank_disbursement_bill_icic2:list')]
+    #[GetMapping('/bank_disbursement_bill_icici_2/list')]
+    #[Permission(code: 'transaction:bank_disbursement_bill_icici_2:list')]
     public function pageList(Request $request): Response
     {
         return $this->success(
