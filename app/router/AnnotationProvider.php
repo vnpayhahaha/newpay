@@ -21,15 +21,20 @@ class AnnotationProvider
 {
     public static function start(): void
     {
+        dump('AnnotationProvider::start()==');
+
         $annotationClasses = self::scanFile();
 
         $tempClassAnnotations = [];
         foreach ($annotationClasses as $annotationClass) {
+//            dump($annotationClass);
             $tempClassAnnotations[] = self::formatData($annotationClass);
         }
         $formatData = array_merge(...$tempClassAnnotations);
         $configMiddleware = config('middleware');
-        //var_dump('$configMiddleware==', $configMiddleware);
+//        var_dump('$configMiddleware==',count($formatData));
+//        dump($formatData);
+//        dump($tempClassAnnotations);
         foreach ($formatData as $item) {
             $method = $item['method'];
             $pathPrefix = explode('/', $item['path']);
@@ -46,6 +51,7 @@ class AnnotationProvider
                 Route::$method($item['path'], [$item['className'], $item['action']])->middleware($item['middleware']);
             }
         }
+//        var_dump('Route::getRoutes()==', Route::getRoutes());
     }
 
     private static function scanFile()
@@ -53,30 +59,102 @@ class AnnotationProvider
         $suffix = config('app.controller_suffix', '');
         $suffixLength = strlen($suffix);
         $scanFolders = config("annotation.include_paths");
+
+        // 递归扫描目录的函数
+        $scanDirectory = function ($dir, $depth = 0) use (&$scanDirectory, $suffix, $suffixLength) {
+            $files = [];
+            $indent = str_repeat('  ', $depth);
+
+            // error_log("{$indent}扫描目录: $dir");
+
+            // 检查目录是否存在和可读
+            if (!is_dir($dir)) {
+                // error_log("{$indent}目录不存在: $dir");
+                return $files;
+            }
+
+            if (!is_readable($dir)) {
+                // error_log("{$indent}目录不可读: $dir");
+                return $files;
+            }
+
+            // 获取目录内容
+            $items = scandir($dir);
+            if ($items === false) {
+                // error_log("{$indent}扫描目录失败: $dir");
+                return $files;
+            }
+
+            // error_log("{$indent}找到 " . count($items) . " 个项目");
+
+            foreach ($items as $item) {
+                // 跳过 . 和 ..
+                if ($item === '.' || $item === '..') {
+                    continue;
+                }
+
+                $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+                // 如果是目录，递归扫描
+                if (is_dir($path)) {
+                    // error_log("{$indent}进入子目录: $item");
+                    $files = array_merge($files, $scanDirectory($path, $depth + 1));
+                    continue;
+                }
+
+                // 检查是否为 PHP 文件
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+                if (strtolower($extension) !== 'php') {
+                    // error_log("{$indent}跳过非 PHP 文件: $item");
+                    continue;
+                }
+
+                // 获取不带扩展名的文件名
+                $fileName = pathinfo($path, PATHINFO_FILENAME);
+
+                // 后缀检查
+                if ($suffixLength > 0 && substr($fileName, -$suffixLength) !== $suffix) {
+                    // error_log("{$indent}跳过文件（后缀不匹配）: $item");
+                    continue;
+                }
+
+                // error_log("{$indent}找到符合条件的文件: $item");
+                $files[] = $path;
+            }
+
+            // error_log("{$indent}目录扫描完成，找到 " . count($files) . " 个符合条件的文件");
+
+            return $files;
+        };
+
         foreach ($scanFolders as $scanFolder) {
-            $dirIterator = new \RecursiveDirectoryIterator(base_path("$scanFolder/controller"));
-            $iterator = new \RecursiveIteratorIterator($dirIterator);
-            /** @var \SplFileInfo $file */
-            foreach ($iterator as $file) {
-                if ($file->isDir() || $file->getExtension() !== 'php') {
-                    continue;
-                }
+            $controllerPath = base_path("$scanFolder/controller");
 
-                $filePath = str_replace('\\', '/', $file->getPathname());
+            // error_log("开始扫描控制器目录: $controllerPath");
 
-                if ($suffixLength && substr($file->getBaseName('.php'), -$suffixLength) !== $suffix) {
-                    continue;
-                }
-                $className = str_replace('/', '\\', substr(substr($filePath, strlen(base_path())), 0, -4));
+            // 扫描目录获取所有 PHP 文件
+            $files = $scanDirectory($controllerPath);
+
+            // error_log("总共找到 " . count($files) . " 个符合条件的文件");
+
+            foreach ($files as $filePath) {
+                // 构建类名
+                $basePath = base_path();
+                $relativePath = substr($filePath, strlen($basePath));
+                $className = str_replace(['/', '.php'], ['\\', ''], $relativePath);
+                $className = ltrim($className, '\\'); // 移除开头的反斜杠
+
+                // error_log("尝试加载类: $className from: $filePath");
 
                 if (!class_exists($className)) {
+                    // error_log("类不存在: $className");
                     continue;
                 }
 
+                // error_log("成功加载类: $className");
                 yield $className;
             }
         }
-
     }
 
     private static function formatData($annotationClass)
