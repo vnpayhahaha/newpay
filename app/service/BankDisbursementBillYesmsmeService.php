@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillYesmsmeRepository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -53,15 +54,18 @@ class BankDisbursementBillYesmsmeService extends BankDisbursementBillAbstract
                     switch ($statusValue) {
                         case 'COMPLETED':
                             $model->increment('success_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                             break;
                         default:
                             $model->increment('failure_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_FAIL;
                             break;
                     }
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => str_replace(',', '', $recordArr[4]) ?? '',
                         'utr'              => $data['record_ref_no'],
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['status_description'] ?? '',
                     ];
 

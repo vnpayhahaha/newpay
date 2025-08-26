@@ -9,7 +9,7 @@ use Carbon\Carbon;
  * @property string $platform_order_no 平台订单号
  * @property float $amount 支付金额
  * @property string $utr UTR
- * @property int $payment_status 支付状态:0未支付1支付成功2支付失败
+ * @property int $payment_status 支付状态:0未支付1支付中2支付成功3支付失败
  * @property mixed $order_data 订单数据
  * @property int $process_status 处理状态:
  * 0-待处理 1-处理中 2-成功 3-失败

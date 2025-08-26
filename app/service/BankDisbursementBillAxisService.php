@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillAxisRepository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -67,15 +68,18 @@ class BankDisbursementBillAxisService extends BankDisbursementBillAbstract
                     switch ($statusValue) {
                         case 'PAID':
                             $model->increment('success_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                             break;
                         default:
                             $model->increment('failure_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_FAIL;
                             break;
                     }
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['amount_payable'],
                         'utr'              => $data['utr_reference_no'],
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['reason'] ?? '',
                     ];
                 }

@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillAxisNeftRepository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -43,15 +44,18 @@ class BankDisbursementBillAxisNeftService extends BankDisbursementBillAbstract
                     switch ($statusValue) {
                         case 'SUCCESS':
                             $model->increment('success_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                             break;
                         default:
                             $model->increment('failure_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_FAIL;
                             break;
                     }
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['amount'],
                         'utr'              => '',
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['failure_reason'] ?? '',
                     ];
                 }

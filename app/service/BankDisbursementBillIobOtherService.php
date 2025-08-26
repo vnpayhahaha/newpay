@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillIobOtherRepository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -48,15 +49,18 @@ class BankDisbursementBillIobOtherService extends BankDisbursementBillAbstract
                     switch ($statusValue) {
                         case 'S':
                             $model->increment('success_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                             break;
                         default:
                             $model->increment('failure_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_FAIL;
                             break;
                     }
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['amount'],
                         'utr'              => $data['utr_no'] ?? '',
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['reason'] ?? '',
                     ];
 

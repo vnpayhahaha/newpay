@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillAxisNeoRepository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -49,10 +50,12 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
                     $model->increment('success_count');
+                    $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['amount_inr'],
                         'utr'              => $data['utr_reference_no'],
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['sol'] ?? '',
                     ];
                 }

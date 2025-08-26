@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\DisbursementOrderVerificationQueue;
 use app\model\ModelBankDisbursementUpload;
 use app\repository\BankDisbursementBillIcici2Repository;
 use app\service\handle\BankDisbursementBillAbstract;
@@ -46,18 +47,22 @@ class BankDisbursementBillIcici2Service extends BankDisbursementBillAbstract
                     switch ($statusValue) {
                         case 'SUC':
                             $model->increment('success_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS;
                             break;
                         case 'P':
                             $model->increment('pending_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_PAYING;
                             break;
                         default:
                             $model->increment('failure_count');
+                            $payment_status = DisbursementOrderVerificationQueue::PAY_STATUS_FAIL;
                             break;
                     }
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['total_amount'],
                         'utr'              => $data['host_reference_number'] ?? '',
+                        'payment_status'   => $payment_status,
                         'rejection_reason' => $data['transaction_status_remarks'] ?? '',
                     ];
 

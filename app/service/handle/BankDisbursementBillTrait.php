@@ -87,6 +87,8 @@ trait BankDisbursementBillTrait
                         'platform_order_no' => $bill_data['order_no'],
                         'amount'            => $bill_data['amount'],
                         'utr'               => $bill_data['utr'],
+                        'payment_status'    => $bill_data['payment_status'],
+                        'rejection_reason'  => $bill_data['rejection_reason'],
                         'order_data'        => json_encode($data, JSON_THROW_ON_ERROR),
                         'next_retry_time'   => date('Y-m-d H:i:s', time() + 60 * 3),
                     ]);
