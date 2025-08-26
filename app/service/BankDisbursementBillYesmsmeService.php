@@ -28,7 +28,6 @@ class BankDisbursementBillYesmsmeService extends BankDisbursementBillAbstract
         try {
             $this->parseData($model->id, $model->path, function ($data) use ($model) {
                 if (!isset($data['record'], $data['record_ref_no'], $data['record_status'])) {
-                    $model->increment('failure_count');
                     return false;
                 }
                 $data['file_hash'] = $model->hash;
@@ -39,7 +38,7 @@ class BankDisbursementBillYesmsmeService extends BankDisbursementBillAbstract
                     return false;
                 }
 
-                $data['order_no '] = $remarkArr[1] ?? '';
+                $data['order_no'] = $remarkArr[1] ?? '';
                 if (!filled($data['order_no '])) {
                     $model->increment('failure_count');
                     return false;
@@ -49,14 +48,25 @@ class BankDisbursementBillYesmsmeService extends BankDisbursementBillAbstract
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
-                    $model->increment('success_count');
+                    // 判断支付状态
+                    $statusValue = strtoupper(trim($data['record_status']));
+                    switch ($statusValue) {
+                        case 'COMPLETED':
+                            $model->increment('success_count');
+                            break;
+                        default:
+                            $model->increment('failure_count');
+                            break;
+                    }
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => str_replace(',', '', $recordArr[4]) ?? '',
+                        'utr'              => $data['record_ref_no'],
+                        'rejection_reason' => $data['status_description'] ?? '',
+                    ];
+
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => str_replace(',', '', $recordArr[4]) ?? '',
-                    'utr'      => $data['record_ref_no'],
-                    // todo pay status && err_msg
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {

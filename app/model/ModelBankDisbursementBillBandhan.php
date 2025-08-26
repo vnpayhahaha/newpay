@@ -2,13 +2,15 @@
 
 namespace app\model;
 
+use Carbon\Carbon;
+
 /**
 * @property int $bill_id 主键 自增id
 * @property string $core_ref_number 核心参考号
 * @property string $status 状态
-* @property \Carbon\Carbon $execution_time 执行时间
+* @property Carbon $execution_time 执行时间
 * @property string $error_code 错误代码
-* @property \Carbon\Carbon $payment_date 付款日期
+* @property Carbon $payment_date 付款日期
 * @property string $payment_type 付款类型
 * @property string $customer_ref_number 客户参考号
 * @property string $source_account_number 源账户号码
@@ -22,7 +24,7 @@ namespace app\model;
 * @property string $beneficiary_name 受益人名称
 * @property string $beneficiary_code 受益人代码
 * @property string $beneficiary_account_type 受益人账户类型
-* @property \Carbon\Carbon $created_at 创建时间
+* @property Carbon $created_at 创建时间
 * @property int $created_by 创建人ID
 * @property string $order_no 订单号
 * @property int $upload_id 上传ID
@@ -42,7 +44,12 @@ final class ModelBankDisbursementBillBandhan extends BasicModel
      * @var string
      */
     protected $primaryKey = 'bill_id';
-    
+
+    /**
+     * @var bool
+     */
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      * @var array

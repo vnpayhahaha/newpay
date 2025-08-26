@@ -30,29 +30,44 @@ class BankDisbursementBillIciciService extends BankDisbursementBillAbstract
 
     public function importBill(ModelBankDisbursementUpload $model): bool
     {
+        var_dump('导入icici账单开始');
         try {
             $this->parseData($model->id, $model->path, function ($data) use ($model) {
                 if (!isset($data['remark'], $data['amount'])) {
-                    $model->increment('failure_count');
                     return false;
                 }
                 $data['file_hash'] = $model->hash;
                 // 格式化$data['pymt_date'], 由  24-09-2024 => 2024-09-24
                 $data['pymt_date'] = date('Y-m-d', strtotime($data['pymt_date']));
 
-                $data['order_no '] = $data['remark'];
+                $data['order_no'] = $data['remark'];
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
-                    $model->increment('success_count');
+                    // 判断支付状态
+                    $statusValue = strtoupper(trim($data['status'] ?? ''));
+                    switch ($statusValue) {
+                        case 'SUCCESS':
+                            $model->increment('success_count');
+                            break;
+                        case 'PENDING':
+                            $model->increment('pending_count');
+                            break;
+                        default:
+                            $model->increment('failure_count');
+                            break;
+                    }
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => $data['amount'],
+                        'utr'              => $data['utr_no'] ?? '',
+                        'rejection_reason' => $data['rejection_reason'] ?? '',
+                    ];
+
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => $data['amount'],
-                    'utr'      => $data['utr_no'] ?? '',
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {

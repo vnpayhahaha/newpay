@@ -50,26 +50,36 @@ class BankDisbursementBillAxisService extends BankDisbursementBillAbstract
         try {
             $this->parseData($model->id, $model->path, function ($data) use ($model) {
                 if (!isset($data['debit_account_no'], $data['utr_reference_no'], $data['amount_payable'], $data['stage'])) {
-                    $model->increment('failure_count');
                     return false;
                 }
                 $data['file_hash'] = $model->hash;
                 // 随机字符串
                 $data['amount_payable'] = str_replace(',', '', $data['amount_payable']);
 
-                $data['order_no '] = $data['remarks'];
+                $data['order_no'] = $data['remarks'];
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
-                    $model->increment('success_count');
+                    // 判断支付状态
+                    $statusValue = strtoupper(trim($data['stage'] ?? ''));
+                    switch ($statusValue) {
+                        case 'PAID':
+                            $model->increment('success_count');
+                            break;
+                        default:
+                            $model->increment('failure_count');
+                            break;
+                    }
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => $data['amount_payable'],
+                        'utr'              => $data['utr_reference_no'],
+                        'rejection_reason' => $data['reason'] ?? '',
+                    ];
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => $data['amount_payable'],
-                    'utr'      => $data['utr_reference_no'] ?? '',
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {

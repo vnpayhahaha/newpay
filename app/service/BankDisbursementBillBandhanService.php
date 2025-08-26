@@ -38,7 +38,6 @@ class BankDisbursementBillBandhanService extends BankDisbursementBillAbstract
         try {
             $this->parseData($model->id, $model->path, function ($data) use ($model) {
                 if (!isset($data['destination_narration'], $data['amount'])) {
-                    $model->increment('failure_count');
                     return false;
                 }
                 $data['file_hash'] = $model->hash;
@@ -54,19 +53,34 @@ class BankDisbursementBillBandhanService extends BankDisbursementBillAbstract
                 }
                 $data['payment_date'] = $payment_date;
 
-                $data['order_no '] = $data['destination_narration'];
+                $data['order_no'] = $data['destination_narration'];
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
-                    $model->increment('success_count');
+                    // 判断支付状态
+                    $statusValue = strtoupper(trim($data['status'] ?? ''));
+                    switch ($statusValue) {
+                        case 'SUCCESS':
+                            $model->increment('success_count');
+                            break;
+                        case 'PENDING':
+                            $model->increment('pending_count');
+                            break;
+                        default:
+                            $model->increment('failure_count');
+                            break;
+                    }
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => $data['amount'],
+                        'utr'              => $data['core_ref_number'] ?? '',
+                        'rejection_reason' => $data['transaction_status_remarks'] ?? '',
+                    ];
+
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => $data['amount'],
-                    'utr'      => $data['core_ref_number'] ?? '',
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {

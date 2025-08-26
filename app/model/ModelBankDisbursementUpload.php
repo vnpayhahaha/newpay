@@ -22,6 +22,7 @@ use Webman\Event\Event;
  * @property int $parsing_status 解析状态：0失败，1成功
  * @property int $success_count 支付成功数
  * @property int $failure_count 支付失败数
+ * @property int $pending_count 支付中数
  */
 final class ModelBankDisbursementUpload extends BasicModel
 {
@@ -56,6 +57,7 @@ final class ModelBankDisbursementUpload extends BasicModel
         'parsing_status',
         'success_count',
         'failure_count',
+        'pending_count',
 
     ];
 
@@ -68,6 +70,7 @@ final class ModelBankDisbursementUpload extends BasicModel
         'parsing_status'          => 'integer',
         'success_count'           => 'integer',
         'failure_count'           => 'integer',
+        'pending_count'           => 'integer',
         'upload_bill_template_id' => DisbursementOrderBillTemplate::class,
     ];
 

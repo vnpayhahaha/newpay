@@ -36,7 +36,12 @@ final class ModelBankDisbursementBillIdfc extends BasicModel
      * @var string
      */
     protected $primaryKey = 'bill_id';
-    
+
+    /**
+     * @var bool
+     */
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      * @var array

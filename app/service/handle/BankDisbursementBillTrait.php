@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 trait BankDisbursementBillTrait
 {
-
+    private array $fieldMap;
     #[Inject]
     protected BankDisbursementUploadRepository $uploadRepository;
     #[Inject]
@@ -39,6 +39,8 @@ trait BankDisbursementBillTrait
     {
         // excel 读取数据
         $spreadsheet = IOFactory::load('./public' . $file_path);
+        var_dump('==$file_path==', $file_path, $spreadsheet);
+
         //工作表
         $workSheet = $spreadsheet->getSheet(0);
         //总行数
@@ -51,8 +53,12 @@ trait BankDisbursementBillTrait
         if (empty($fieldMap)) {
             throw new \RuntimeException('The table header field was not obtained');
         }
-        $this->uploadRepository->getModel()->where('id', $upload_id)->update(['record_count' => $workRow - 1]);
-//        var_dump('==$fieldMap=====',$fieldMap);
+
+        $record_count = $this->getRowCount($workSheet);
+        dump('==$record_count==', $record_count);
+
+        $this->uploadRepository->getModel()->where('id', $upload_id)->update(['record_count' => $record_count - 1]);
+        // var_dump('==$fieldMap=====', $workRow, $fieldMap);
         //获取数据
         for ($i = 2; $i <= $workRow; $i++) {
             $data = [];
@@ -75,10 +81,12 @@ trait BankDisbursementBillTrait
             if ($closure) {
                 $bill_data = $closure($data);
                 if ($bill_data && isset($bill_data['order_no'], $bill_data['amount'])) {
+                    dump("--{$i}--", $bill_data);
                     // 插入支付订单核销队列
                     $this->verificationQueueRepository->create([
                         'platform_order_no' => $bill_data['order_no'],
                         'amount'            => $bill_data['amount'],
+                        'utr'               => $bill_data['utr'],
                         'order_data'        => json_encode($data, JSON_THROW_ON_ERROR),
                         'next_retry_time'   => date('Y-m-d H:i:s', time() + 60 * 3),
                     ]);
@@ -90,6 +98,35 @@ trait BankDisbursementBillTrait
         return [];
     }
 
+    // 获取总行数（过滤空行）
+    public function getRowCount($workSheet): int
+    {
+        // 获取总行数和总列数
+        $workRow = $workSheet->getHighestDataRow();
+        $highestColumn = $workSheet->getHighestDataColumn();
+        $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+
+        // 过滤空行
+        $nonEmptyRows = [];
+        for ($row = 1; $row <= $workRow; $row++) {
+            $isEmpty = true;
+            for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                $cell = $workSheet->getCell(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col) . 1);
+                $cellValue = $cell->getValue();
+                // $cellValue = $workSheet->getCellByColumnAndRow($col, $row)->getValue();
+                if ($cellValue !== null && $cellValue !== '') {
+                    $isEmpty = false;
+                    break;
+                }
+            }
+            if (!$isEmpty) {
+                $nonEmptyRows[] = $row; // 记录非空行
+            }
+        }
+
+        // 非空行数
+        return count($nonEmptyRows);
+    }
 
     protected function getCellValue($cell, $date_format = "Y-m-d H:i:s")
     {
@@ -118,7 +155,8 @@ trait BankDisbursementBillTrait
     protected function SetFiledMap($workSheet, $workColumn): array
     {
         for ($i = 1; $i <= $workColumn; $i++) {
-            $title = $workSheet->getCellByColumnAndRow($i, 1)->getValue();
+            $cell = $workSheet->getCell(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i) . 1);
+            $title = $cell->getValue();
             if (!filled($title)) {
                 continue;
             }

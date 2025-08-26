@@ -39,20 +39,31 @@ class BankDisbursementBillIdfcService extends BankDisbursementBillAbstract
                 $data['file_hash'] = $model->hash;
                 $data['amount'] = str_replace(',', '', $data['amount']);
 
-                $data['order_no '] = $data['remarks'];
+                $data['order_no'] = $data['remarks'];
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
-                    $model->increment('success_count');
+                    // 判断支付状态
+                    $statusValue = strtoupper(trim($data['status']));
+                    switch ($statusValue) {
+                        case 'SUCCESS':
+                            $model->increment('success_count');
+                            break;
+                        default:
+                            $model->increment('failure_count');
+                            break;
+                    }
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => $data['amount'],
+                        'utr'              => $data['utr_number'] ?? '',
+                        'rejection_reason' => $data['errors'] ?? '',
+                    ];
+
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => $data['amount'],
-                    'utr'      => $data['utr_number'] ?? '',
-                    // todo pay status && err_msg
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {

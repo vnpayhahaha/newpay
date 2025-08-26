@@ -35,7 +35,6 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                     filled($data['amount_inr']) ||
                     filled($data['tran_date'])
                 ) {
-                    $model->increment('failure_count');
                     return false;
                 }
                 $data['file_hash'] = $model->hash;
@@ -43,19 +42,21 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                 $particulars_parse = explode('/', $data['particulars']);
                 $order_no = $particulars_parse[3];
 
-                $data['order_no '] = $order_no;
+                $data['order_no'] = $order_no;
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
                 $bill_data = $this->repository->create($data);
                 if ($bill_data) {
                     $model->increment('success_count');
+                    return [
+                        'order_no'         => $data['order_no'],
+                        'amount'           => $data['amount_inr'],
+                        'utr'              => $data['utr_reference_no'],
+                        'rejection_reason' => $data['sol'] ?? '',
+                    ];
                 }
-                return [
-                    'order_no' => $data['order_no'],
-                    'amount'   => $data['amount_inr'],
-                    'utr'      => $data['utr_reference_no'] ?? '',
-                ];
+                return false;
             });
 
         } catch (\Throwable $e) {
