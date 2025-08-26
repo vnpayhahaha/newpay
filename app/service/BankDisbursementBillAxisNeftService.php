@@ -32,11 +32,8 @@ class BankDisbursementBillAxisNeftService extends BankDisbursementBillAbstract
                 }
                 $data['file_hash'] = $model->hash;
                 $data['amount'] = str_replace(',', '', $data['amount']);
-                // transaction_voucher 取$data['description']最后6位字符串
-                $transaction_voucher = substr($data['description'], -6);
-                // bank_card_no 截取掉$data['description']最后6位字符串
-                $bank_card_no = substr($data['description'], 0, -6);
 
+                $data['order_no '] = $data['description'];
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
@@ -44,6 +41,11 @@ class BankDisbursementBillAxisNeftService extends BankDisbursementBillAbstract
                 if ($bill_data) {
                     $model->increment('success_count');
                 }
+                return [
+                    'order_no' => $data['order_no'],
+                    'amount'   => $data['amount'],
+                    'utr'      => '',
+                ];
             });
 
         } catch (\Throwable $e) {

@@ -12,6 +12,18 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
     #[Inject]
     public BankDisbursementBillAxisNeoRepository $repository;
 
+
+    protected array $FieldMap = [
+        'srlno'        => 'srl_no',
+        'trandate'     => 'tran_date',
+        'chqno'        => 'chq_no',
+        'particulars'  => 'particulars',
+        'amount(inr)'  => 'amount_inr',
+        'dr/cr'        => 'dr_cr',
+        'balance(inr)' => 'balance_inr',
+        'sol'          => 'sol',
+    ];
+
     public function importBill(ModelBankDisbursementUpload $model): bool
     {
         try {
@@ -29,9 +41,9 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                 $data['file_hash'] = $model->hash;
                 // 随机字符串
                 $particulars_parse = explode('/', $data['particulars']);
-                $bank_card_and_random_string = explode('-', $particulars_parse[3]);
-                $bank_card_no = $bank_card_and_random_string[0];
-                $random_string = $bank_card_and_random_string[1];
+                $order_no = $particulars_parse[3];
+
+                $data['order_no '] = $order_no;
                 $data['created_at'] = date('Y-m-d H:i:s');
                 $data['created_by'] = $model->created_by;
                 $data['upload_id'] = $model->id;
@@ -39,10 +51,15 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                 if ($bill_data) {
                     $model->increment('success_count');
                 }
+                return [
+                    'order_no' => $data['order_no'],
+                    'amount'   => $data['amount_inr'],
+                    'utr'      => $data['utr_reference_no'] ?? '',
+                ];
             });
 
         } catch (\Throwable $e) {
-            var_dump('导入axis账单异常错误：', $e->getMessage());
+            var_dump('导入axis neo账单异常错误：', $e->getMessage());
             throw $e;
         }
         return false;

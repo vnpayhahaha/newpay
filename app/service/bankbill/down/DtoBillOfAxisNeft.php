@@ -29,7 +29,7 @@ class DtoBillOfAxisNeft implements ModelExcel
                 'beneficiary_account_number' => $item['bank_account']['account_number'] ?? '',
                 'ifsc_code'                  => $item['payee_bank_code'] ?? '',
                 'amount'                     => (string)$item['amount'],
-                'description'                => ($item['payee_account_no'] ?? '') . ($item['platform_order_no'] ?? ''),
+                'description'                => $item['platform_order_no'] ?? '',
             ];
         }
         return $result;

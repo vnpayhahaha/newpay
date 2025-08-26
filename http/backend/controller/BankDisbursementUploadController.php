@@ -7,11 +7,13 @@ use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
+use app\model\enums\DisbursementOrderBillTemplate;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
 use app\service\BankDisbursementUploadService;
 use DI\Attribute\Inject;
+use Illuminate\Validation\Rule;
 use support\Request;
 use support\Response;
 
@@ -66,7 +68,8 @@ class BankDisbursementUploadController extends BasicController
             'upload_bill_template_id' => [
                 'required',
                 'string',
-                'max:50'
+                'max:50',
+                Rule::enum(DisbursementOrderBillTemplate::class),
             ],
             'attachment_id'           => 'required|integer|between:0,999999999',
             'file_name'               => [

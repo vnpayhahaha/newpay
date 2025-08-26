@@ -65,4 +65,5 @@ trait ConstantsTrait
     {
         return static::class::cases()[0]->value;
     }
+
 }

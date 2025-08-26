@@ -33,9 +33,6 @@ class DtoBillOfIobOther implements ModelExcel
         $result = array();
         foreach ($orderData as $item) {
             //var_dump('===$item===', $item);
-            // remarks 拼接 $item['bank_card_no'] $item['pre_transaction_voucher']
-            $remarks = $item['payee_account_no'] ?? '';
-            $remarks .= '-' . ($item['platform_order_no'] ?? '');
             $bank_user_name = $item['bank_account']['account_holder'] ?? '';
             // 限制 bank_user_name 长度 10 字符
             $bank_user_name = mb_substr($bank_user_name, 0, 10);
@@ -48,7 +45,7 @@ class DtoBillOfIobOther implements ModelExcel
                 'account_type'           => '',
                 'name_of_beneficiary'    => $bank_user_name,
                 'address_of_beneficiary' => $bank_user_name,
-                'remarks'                => $remarks,
+                'remarks'                => $item['platform_order_no'] ?? '',
             ];
         }
         return $result;

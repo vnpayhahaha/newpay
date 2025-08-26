@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\model\enums\DisbursementOrderBillTemplate;
 use Carbon\Carbon;
 use Webman\Event\Event;
 
@@ -17,7 +18,7 @@ use Webman\Event\Event;
  * @property Carbon $created_at 创建时间
  * @property string $suffix 文件扩展名
  * @property int $channel_id 渠道ID
- * @property string $upload_bill_template_id 上传模板IDi
+ * @property DisbursementOrderBillTemplate $upload_bill_template_id 上传模板IDi
  * @property int $parsing_status 解析状态：0失败，1成功
  * @property int $success_count 支付成功数
  * @property int $failure_count 支付失败数
@@ -59,14 +60,15 @@ final class ModelBankDisbursementUpload extends BasicModel
     ];
 
     protected $casts = [
-        'id'             => 'integer',
-        'attachment_id'  => 'integer',
-        'record_count'   => 'integer',
-        'created_by'     => 'integer',
-        'channel_id'     => 'integer',
-        'parsing_status' => 'integer',
-        'success_count'  => 'integer',
-        'failure_count'  => 'integer',
+        'id'                      => 'integer',
+        'attachment_id'           => 'integer',
+        'record_count'            => 'integer',
+        'created_by'              => 'integer',
+        'channel_id'              => 'integer',
+        'parsing_status'          => 'integer',
+        'success_count'           => 'integer',
+        'failure_count'           => 'integer',
+        'upload_bill_template_id' => DisbursementOrderBillTemplate::class,
     ];
 
     public function channel()

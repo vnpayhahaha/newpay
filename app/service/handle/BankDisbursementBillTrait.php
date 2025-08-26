@@ -3,6 +3,7 @@
 namespace app\service\handle;
 
 use app\repository\BankDisbursementUploadRepository;
+use app\repository\DisbursementOrderVerificationQueueRepository;
 use DI\Attribute\Inject;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -15,6 +16,8 @@ trait BankDisbursementBillTrait
 
     #[Inject]
     protected BankDisbursementUploadRepository $uploadRepository;
+    #[Inject]
+    protected DisbursementOrderVerificationQueueRepository $verificationQueueRepository;
     //eg: protected array $FieldMap = [
     //        'pymt_mode'            => 'pymt_mode',
     //        'file_sequence_num'    => 'file_sequence_num',
@@ -70,7 +73,16 @@ trait BankDisbursementBillTrait
             }
             //var_dump("--{$i}--", $data);
             if ($closure) {
-                $closure($data);
+                $bill_data = $closure($data);
+                if ($bill_data && isset($bill_data['order_no'], $bill_data['amount'])) {
+                    // 插入支付订单核销队列
+                    $this->verificationQueueRepository->create([
+                        'platform_order_no' => $bill_data['order_no'],
+                        'amount'            => $bill_data['amount'],
+                        'order_data'        => json_encode($data, JSON_THROW_ON_ERROR),
+                        'next_retry_time'   => date('Y-m-d H:i:s', time() + 60 * 3),
+                    ]);
+                }
             }
 
         }
