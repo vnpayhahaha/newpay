@@ -2,7 +2,12 @@
 
 namespace app\model;
 
+use app\constants\DisbursementOrder;
+use app\constants\DisbursementOrderVerificationQueue;
+use app\constants\TenantAccount;
 use Carbon\Carbon;
+use support\Log;
+use Webman\RedisQueue\Redis;
 
 /**
  * @property int $id 主键
@@ -63,4 +68,33 @@ final class ModelDisbursementOrderVerificationQueue extends BasicModel
         'created_at'     => 'datetime',
         'processed_at'   => 'datetime',
     ];
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        self::created(static function (ModelDisbursementOrderVerificationQueue $model) {
+            // 待付核销队列 DisbursementOrderVerificationQueue
+            if ($model->payment_status > DisbursementOrderVerificationQueue::PAY_STATUS_PAYING) {
+                var_dump('待付核销队列 DisbursementOrderVerificationQueue');
+                $isPush = Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_WRITE_OFF_QUEUE_NAME, [
+                    'platform_order_no' => $model->platform_order_no,
+                    'amount'            => $model->amount,
+                    'utr'               => $model->utr,
+                    'rejection_reason'  => $model->rejection_reason,
+                    'payment_status'    => $model->payment_status,
+                ]);
+                var_dump($isPush);
+                if (!$isPush) {
+                    Log::error("disbursement-order-verification Queue Status Repository => addQueue  filed");
+                } else {
+                    Log::info("disbursement-order-verification Queue Status Repository => addQueue  success");
+                    $model->process_status = DisbursementOrderVerificationQueue::PROCESS_STATUS_PROCESSING;
+                    $model->save();
+                }
+            }
+
+        });
+    }
+
 }

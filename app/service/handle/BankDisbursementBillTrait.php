@@ -39,7 +39,7 @@ trait BankDisbursementBillTrait
     {
         // excel 读取数据
         $spreadsheet = IOFactory::load('./public' . $file_path);
-        var_dump('==$file_path==', $file_path, $spreadsheet);
+//        var_dump('==$file_path==', $file_path, $spreadsheet);
 
         //工作表
         $workSheet = $spreadsheet->getSheet(0);
@@ -81,7 +81,7 @@ trait BankDisbursementBillTrait
             if ($closure) {
                 $bill_data = $closure($data);
                 if ($bill_data && isset($bill_data['order_no'], $bill_data['amount'])) {
-                    dump("--{$i}--", $bill_data);
+                    // dump("--{$i}--", $bill_data);
                     // 插入支付订单核销队列
                     $this->verificationQueueRepository->create([
                         'platform_order_no' => $bill_data['order_no'],

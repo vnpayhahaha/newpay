@@ -85,6 +85,9 @@ class BankDisbursementBillAxisService extends BankDisbursementBillAbstract
                 }
                 return false;
             });
+            // 读取ModelBankDisbursementUpload判断 success_count == record_count， 更新 parsing_status
+//            $model->parsing_status = $model->success_count === $model->record_count ? 1 : 0;
+            var_dump('导入axis账单成功', $model->toArray());
 
         } catch (\Throwable $e) {
             var_dump('导入axis账单异常错误：', $e->getMessage());

@@ -29,12 +29,13 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
     {
         try {
             $this->parseData($model->id, $model->path, function ($data) use ($model) {
+                // dump($data);
                 if (!isset($data['particulars'], $data['dr_cr'], $data['amount_inr'], $data['tran_date']) ||
-                    filled($data['particulars']) ||
-                    filled($data['dr_cr']) ||
+                    !filled($data['particulars']) ||
+                    !filled($data['dr_cr']) ||
                     $data['dr_cr'] !== 'DR' ||
-                    filled($data['amount_inr']) ||
-                    filled($data['tran_date'])
+                    !filled($data['amount_inr']) ||
+                    !filled($data['tran_date'])
                 ) {
                     return false;
                 }
@@ -54,14 +55,14 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                     return [
                         'order_no'         => $data['order_no'],
                         'amount'           => $data['amount_inr'],
-                        'utr'              => $data['utr_reference_no'],
+                        'utr'              => $particulars_parse[2],
                         'payment_status'   => $payment_status,
                         'rejection_reason' => $data['sol'] ?? '',
                     ];
                 }
                 return false;
             });
-
+            var_dump('导入axis neo账单成功', $model->toArray(),$model->record_count);
         } catch (\Throwable $e) {
             var_dump('导入axis neo账单异常错误：', $e->getMessage());
             throw $e;

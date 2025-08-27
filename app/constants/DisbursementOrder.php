@@ -83,4 +83,6 @@ class DisbursementOrder
         self::BILL_TEMPLATE_IOB_OTHER    =>  'disbursement_order.enums.bill_template.iobotherbank',
     ];
 
+    public const DISBURSEMENT_ORDER_WRITE_OFF_QUEUE_NAME = 'disbursement-order-write-off-consumer';
+
 }
