@@ -62,7 +62,7 @@ class BankDisbursementBillAxisNeoService extends BankDisbursementBillAbstract
                 }
                 return false;
             });
-            var_dump('导入axis neo账单成功', $model->toArray(),$model->record_count);
+
         } catch (\Throwable $e) {
             var_dump('导入axis neo账单异常错误：', $e->getMessage());
             throw $e;
