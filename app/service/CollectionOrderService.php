@@ -434,7 +434,7 @@ final class CollectionOrderService extends IService
                 $order->platform_order_no,
                 $tenantAccount,
                 $settlement_amount,
-                $fee_amount,
+                -$fee_amount,
                 $order->settlement_delay_mode,
                 $order->settlement_delay_days,
             );

@@ -42,7 +42,7 @@ class TransactionQueueStatusRepository extends IRepository
     }
 
     // 加入队列
-    public function addQueue(string $transaction_no, int $transaction_type): bool
+    public function addQueue(int $transaction_id, string $transaction_no, int $transaction_type): bool
     {
         // 查询是否存在
         $find = $this->model::where('transaction_no', $transaction_no)->exists();
@@ -51,6 +51,7 @@ class TransactionQueueStatusRepository extends IRepository
             return true;
         }
         $isPush = Redis::send(TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME, [
+            'id'               => $transaction_id,
             'transaction_no'   => $transaction_no,
             'transaction_type' => $transaction_type,
         ]);

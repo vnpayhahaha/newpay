@@ -10,9 +10,11 @@ use app\model\ModelTenantAccount;
 use app\model\ModelTransactionQueueStatus;
 use app\model\ModelTransactionRecord;
 use app\repository\TenantAccountRepository;
+use app\repository\TransactionRecordRepository;
 use DI\Attribute\Inject;
 use Exception;
 use support\Db;
+use Webman\Event\Event;
 use Webman\RedisQueue\Consumer;
 
 class TransactionConsumer implements Consumer
@@ -25,6 +27,8 @@ class TransactionConsumer implements Consumer
 
     #[Inject]
     protected TenantAccountRepository $tenantAccountRepository;
+    #[Inject]
+    protected TransactionRecordRepository $transactionRecordRepository;
 
 
     // 消费
@@ -36,7 +40,7 @@ class TransactionConsumer implements Consumer
         // 无需反序列化
         var_export($data);
         /** @var ModelTransactionRecord $transaction_record */
-        $transaction_record = ModelTransactionRecord::query()->where('transaction_no', $data['transaction_no'])->firstOrFail();
+        $transaction_record = $this->transactionRecordRepository->getQuery()->where('transaction_no', $data['transaction_no'])->firstOrFail();
         // 判断 expected_settlement_time 是否满足
         if (strtotime($transaction_record->expected_settlement_time) > time()) {
             return false;
@@ -110,7 +114,7 @@ class TransactionConsumer implements Consumer
                         'lock_version'           => $lock_version + 1,
                     ];
                     // 更新 transaction_record 状态 成功
-                    ModelTransactionRecord::where('transaction_no', $data['transaction_no'])->update(
+                    $this->transactionRecordRepository->getModel()->where('transaction_no', $data['transaction_no'])->update(
                         [
                             'transaction_status'     => TransactionRecord::STATUS_SUCCESS,
                             'actual_settlement_time' => date('Y-m-d H:i:s'),
@@ -173,12 +177,23 @@ class TransactionConsumer implements Consumer
                         } else {
                             $update_transaction_queue['process_status'] = TransactionQueueStatus::STATUS_FAIL;
                             // 更新 transaction_record 状态 失败
-                            ModelTransactionRecord::where('transaction_no', $package['data']['transaction_no'])->update(
+//                            $this->transactionRecordRepository->updateById(
+//                                $package['data']['id'],
+//                                [
+//                                    'transaction_status' => TransactionRecord::STATUS_FAIL,
+//                                    'failed_msg'         => $package['error'],
+//                                ]
+//                            );
+                            $updateOk = $this->transactionRecordRepository->getModel()->where('id', $package['data']['id'])->update(
                                 [
                                     'transaction_status' => TransactionRecord::STATUS_FAIL,
                                     'failed_msg'         => $package['error'],
                                 ]
                             );
+                            if($updateOk){
+                                Event::dispatch('app.transaction.failed', $package['data']['id']);
+                            }
+
                         }
                         // 执行乐观锁更新
                         $updateResult = ModelTransactionQueueStatus::query()
@@ -186,7 +201,7 @@ class TransactionConsumer implements Consumer
                             ->where('lock_version', $lock_version)
                             ->update($update_transaction_queue);
                         if ($updateResult === 0) {
-                            throw new Exception("Concurrent modification detected", 409);
+                            throw new \RuntimeException("Concurrent modification detected", 409);
                         }
                         return $updateResult;
                     });

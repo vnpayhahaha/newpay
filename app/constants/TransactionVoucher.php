@@ -22,18 +22,20 @@ class TransactionVoucher
         self::COLLECTION_STATUS_CANCEL     => 'transaction_voucher.enums.collection_status.cancel',
     ];
 
-    // collection_source 转账凭证来源:0未定义1人工创建2平台内部接口3平台开放下游接口4上游回调接口
+    // collection_source 转账凭证来源:0未定义1人工创建2平台内部接口3平台开放下游接口4上游回调接口5银行回执
     public const COLLECTION_SOURCE_UNDEFINED = 0;
     public const COLLECTION_SOURCE_MANUAL = 1;
     public const COLLECTION_SOURCE_INTERNAL = 2;
     public const COLLECTION_SOURCE_OPEN_API = 3;
     public const COLLECTION_SOURCE_UPSTREAM = 4;
+    public const COLLECTION_SOURCE_BANK_RECEIPT = 5;
     public static array $collection_source_list = [
-        self::COLLECTION_SOURCE_UNDEFINED => 'transaction_voucher.enums.collection_source.undefined',
-        self::COLLECTION_SOURCE_MANUAL    => 'transaction_voucher.enums.collection_source.manual',
-        self::COLLECTION_SOURCE_INTERNAL  => 'transaction_voucher.enums.collection_source.internal',
-        self::COLLECTION_SOURCE_OPEN_API  => 'transaction_voucher.enums.collection_source.open_api',
-        self::COLLECTION_SOURCE_UPSTREAM  => 'transaction_voucher.enums.collection_source.external',
+        self::COLLECTION_SOURCE_UNDEFINED    => 'transaction_voucher.enums.collection_source.undefined',
+        self::COLLECTION_SOURCE_MANUAL       => 'transaction_voucher.enums.collection_source.manual',
+        self::COLLECTION_SOURCE_INTERNAL     => 'transaction_voucher.enums.collection_source.internal',
+        self::COLLECTION_SOURCE_OPEN_API     => 'transaction_voucher.enums.collection_source.open_api',
+        self::COLLECTION_SOURCE_UPSTREAM     => 'transaction_voucher.enums.collection_source.upstream',
+        self::COLLECTION_SOURCE_BANK_RECEIPT => 'transaction_voucher.enums.collection_source.bank_receipt',
     ];
 
     // transaction_voucher_type 转账凭证类型：1utr 2订单id 3订单号 4金额

@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\constants\TransactionRecord;
 use Carbon\Carbon;
 use support\Db;
 use Webman\Event\Event;
@@ -136,5 +137,6 @@ final class ModelTransactionRecord extends BasicModel
         self::created(static function (ModelTransactionRecord $model) {
             Event::dispatch('app.transaction.created', $model);
         });
+
     }
 }

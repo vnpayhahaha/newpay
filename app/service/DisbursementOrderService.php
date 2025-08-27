@@ -32,23 +32,23 @@ use Webman\Http\Request;
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository           $repository;
+    public DisbursementOrderRepository $repository;
     #[Inject]
-    protected TenantRepository                   $tenantRepository;
+    protected TenantRepository $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository            $tenantAccountRepository;
+    protected TenantAccountRepository $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository              $bankAccountRepository;
+    protected BankAccountRepository $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository           $channelAccountRepository;
+    protected ChannelAccountRepository $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository       $transactionVoucherRepository;
+    protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository        $transactionRecordRepository;
+    protected TransactionRecordRepository $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository               $attachmentRepository;
+    protected AttachmentRepository $attachmentRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -58,7 +58,14 @@ final class DisbursementOrderService extends IService
         $request = Context::get(Request::class);
         $user = $request->user ?? null;
         $app = Context::get(ModelTenantApp::class);
-
+        $tenantAccount = $this->tenantAccountRepository->getQuery()
+            ->where('tenant_id', $data['tenant_id'])
+            ->where('account_type', TenantAccount::ACCOUNT_TYPE_PAY)
+            ->with('tenant')
+            ->first();
+        if (!$tenantAccount) {
+            throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
+        }
         // 计算收款费率
         $calculate = [
             'fixed_fee'       => 0.00,
@@ -74,34 +81,55 @@ final class DisbursementOrderService extends IService
             $calculate['rate_fee_amount'] = bcmul($data['amount'], $rate_fee, 4);
         }
         $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee_amount'], 4);
-        $disbursementOrder = $this->repository->create([
-            'tenant_id'           => $data['tenant_id'],
-            'tenant_order_no'     => $data['tenant_order_no'],
-            'amount'              => $data['amount'],
-            'order_source'        => $source,
-            'notify_remark'       => $data['notify_remark'] ?? '',
-            'notify_url'          => $data['notify_url'] ?? '',
-            'fixed_fee'           => $calculate['fixed_fee'],
-            'rate_fee'            => $calculate['rate_fee'],
-            'rate_fee_amount'     => $calculate['rate_fee_amount'],
-            'total_fee'           => $calculate['total_fee'],
-            'settlement_amount'   => bcadd($data['amount'], $calculate['total_fee'], 4),
-            'expire_time'         => date('Y-m-d H:i:s', strtotime('+' . $findTenant->payment_expire_minutes . ' minutes')),
-            'payment_type'        => $data['payment_type'],
-            'payee_bank_name'     => $data['payee_bank_name'] ?? '',
-            'payee_bank_code'     => $data['payee_bank_code'] ?? '',
-            'payee_account_name'  => $data['payee_account_name'] ?? '',
-            'payee_account_no'    => $data['payee_account_no'] ?? '',
-            'payee_phone'         => $data['payee_phone'] ?? '',
-            'payee_upi'           => $data['payee_upi'] ?? '',
-            'app_id'              => $app->id ?? 0,
-            'status'              => DisbursementOrder::STATUS_CREATE,
-            'request_id'          => $request->requestId,
-            'customer_created_by' => $user->id ?? 0,
-        ]);
-        if (!filled($disbursementOrder)) {
-            throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
+        Db::beginTransaction();
+        try {
+            $disbursementOrder = $this->repository->create([
+                'tenant_id'           => $data['tenant_id'],
+                'tenant_order_no'     => $data['tenant_order_no'],
+                'amount'              => $data['amount'],
+                'order_source'        => $source,
+                'notify_remark'       => $data['notify_remark'] ?? '',
+                'notify_url'          => $data['notify_url'] ?? '',
+                'fixed_fee'           => $calculate['fixed_fee'],
+                'rate_fee'            => $calculate['rate_fee'],
+                'rate_fee_amount'     => $calculate['rate_fee_amount'],
+                'total_fee'           => $calculate['total_fee'],
+                'settlement_amount'   => bcadd($data['amount'], $calculate['total_fee'], 4),
+                'expire_time'         => date('Y-m-d H:i:s', strtotime('+' . $findTenant->payment_expire_minutes . ' minutes')),
+                'payment_type'        => $data['payment_type'],
+                'payee_bank_name'     => $data['payee_bank_name'] ?? '',
+                'payee_bank_code'     => $data['payee_bank_code'] ?? '',
+                'payee_account_name'  => $data['payee_account_name'] ?? '',
+                'payee_account_no'    => $data['payee_account_no'] ?? '',
+                'payee_phone'         => $data['payee_phone'] ?? '',
+                'payee_upi'           => $data['payee_upi'] ?? '',
+                'app_id'              => $app->id ?? 0,
+                'status'              => DisbursementOrder::STATUS_CREATING,
+                'request_id'          => $request->requestId,
+                'customer_created_by' => $user->id ?? 0,
+            ]);
+            if (!filled($disbursementOrder)) {
+                throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
+            }
+            // 扣款
+            $oT = $this->transactionRecordRepository->orderTransaction(
+                $disbursementOrder->id,
+                $disbursementOrder->platform_order_no,
+                $tenantAccount,
+                -$disbursementOrder->amount,
+                -$disbursementOrder->total_fee
+            );
+            if (!$oT) {
+                throw new \RuntimeException('Failed to update the recharge record');
+            }
+            $disbursementOrder->transaction_record_id = $oT->id;
+            $disbursementOrder->save();
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollBack();
+            throw $e;
         }
+
         return [
             'platform_order_no' => $disbursementOrder->platform_order_no,
             'tenant_order_no'   => $disbursementOrder->tenant_order_no,
@@ -124,14 +152,7 @@ final class DisbursementOrderService extends IService
         ], true)) {
             throw new BusinessException(ResultCode::ORDER_STATUS_ERROR);
         }
-        $tenantAccount = $this->tenantAccountRepository->getQuery()
-            ->where('tenant_id', $order->tenant_id)
-            ->where('account_type', TenantAccount::ACCOUNT_TYPE_PAY)
-            ->with('tenant')
-            ->first();
-        if (!$tenantAccount) {
-            throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
-        }
+
         $transactionVoucher = $this->transactionVoucherRepository->findById($transactionVoucherId);
         if (!$transactionVoucher) {
             throw new BusinessException(ResultCode::TRANSACTION_VOUCHER_NOT_EXIST);
@@ -142,16 +163,6 @@ final class DisbursementOrderService extends IService
             $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
             if (!$isOk) {
                 throw new Exception('The update of the voucher table failed');
-            }
-            $isOk = $this->transactionRecordRepository->orderTransaction(
-                $order->id,
-                $order->platform_order_no,
-                $tenantAccount,
-                $order->amount,
-                $order->total_fee
-            );
-            if (!$isOk) {
-                throw new Exception('Failed to update the recharge record');
             }
             // 更新订单表 transaction_voucher_id  status
             $isOk = $this->repository->getQuery()
@@ -234,7 +245,7 @@ final class DisbursementOrderService extends IService
         return Db::transaction(function () use ($params, $operatorId) {
             return $this->repository->getModel()
                 ->whereIn('id', $params['ids'])
-                ->where('status', '=', DisbursementOrder::STATUS_CREATE)
+                ->where('status', '=', DisbursementOrder::STATUS_CREATED)
                 ->update([
                     'status'                  => DisbursementOrder::STATUS_WAIT_PAY,
                     'disbursement_channel_id' => $params['disbursement_channel_id'],

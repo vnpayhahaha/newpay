@@ -35,7 +35,7 @@ use Carbon\Carbon;
  * @property int $app_id 应用ID
  * @property string $description 订单描述
  * @property int $status 订单状态:
- * 0-创建 10-待支付 11-待回填 20-成功 30-挂起
+ * 0-创建中 10-待支付 11-待回填 20-成功 30-挂起
  * 40-失败 41-已取消 43-已失效 44-已退款
  * @property Carbon $expire_time 订单失效时间
  * @property string $notify_url 回调地址
@@ -54,6 +54,7 @@ use Carbon\Carbon;
  * @property int $bank_disbursement_download_id 银行支付账单下载ID
  * @property int $customer_created_by 客户端创建ID
  * @property int $customer_cancelled_by 客户端取消ID
+ * @property int $transaction_record_id 交易ID
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -120,6 +121,7 @@ final class ModelDisbursementOrder extends BasicModel
         'bank_disbursement_download_id',
         'customer_created_by',
         'customer_cancelled_by',
+        'transaction_record_id',
     ];
 
     protected $casts = [
@@ -150,6 +152,7 @@ final class ModelDisbursementOrder extends BasicModel
         'bank_disbursement_download_id' => 'integer',
         'customer_created_by'           => 'integer',
         'customer_cancelled_by'         => 'integer',
+        'transaction_record_id'         => 'integer',
     ];
 
     public static function boot()
@@ -203,5 +206,11 @@ final class ModelDisbursementOrder extends BasicModel
     public function created_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelTenantUser::class, 'customer_created_by', 'id');
+    }
+
+    // transaction_record_id
+    public function transaction_record(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTransactionRecord::class, 'transaction_record_id', 'id');
     }
 }

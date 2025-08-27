@@ -13,6 +13,9 @@ return [
     'app.transaction.created' => [
         [\app\event\TransactionRecordEvent::class, 'Created'],
     ],
+    'app.transaction.failed' => [
+        [\app\event\TransactionRecordEvent::class, 'Failed'],
+    ],
     'app.transaction.raw_data_analysis' => [
         [\app\event\TransactionRawDataEvent::class, 'Created'],
     ],

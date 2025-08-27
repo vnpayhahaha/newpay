@@ -89,7 +89,7 @@ class TransactionRecordRepository extends IRepository
     }
 
     // TYPE_ORDER_TRANSACTION
-    public function orderTransaction(int $order_id, string $platform_order_no, ModelTenantAccount $account, float $amount, float $fee_amount = 0, int $settlement_delay_mode = 1, int $settlement_delay_days = 0, string $remark = ''): bool
+    public function orderTransaction(int $order_id, string $platform_order_no, ModelTenantAccount $account, float $amount, float $fee_amount = 0, int $settlement_delay_mode = 1, int $settlement_delay_days = 0, string $remark = ''): \Illuminate\Database\Eloquent\Model|ModelTransactionRecord
     {
 //        $settlement_delay_mode = $account['tenant']['settlement_delay_mode'] ?? 1;
 //        $settlement_delay_days = $account['tenant']['settlement_delay_days'] ?? 0;
@@ -100,13 +100,13 @@ class TransactionRecordRepository extends IRepository
             var_dump('====待入账时间计算失败====', $ex);
             throw new \Exception('The calculation of the estimated settlement time failed:' . $ex->getMessage());
         }
-        return (bool)$this->model::query()->create([
+        return $this->model::query()->create([
             'tenant_account_id'        => $account->id,
             'account_id'               => $account->account_id,
             'tenant_id'                => $account->tenant_id,
             'amount'                   => $amount,
             'fee_amount'               => $fee_amount,
-            'net_amount'               => bcsub((string)$amount, (string)$fee_amount, 4),
+            'net_amount'               => bcadd((string)$amount, (string)$fee_amount, 4),
             'account_type'             => $account->account_type,
             'transaction_type'         => TransactionRecord::TYPE_ORDER_TRANSACTION,
             'settlement_delay_mode'    => $settlement_delay_mode,

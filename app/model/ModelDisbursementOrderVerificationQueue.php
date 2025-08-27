@@ -83,6 +83,7 @@ final class ModelDisbursementOrderVerificationQueue extends BasicModel
                     'utr'               => $model->utr,
                     'rejection_reason'  => $model->rejection_reason,
                     'payment_status'    => $model->payment_status,
+                    'order_data'        => $model->order_data,
                 ]);
                 var_dump($isPush);
                 if (!$isPush) {

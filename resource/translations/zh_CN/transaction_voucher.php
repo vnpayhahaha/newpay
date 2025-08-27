@@ -10,11 +10,12 @@ return [
             'fail'       => '失败',
         ],
         'collection_source'        => [
-            'undefined' => '未定义',
-            'manual'    => '人工创建',
-            'internal'  => '平台内部接口',
-            'open_api'  => '平台开放下游接口',
-            'external'  => '上游回调接口',
+            'undefined'    => '未定义',
+            'manual'       => '人工创建',
+            'internal'     => '平台内部接口',
+            'open_api'     => '平台开放下游接口',
+            'external'     => '上游回调接口',
+            'bank_receipt' => '银行回单',
         ],
         'transaction_voucher_type' => [
             'order_id' => '订单ID',

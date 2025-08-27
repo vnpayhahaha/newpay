@@ -8,8 +8,9 @@ class DisbursementOrder
 {
     use ConstantsOptionTrait;
 
-    // 订单状态:\r\n    0-创建 10-待支付 11-待回填 20-成功 30-挂起 \r\n    40-失败 41-已取消 43-已失效 44-已退款
-    public const STATUS_CREATE = 0;
+    // 订单状态:\r\n    0-创建中 1-已创建 10-待支付 11-待回填 20-成功 30-挂起 \r\n    40-失败 41-已取消 43-已失效 44-已退款
+    public const STATUS_CREATING = 0;
+    public const STATUS_CREATED = 1;
     public const STATUS_WAIT_PAY = 10;
     public const STATUS_WAIT_FILL = 11;
     public const STATUS_SUCCESS = 20;
@@ -19,7 +20,8 @@ class DisbursementOrder
     public const STATUS_INVALID = 43;
     public const STATUS_REFUND = 44;
     public static array $status_list = [
-        self::STATUS_CREATE    => 'disbursement_order.enums.status.0',
+        self::STATUS_CREATING  => 'disbursement_order.enums.status.0',
+        self::STATUS_CREATED   => 'disbursement_order.enums.status.1',
         self::STATUS_WAIT_PAY  => 'disbursement_order.enums.status.10',
         self::STATUS_WAIT_FILL => 'disbursement_order.enums.status.11',
         self::STATUS_SUCCESS   => 'disbursement_order.enums.status.20',

@@ -10,11 +10,12 @@ return [
             'fail'       => 'fail',
         ],
         'collection_source'        => [
-            'undefined' => 'unkown',
-            'manual'    => 'manual',
-            'internal'  => 'internal',
-            'open_api'  => 'open_api',
-            'external'  => 'external',
+            'undefined'    => 'unkown',
+            'manual'       => 'manual',
+            'internal'     => 'internal',
+            'open_api'     => 'open_api',
+            'external'     => 'external',
+            'bank_receipt' => 'bank_receipt',
         ],
         'transaction_voucher_type' => [
             'order_id' => 'Order Id',
