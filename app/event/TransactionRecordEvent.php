@@ -43,4 +43,9 @@ class TransactionRecordEvent
         }
 
     }
+
+    public function Success(int $transactionRecordID): void
+    {
+
+    }
 }

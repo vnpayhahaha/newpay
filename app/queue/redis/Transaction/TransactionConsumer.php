@@ -34,6 +34,7 @@ class TransactionConsumer implements Consumer
     // 消费
     public function consume($data)
     {
+        // 'id'   => $transaction_id,
         // 'transaction_no'   => $transaction_no,
         // 'transaction_type' => $transaction_type,
         var_dump('bill_change_consumer == run ==');
@@ -105,7 +106,7 @@ class TransactionConsumer implements Consumer
                             var_dump('差错调整');
                             break;
                         default:
-                            throw new \Exception('未知的交易类型：' . $transaction_record->transaction_type);
+                            throw new \RuntimeException('未知的交易类型：' . $transaction_record->transaction_type);
                     }
 
                     $update_transaction_queue = [
@@ -114,19 +115,22 @@ class TransactionConsumer implements Consumer
                         'lock_version'           => $lock_version + 1,
                     ];
                     // 更新 transaction_record 状态 成功
-                    $this->transactionRecordRepository->getModel()->where('transaction_no', $data['transaction_no'])->update(
+                    $updateOk = $this->transactionRecordRepository->getModel()->where('transaction_no', $data['transaction_no'])->update(
                         [
                             'transaction_status'     => TransactionRecord::STATUS_SUCCESS,
                             'actual_settlement_time' => date('Y-m-d H:i:s'),
                         ]
                     );
+                    if($updateOk){
+                        Event::dispatch('app.transaction.success', $data['id']);
+                    }
                     // 执行乐观锁更新
                     $updateResult = ModelTransactionQueueStatus::query()
                         ->where('transaction_no', $data['transaction_no'])
                         ->where('lock_version', $lock_version)
                         ->update($update_transaction_queue);
                     if ($updateResult === 0) {
-                        throw new Exception("Concurrent modification detected", 409);
+                        throw new \RuntimeException("Concurrent modification detected", 409);
                     }
                     return $updateResult;
                 });
@@ -176,14 +180,6 @@ class TransactionConsumer implements Consumer
                             $update_transaction_queue['next_retry_time'] = date('Y-m-d H:i:s', strtotime("+{$retry_seconds} seconds"));
                         } else {
                             $update_transaction_queue['process_status'] = TransactionQueueStatus::STATUS_FAIL;
-                            // 更新 transaction_record 状态 失败
-//                            $this->transactionRecordRepository->updateById(
-//                                $package['data']['id'],
-//                                [
-//                                    'transaction_status' => TransactionRecord::STATUS_FAIL,
-//                                    'failed_msg'         => $package['error'],
-//                                ]
-//                            );
                             $updateOk = $this->transactionRecordRepository->getModel()->where('id', $package['data']['id'])->update(
                                 [
                                     'transaction_status' => TransactionRecord::STATUS_FAIL,
