@@ -24,8 +24,5 @@ return [
             'driver'     => 'redis',
             'connection' => 'default'
         ],
-        'array' => [
-            'driver' => 'array'
-        ]
     ]
 ];

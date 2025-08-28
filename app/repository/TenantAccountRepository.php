@@ -9,6 +9,7 @@ use DI\Attribute\Inject;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use support\Db;
+use support\Log;
 
 /**
  * Class TenantAccountRepository.
@@ -182,6 +183,7 @@ class TenantAccountRepository extends IRepository
      */
     public function updateBalanceAvailableById(int $id, float $amount, TenantAccountRecordChangeType $changeType, string $transactionNo = ''): bool
     {
+        Log::info('updateBalanceAvailableById--', [$id, $amount, $changeType, $transactionNo]);
         return $this->updateBalanceWithLock($id, 'balance_available', $amount, $changeType, $transactionNo);
     }
 

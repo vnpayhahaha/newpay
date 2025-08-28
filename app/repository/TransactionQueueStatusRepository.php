@@ -45,24 +45,31 @@ class TransactionQueueStatusRepository extends IRepository
     public function addQueue(int $transaction_id, string $transaction_no, int $transaction_type): bool
     {
         // 查询是否存在
-        $find = $this->model::where('transaction_no', $transaction_no)->exists();
+        $find = $this->getQuery()->where('transaction_no', $transaction_no)->exists();
         if ($find) {
             Log::error("TransactionQueueStatusRepository  => addQueue  transaction_no:{$transaction_no} already exists");
             return true;
         }
-        $isPush = Redis::send(TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME, [
-            'id'               => $transaction_id,
-            'transaction_no'   => $transaction_no,
-            'transaction_type' => $transaction_type,
-        ]);
-        if (!$isPush) {
-            Log::error("Transaction Queue Status Repository => addQueue  filed");
-        }
-        var_dump("Transaction Queue Status Repository => addQueue  success");
-        return (bool)$this->model::create([
+        $insertOk = (bool)$this->create([
             'transaction_no'   => $transaction_no,
             'transaction_type' => $transaction_type,
             'process_status'   => TransactionQueueStatus::STATUS_PROCESSING,
         ]);
+        if (!$insertOk) {
+            Log::error("TransactionQueueStatusRepository  => addQueue  transaction_no:{$transaction_no} insert failed");
+            return false;
+        }
+        dump("Transaction Queue Status Repository => addQueue  insert success");
+        $isPush = Redis::send(TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME, [
+            'id'               => $transaction_id,
+            'transaction_no'   => $transaction_no,
+            'transaction_type' => $transaction_type,
+        ], 1);
+        var_dump("Transaction Queue Status Repository => addQueue  isPush:{$isPush}");
+        if (!$isPush) {
+            Log::error("Transaction Queue Status Repository => addQueue  filed");
+        }
+        var_dump("Transaction Queue Status Repository => addQueue  success");
+        return $isPush;
     }
 }

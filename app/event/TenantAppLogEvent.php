@@ -17,7 +17,7 @@ class TenantAppLogEvent
     {
         $tenantAppLog = Container::make(TenantAppLogService::class);
         $requestInfo = $eventObj->getRequestInfo();
-        var_dump('TenantAppLogEvent ==', $requestInfo);
+        var_dump('TenantAppLogEvent ==');
         $tenantAppLog->create($requestInfo);
     }
 }

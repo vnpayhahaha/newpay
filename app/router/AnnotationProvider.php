@@ -21,7 +21,7 @@ class AnnotationProvider
 {
     public static function start(): void
     {
-        dump('AnnotationProvider::start()==');
+//        dump('AnnotationProvider::start()==');
 
         $annotationClasses = self::scanFile();
 

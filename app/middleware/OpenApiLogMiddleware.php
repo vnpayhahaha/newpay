@@ -26,7 +26,7 @@ class OpenApiLogMiddleware implements MiddlewareInterface
         $responseBody = $response->rawBody();
         // 判断$responseBody是不是json
         $resultBody = json_decode($responseBody, true);
-        var_dump('$resultBody==', $resultBody);
+        var_dump('$resultBody==');
         Event::dispatch('tenant.app.log', new TenantAppLogEventDto([
             'tenant_id'        => $tenantApp->tenant_id,
             'app_id'           => $tenantApp->id,

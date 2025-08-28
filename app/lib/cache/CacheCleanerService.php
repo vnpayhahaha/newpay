@@ -35,7 +35,6 @@ class CacheCleanerService
     {
         $prefix = \app\process\CacheableProcessor::ANNOTATION_PREFIX;
         $count = 0;
-
         // 根据存储类型选择清理策略
         $driver = config("cache.stores.{$store}.driver", 'file');
         Log::debug("Clearing cache for store: {$store} (driver: {$driver})");

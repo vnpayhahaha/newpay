@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use support\Context;
 use support\Db;
 use support\Response;
+use Webman\Event\Event;
 use Webman\Http\Request;
 
 final class DisbursementOrderService extends IService
@@ -122,8 +123,10 @@ final class DisbursementOrderService extends IService
             if (!$oT) {
                 throw new \RuntimeException('Failed to update the recharge record');
             }
-            $disbursementOrder->transaction_record_id = $oT->id;
-            $disbursementOrder->save();
+            Event::dispatch('app.transaction.created', $oT);
+            $this->repository->getModel()->where('id', $disbursementOrder->id)->update([
+                'transaction_record_id' => $oT->id,
+            ]);
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
