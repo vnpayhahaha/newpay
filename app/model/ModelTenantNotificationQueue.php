@@ -93,7 +93,7 @@ final class ModelTenantNotificationQueue extends BasicModel
             // 待付核销队列 TenantNotificationQueue
             if ($model->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING) {
                 var_dump('待执行回调通知队列 TenantNotificationQueue');
-                $isPush = Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
+                Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
                     'queue_id'              => $model->id,
                     'tenant_id'             => $model->tenant_id,
                     'app_id'                => $model->app_id,
@@ -103,12 +103,8 @@ final class ModelTenantNotificationQueue extends BasicModel
                     'notification_url'      => $model->notification_url,
                     'request_method'        => $model->request_method,
                     'request_data'          => $model->request_data,
-                    'execute_count'         => $model->execute_count + 1,
+                    'max_retry_count'       => $model->max_retry_count,
                 ]);
-                if ($isPush) {
-                    ++$model->execute_count;
-                    $model->save();
-                }
             }
 
         });
