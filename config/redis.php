@@ -19,11 +19,16 @@ return [
         'port'     => (int)env('REDIS_PORT', 6379),
         'database' => (int)env('REDIS_DB', 0),
         'pool'     => [ // 连接池配置
-                        'max_connections'    => 10,     // 连接池最大连接数
-                        'min_connections'    => 1,      // 连接池最小连接数
-                        'wait_timeout'       => 3,         // 从连接池获取连接最大等待时间
-                        'idle_timeout'       => 50,        // 连接池中连接空闲超时时间，超过该时间会被关闭，直到连接数为min_connections
-                        'heartbeat_interval' => 50,  // 心跳检测间隔，不要大于60秒
+                        'max_connections'    => 10,
+                        // 连接池最大连接数
+                        'min_connections'    => 1,
+                        // 连接池最小连接数
+                        'wait_timeout'       => 3,
+                        // 从连接池获取连接最大等待时间
+                        'idle_timeout'       => 50,
+                        // 连接池中连接空闲超时时间，超过该时间会被关闭，直到连接数为min_connections
+                        'heartbeat_interval' => 50,
+                        // 心跳检测间隔，不要大于60秒
         ],
     ],
     'cache'   => [ // <==== 新增
@@ -33,4 +38,11 @@ return [
                    'database' => 2,
                    'prefix'   => 'webman_cache-',
     ],
+    'queue'   => [ // <==== 新增
+                   'host'     => env('REDIS_HOST', 'localhost'),
+                   'password' => env('REDIS_AUTH', null),
+                   'port'     => (int)env('REDIS_PORT', 6379),
+                   'database' => env('REDIS_QUEUE_DB', 1),
+                   'prefix'   => env('APP_NAME', ''),
+    ]
 ];
