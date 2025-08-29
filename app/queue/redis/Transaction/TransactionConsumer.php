@@ -44,8 +44,7 @@ class TransactionConsumer implements Consumer
         // 'transaction_type' => $transaction_type,
         dump('bill_change_consumer == run ==============================');
         Log::warning('bill_change_consumer == run =======================');
-        // 无需反序列化
-        var_export($data);
+
         /** @var ModelTransactionRecord $transaction_record */
         $transaction_record = $this->transactionRecordRepository->getQuery()->where('id', $data['id'])->firstOrFail();
         // 判断 expected_settlement_time 是否满足

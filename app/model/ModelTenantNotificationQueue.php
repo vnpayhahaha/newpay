@@ -25,6 +25,7 @@ use Webman\RedisQueue\Redis;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property int $max_retry_count 最大尝试次数
+ * @property int $lock_version 乐观锁版本号
  */
 final class ModelTenantNotificationQueue extends BasicModel
 {
@@ -62,6 +63,7 @@ final class ModelTenantNotificationQueue extends BasicModel
         'created_at',
         'updated_at',
         'max_retry_count',
+        'lock_version',
     ];
 
     protected $casts = [
@@ -83,6 +85,7 @@ final class ModelTenantNotificationQueue extends BasicModel
         'created_at'            => 'datetime',
         'updated_at'            => 'datetime',
         'max_retry_count'       => 'integer',
+        'lock_version'          => 'integer',
     ];
 
     public static function boot(): void
