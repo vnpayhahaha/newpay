@@ -4,7 +4,6 @@ namespace app\model;
 
 use app\constants\DisbursementOrder;
 use app\constants\DisbursementOrderVerificationQueue;
-use app\constants\TenantAccount;
 use Carbon\Carbon;
 use support\Log;
 use Webman\RedisQueue\Redis;

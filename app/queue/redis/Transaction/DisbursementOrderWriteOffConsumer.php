@@ -101,6 +101,7 @@ class DisbursementOrderWriteOffConsumer implements Consumer
             $this->disbursementOrderService->writeOff($order->id, $tV->id);
         } else {
             // 支付失败，退款
+            $this->disbursementOrderService->refund($order->id, $data['rejection_reason']);
         }
     }
 }

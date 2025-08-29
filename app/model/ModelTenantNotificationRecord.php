@@ -9,15 +9,17 @@ use Carbon\Carbon;
  * @property int $queue_id 队列ID
  * @property string $tenant_id 租户编号
  * @property int $app_id 应用ID
- * @property int $order_id 订单ID
- * @property string $callback_url 回调地址
- * @property int $callback_type 回调类型:1-支付结果 2-退款结果 3-账单通知
+ * @property int $account_type 账户变动类型（继承tenant_account类型1-收款账户 2-付款账户）
+ * @property int $collection_order_id 收款订单ID
+ * @property int $disbursement_order_id 付款订单ID
+ * @property int $notification_type 通知类型:1-支付结果 2-退款结果 3-账单通知
+ * @property string $notification_url 通知地址
+ * @property string $request_method 请求方式
  * @property string $request_data 请求数据
  * @property int $response_status 响应状态码
  * @property string $response_data 响应数据
- * @property int $retry_count 重试次数
- * @property Carbon $next_retry_time 下次重试时间
- * @property int $callback_status 回调状态:0-待回调 1-成功 2-失败 3-重试中
+ * @property int $execute_count 重试次数
+ * @property int $status 回调状态:0-失败 1-成功
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -43,26 +45,33 @@ final class ModelTenantNotificationRecord extends BasicModel
         'queue_id',
         'tenant_id',
         'app_id',
-        'order_id',
-        'callback_url',
-        'callback_type',
+        'account_type',
+        'collection_order_id',
+        'disbursement_order_id',
+        'notification_type',
+        'notification_url',
+        'request_method',
         'request_data',
         'response_status',
         'response_data',
-        'retry_count',
-        'next_retry_time',
-        'callback_status',
+        'execute_count',
+        'status',
         'created_at',
         'updated_at'
     ];
 
     protected $casts = [
-        'queue_id'        => 'integer',
-        'app_id'          => 'integer',
-        'order_id'        => 'integer',
-        'callback_type'   => 'integer',
-        'response_status' => 'integer',
-        'retry_count'     => 'integer',
-        'callback_status' => 'integer',
+        'id'                    => 'integer',
+        'queue_id'              => 'integer',
+        'app_id'                => 'integer',
+        'account_type'          => 'integer',
+        'collection_order_id'   => 'integer',
+        'disbursement_order_id' => 'integer',
+        'notification_type'     => 'integer',
+        'response_status'       => 'integer',
+        'execute_count'         => 'integer',
+        'status'                => 'integer',
+        'created_at'            => 'datetime',
+        'updated_at'            => 'datetime',
     ];
 }

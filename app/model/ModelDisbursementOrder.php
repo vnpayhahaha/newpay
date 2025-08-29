@@ -39,8 +39,8 @@ use Carbon\Carbon;
  * 40-失败 41-已取消 43-已失效 44-已退款
  * @property Carbon $expire_time 订单失效时间
  * @property string $notify_url 回调地址
- * @property int $notify_count 回调次数
- * @property int $notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
+ * @property string $notify_remark 回调原样返回
+ * @property int $notify_status 通知状态:0-未通知 1-回调中 2-通知成功 3-通知失败
  * @property string $channel_transaction_no 渠道交易号
  * @property string $error_code 错误代码
  * @property string $error_message 错误信息
@@ -55,6 +55,8 @@ use Carbon\Carbon;
  * @property int $customer_created_by 客户端创建ID
  * @property int $customer_cancelled_by 客户端取消ID
  * @property int $transaction_record_id 交易ID
+ * @property Carbon $refund_at 退款时间
+ * @property string $refund_reason 退款原因
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -106,8 +108,8 @@ final class ModelDisbursementOrder extends BasicModel
         'status',
         'expire_time',
         'notify_url',
-        'notify_count',
         'notify_status',
+        'notify_remark',
         'channel_transaction_no',
         'error_code',
         'error_message',
@@ -122,6 +124,8 @@ final class ModelDisbursementOrder extends BasicModel
         'customer_created_by',
         'customer_cancelled_by',
         'transaction_record_id',
+        'refund_at',
+        'refund_reason',
     ];
 
     protected $casts = [
@@ -142,10 +146,10 @@ final class ModelDisbursementOrder extends BasicModel
         'app_id'                        => 'integer',
         'status'                        => 'integer',
         'expire_time'                   => 'datetime',
-        'notify_count'                  => 'integer',
         'notify_status'                 => 'integer',
         'created_at'                    => 'datetime',
         'updated_at'                    => 'datetime',
+        'refund_at'                     => 'datetime',
         'cancelled_at'                  => 'datetime',
         'cancelled_by'                  => 'integer',
         'transaction_voucher_id'        => 'integer',

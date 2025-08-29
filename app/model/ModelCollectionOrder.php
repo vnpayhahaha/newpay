@@ -36,8 +36,7 @@ use support\Db;
  * 4-机器人核销
  * @property string $notify_url 回调地址
  * @property string $notify_remark 回调原样返回
- * @property int $notify_count 回调次数
- * @property int $notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
+ * @property int $notify_status 通知状态:0-未通知 1-回调中 2-通知成功 3-通知失败
  * @property string $pay_url 收银台地址
  * @property string $return_url 支付成功后跳转地址
  * @property string $tenant_id 租户编号
@@ -112,7 +111,6 @@ final class ModelCollectionOrder extends BasicModel
         'recon_type',
         'notify_url',
         'notify_remark',
-        'notify_count',
         'notify_status',
         'pay_url',
         'return_url',
@@ -161,7 +159,6 @@ final class ModelCollectionOrder extends BasicModel
         'channel_account_id'         => 'integer',
         'bank_account_id'            => 'integer',
         'recon_type'                 => 'integer',
-        'notify_count'               => 'integer',
         'notify_status'              => 'integer',
         'app_id'                     => 'integer',
         'status'                     => 'integer',

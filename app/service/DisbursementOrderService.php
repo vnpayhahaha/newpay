@@ -5,6 +5,7 @@ namespace app\service;
 use app\constants\DisbursementOrder;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
+use app\constants\TenantNotificationQueue;
 use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\lib\enum\ResultCode;
@@ -18,17 +19,20 @@ use app\repository\BankDisbursementDownloadRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\DisbursementOrderRepository;
 use app\repository\TenantAccountRepository;
+use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
 use DI\Attribute\Inject;
 use Exception;
+use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use support\Context;
 use support\Db;
 use support\Response;
 use Webman\Event\Event;
 use Webman\Http\Request;
+use Webman\RedisQueue\Redis;
 
 final class DisbursementOrderService extends IService
 {
@@ -50,6 +54,8 @@ final class DisbursementOrderService extends IService
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
     protected AttachmentRepository $attachmentRepository;
+    #[Inject]
+    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -123,7 +129,6 @@ final class DisbursementOrderService extends IService
             if (!$oT) {
                 throw new \RuntimeException('Failed to update the recharge record');
             }
-            Event::dispatch('app.transaction.created', $oT);
             $this->repository->getModel()->where('id', $disbursementOrder->id)->update([
                 'transaction_record_id' => $oT->id,
             ]);
@@ -165,7 +170,7 @@ final class DisbursementOrderService extends IService
             // 更新凭证表 collection_status order_no
             $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
             if (!$isOk) {
-                throw new Exception('The update of the voucher table failed');
+                throw new \RuntimeException('The update of the voucher table failed');
             }
             // 更新订单表 transaction_voucher_id  status
             $isOk = $this->repository->getQuery()
@@ -221,8 +226,9 @@ final class DisbursementOrderService extends IService
     public function cancelByCustomerId(mixed $id, int $customerId): int
     {
         return Db::transaction(function () use ($id, $customerId) {
+            $cancelOkNum = false;
             if (is_array($id)) {
-                return $this->repository->getModel()
+                $cancelOkNum = $this->repository->getModel()
                     ->whereIn('id', $id)
                     ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
                     ->update([
@@ -230,16 +236,32 @@ final class DisbursementOrderService extends IService
                         'customer_cancelled_by' => $customerId,
                         'cancelled_at'          => date('Y-m-d H:i:s'),
                     ]);
+                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
+                    'ids'           => $id,
+                    'refund_reason' => 'Order canceled by the customer'
+                ]);
             }
 
-            return $this->repository->getModel()
-                ->where('id', $id)
-                ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
-                ->update([
-                    'status'                => DisbursementOrder::STATUS_CANCEL,
-                    'customer_cancelled_by' => $customerId,
-                    'cancelled_at'          => date('Y-m-d H:i:s'),
+            // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
+            if (is_numeric($id) || is_string($id)) {
+                $cancelOkNum = $this->repository->getModel()
+                    ->where('id', $id)
+                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->update([
+                        'status'                => DisbursementOrder::STATUS_CANCEL,
+                        'customer_cancelled_by' => $customerId,
+                        'cancelled_at'          => date('Y-m-d H:i:s'),
+                    ]);
+                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
+                    'ids'           => [$id],
+                    'refund_reason' => 'Order canceled by the customer'
                 ]);
+            }
+
+            if (!$cancelOkNum) {
+                return 0;
+            }
+            return $cancelOkNum;
         });
     }
 
@@ -355,4 +377,88 @@ final class DisbursementOrderService extends IService
         return $result;
 
     }
+
+    // 退款
+    public function refund(int $orderId, string $refund_reason = ''): bool
+    {
+        $disbursementOrder = $this->repository->findById($orderId);
+        if (!$disbursementOrder) {
+            return false;
+        }
+        $tenantAccount = $this->tenantAccountRepository->getQuery()
+            ->where('tenant_id', $disbursementOrder->tenant_id)
+            ->where('account_type', TenantAccount::ACCOUNT_TYPE_PAY)
+            ->with('tenant')
+            ->first();
+        if (!$tenantAccount) {
+            throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
+        }
+        Db::beginTransaction();
+        try {
+            $updateOk = $this->repository->getModel()
+                ->where('id', $orderId)
+                ->where(function ($query) {
+                    // 订单支付中 或 支付成功 退款
+                    $query->where('status', DisbursementOrder::STATUS_WAIT_FILL)
+                        ->orWhere('status', DisbursementOrder::STATUS_SUCCESS);
+                })
+                ->update([
+                    'status'        => DisbursementOrder::STATUS_REFUND,
+                    'refund_reason' => $refund_reason,
+                    'refund_at'     => date('Y-m-d H:i:s'),
+                ]);
+            if (!$updateOk) {
+                throw new RuntimeException('The order status does not meet the refund conditions, the current status value is:' . $disbursementOrder->status);
+            }
+
+            $oT = $this->transactionRecordRepository->orderTransaction(
+                $orderId,
+                $disbursementOrder->platform_order_no,
+                $tenantAccount,
+                $disbursementOrder->amount,
+                $disbursementOrder->total_fee
+            );
+            if ($oT) {
+                $this->notify($disbursementOrder, 5);
+            }
+            Db::commit();
+        } catch (\Throwable $e) {
+            Db::rollBack();
+            throw $e;
+        }
+        return true;
+    }
+
+    // 回调通知
+    public function notify(ModelDisbursementOrder $disbursementOrder, int $max_retry_count = 1): bool
+    {
+        if (!$disbursementOrder) {
+            return false;
+        }
+        $this->tenantNotificationQueueRepository->create([
+            'tenant_id'             => $disbursementOrder->tenant_id,
+            'app_id'                => $disbursementOrder->app_id,
+            'account_type'          => TenantAccount::ACCOUNT_TYPE_PAY,
+            'disbursement_order_id' => $disbursementOrder->id,
+            'notification_type'     => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
+            'notification_url'      => $disbursementOrder->notify_url,
+            'max_retry_count'       => $max_retry_count,
+            'request_data'          => json_encode([
+                'tenant_id'         => $disbursementOrder->tenant_id,
+                'app_id'            => $disbursementOrder->app_id,
+                'platform_order_no' => $disbursementOrder->platform_order_no,
+                'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+                'pay_time'          => $disbursementOrder->pay_time,
+                'amount'            => $disbursementOrder->amount,
+                'total_fee'         => $disbursementOrder->total_fee,
+                'settlement_amount' => $disbursementOrder->settlement_amount,
+                'utr'               => $disbursementOrder->utr,
+                'notify_remark'     => $disbursementOrder->notify_remark,
+                'created_at'        => $disbursementOrder->created_at,
+            ], JSON_THROW_ON_ERROR)
+        ]);
+        $disbursementOrder->notify_status = DisbursementOrder::NOTIFY_STATUS_CALLBACK_ING;
+        return $disbursementOrder->save();
+    }
+
 }

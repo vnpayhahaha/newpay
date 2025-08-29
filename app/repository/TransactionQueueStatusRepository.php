@@ -50,6 +50,15 @@ class TransactionQueueStatusRepository extends IRepository
             Log::error("TransactionQueueStatusRepository  => addQueue  transaction_no:{$transaction_no} already exists");
             return true;
         }
+        $isPush = Redis::send(TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME, [
+            'id'               => $transaction_id,
+            'transaction_no'   => $transaction_no,
+            'transaction_type' => $transaction_type,
+        ], 1);
+
+        if (!$isPush) {
+            Log::error("Transaction Queue Status Repository => addQueue  filed");
+        }
         $insertOk = (bool)$this->create([
             'transaction_no'   => $transaction_no,
             'transaction_type' => $transaction_type,
@@ -59,17 +68,8 @@ class TransactionQueueStatusRepository extends IRepository
             Log::error("TransactionQueueStatusRepository  => addQueue  transaction_no:{$transaction_no} insert failed");
             return false;
         }
-        dump("Transaction Queue Status Repository => addQueue  insert success");
-        $isPush = Redis::send(TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME, [
-            'id'               => $transaction_id,
-            'transaction_no'   => $transaction_no,
-            'transaction_type' => $transaction_type,
-        ], 1);
-        var_dump("Transaction Queue Status Repository => addQueue  isPush:{$isPush}");
-        if (!$isPush) {
-            Log::error("Transaction Queue Status Repository => addQueue  filed");
-        }
-        var_dump("Transaction Queue Status Repository => addQueue  success");
-        return $isPush;
+
+        dump("Transaction Queue Status Repository => addQueue  success");
+        return true;
     }
 }

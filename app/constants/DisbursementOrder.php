@@ -48,11 +48,13 @@ class DisbursementOrder
         self::PAYMENT_TYPE_UPI       => 'disbursement_order.enums.payment_type.upi',
     ];
 
-    // notify_status 通知状态:0-未通知 1-通知成功 2-通知失败 3-回调中
+    // notify_status 通知状态:0-未通知 1-回调中 2-通知成功 3-通知失败
     public const NOTIFY_STATUS_NOT_NOTIFY = 0;
-    public const NOTIFY_STATUS_NOTIFY_SUCCESS = 1;
-    public const NOTIFY_STATUS_NOTIFY_FAIL = 2;
-    public const NOTIFY_STATUS_CALLBACK_ING = 3;
+
+    public const NOTIFY_STATUS_CALLBACK_ING = 1;
+    public const NOTIFY_STATUS_NOTIFY_SUCCESS = 2;
+    public const NOTIFY_STATUS_NOTIFY_FAIL = 3;
+
     public static array $notify_status_list = [
         self::NOTIFY_STATUS_NOT_NOTIFY     => 'disbursement_order.enums.notify_status.not_notify',
         self::NOTIFY_STATUS_NOTIFY_SUCCESS => 'disbursement_order.enums.notify_status.notify_success',
@@ -86,5 +88,6 @@ class DisbursementOrder
     ];
 
     public const DISBURSEMENT_ORDER_WRITE_OFF_QUEUE_NAME = 'disbursement-order-write-off-consumer';
+    public const DISBURSEMENT_ORDER_REFUND_QUEUE_NAME = 'disbursement-order-refund-consumer';
 
 }
