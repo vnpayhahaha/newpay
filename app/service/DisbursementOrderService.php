@@ -37,25 +37,25 @@ use Webman\RedisQueue\Redis;
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository $repository;
+    public DisbursementOrderRepository           $repository;
     #[Inject]
-    protected TenantRepository $tenantRepository;
+    protected TenantRepository                   $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository $tenantAccountRepository;
+    protected TenantAccountRepository            $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository $bankAccountRepository;
+    protected BankAccountRepository              $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository $channelAccountRepository;
+    protected ChannelAccountRepository           $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository $transactionVoucherRepository;
+    protected TransactionVoucherRepository       $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository $transactionRecordRepository;
+    protected TransactionRecordRepository        $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository $attachmentRepository;
+    protected AttachmentRepository               $attachmentRepository;
     #[Inject]
-    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
+    protected TenantNotificationQueueRepository  $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -225,7 +225,12 @@ final class DisbursementOrderService extends IService
             if (is_array($id)) {
                 $cancelOkNum = $this->repository->getModel()
                     ->whereIn('id', $id)
-                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+//                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
                     ->update([
                         'status'       => DisbursementOrder::STATUS_CANCEL,
                         'cancelled_by' => $operatorId,
@@ -240,7 +245,11 @@ final class DisbursementOrderService extends IService
             if (is_numeric($id) || is_string($id)) {
                 $cancelOkNum = $this->repository->getModel()
                     ->where('id', $id)
-                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
                     ->update([
                         'status'       => DisbursementOrder::STATUS_CANCEL,
                         'cancelled_by' => $operatorId,
@@ -266,7 +275,11 @@ final class DisbursementOrderService extends IService
             if (is_array($id)) {
                 $cancelOkNum = $this->repository->getModel()
                     ->whereIn('id', $id)
-                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
                     ->update([
                         'status'                => DisbursementOrder::STATUS_CANCEL,
                         'customer_cancelled_by' => $customerId,
@@ -282,7 +295,11 @@ final class DisbursementOrderService extends IService
             if (is_numeric($id) || is_string($id)) {
                 $cancelOkNum = $this->repository->getModel()
                     ->where('id', $id)
-                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
                     ->update([
                         'status'                => DisbursementOrder::STATUS_CANCEL,
                         'customer_cancelled_by' => $customerId,
