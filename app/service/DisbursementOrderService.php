@@ -188,7 +188,7 @@ final class DisbursementOrderService extends IService
                         $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
-                throw new Exception('Failed to update the order');
+                throw new \RuntimeException('Failed to update the order');
             }
             // 回调通知队列
             $disbursementOrder = $this->repository->findById($disbursementOrderId);
