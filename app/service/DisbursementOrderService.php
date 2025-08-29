@@ -190,6 +190,9 @@ final class DisbursementOrderService extends IService
             if (!$isOk) {
                 throw new Exception('Failed to update the order');
             }
+            // 回调通知队列
+            $disbursementOrder = $this->repository->findById($disbursementOrderId);
+            $this->notify($disbursementOrder, 5);
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
@@ -201,8 +204,9 @@ final class DisbursementOrderService extends IService
     public function cancelById(mixed $id, int $operatorId): int
     {
         return Db::transaction(function () use ($id, $operatorId) {
+            $cancelOkNum = false;
             if (is_array($id)) {
-                return $this->repository->getModel()
+                $cancelOkNum = $this->repository->getModel()
                     ->whereIn('id', $id)
                     ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
                     ->update([
@@ -210,16 +214,30 @@ final class DisbursementOrderService extends IService
                         'cancelled_by' => $operatorId,
                         'cancelled_at' => date('Y-m-d H:i:s'),
                     ]);
-            }
-
-            return $this->repository->getModel()
-                ->where('id', $id)
-                ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
-                ->update([
-                    'status'       => DisbursementOrder::STATUS_CANCEL,
-                    'cancelled_by' => $operatorId,
-                    'cancelled_at' => date('Y-m-d H:i:s'),
+                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
+                    'ids'           => $id,
+                    'refund_reason' => 'Order canceled by platform administrator'
                 ]);
+            }
+            // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
+            if (is_numeric($id) || is_string($id)) {
+                $cancelOkNum = $this->repository->getModel()
+                    ->where('id', $id)
+                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
+                    ->update([
+                        'status'       => DisbursementOrder::STATUS_CANCEL,
+                        'cancelled_by' => $operatorId,
+                        'cancelled_at' => date('Y-m-d H:i:s'),
+                    ]);
+                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
+                    'ids'           => [$id],
+                    'refund_reason' => 'Order canceled by platform administrator'
+                ]);
+            }
+            if (!$cancelOkNum) {
+                return 0;
+            }
+            return $cancelOkNum;
         });
     }
 
@@ -448,6 +466,7 @@ final class DisbursementOrderService extends IService
                 'app_id'            => $disbursementOrder->app_id,
                 'platform_order_no' => $disbursementOrder->platform_order_no,
                 'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+                'status'            => $disbursementOrder->status,
                 'pay_time'          => $disbursementOrder->pay_time,
                 'amount'            => $disbursementOrder->amount,
                 'total_fee'         => $disbursementOrder->total_fee,
@@ -457,8 +476,9 @@ final class DisbursementOrderService extends IService
                 'created_at'        => $disbursementOrder->created_at,
             ], JSON_THROW_ON_ERROR)
         ]);
-        $disbursementOrder->notify_status = DisbursementOrder::NOTIFY_STATUS_CALLBACK_ING;
-        return $disbursementOrder->save();
+        return $this->repository->updateById($disbursementOrder->id, [
+            'notify_status' => DisbursementOrder::NOTIFY_STATUS_CALLBACK_ING,
+        ]);
     }
 
 }
