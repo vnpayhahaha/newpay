@@ -26,6 +26,14 @@ class DisbursementOrderRefundConsumer implements Consumer
         }
         if (is_array($data['ids'])) {
             foreach ($data['ids'] as $id) {
+                // 查询判断订单状态
+                $disbursementOrder = $this->disbursementOrderService->findById($id);
+                if (!$disbursementOrder) {
+                    continue;
+                }
+                if ($disbursementOrder->status === DisbursementOrder::STATUS_REFUND) {
+                    continue;
+                }
                 $this->disbursementOrderService->refund($id, $data['refund_reason']);
             }
         }

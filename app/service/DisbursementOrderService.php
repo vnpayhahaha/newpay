@@ -192,7 +192,22 @@ final class DisbursementOrderService extends IService
             }
             // 回调通知队列
             $disbursementOrder = $this->repository->findById($disbursementOrderId);
-            $this->notify($disbursementOrder, 5);
+            $this->notify($disbursementOrder, [
+                [
+                    'tenant_id'         => $disbursementOrder->tenant_id,
+                    'app_id'            => $disbursementOrder->app_id,
+                    'platform_order_no' => $disbursementOrder->platform_order_no,
+                    'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+                    'status'            => $disbursementOrder->status,
+                    'pay_time'          => $disbursementOrder->pay_time,
+                    'amount'            => $disbursementOrder->amount,
+                    'total_fee'         => $disbursementOrder->total_fee,
+                    'settlement_amount' => $disbursementOrder->settlement_amount,
+                    'utr'               => $disbursementOrder->utr,
+                    'notify_remark'     => $disbursementOrder->notify_remark,
+                    'created_at'        => $disbursementOrder->created_at,
+                ]
+            ], 5);
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
@@ -411,6 +426,7 @@ final class DisbursementOrderService extends IService
         if (!$tenantAccount) {
             throw new BusinessException(ResultCode::TENANT_ACCOUNT_NOT_EXIST);
         }
+        $refund_at = date('Y-m-d H:i:s');
         Db::beginTransaction();
         try {
             $updateOk = $this->repository->getModel()
@@ -423,7 +439,7 @@ final class DisbursementOrderService extends IService
                 ->update([
                     'status'        => DisbursementOrder::STATUS_REFUND,
                     'refund_reason' => $refund_reason,
-                    'refund_at'     => date('Y-m-d H:i:s'),
+                    'refund_at'     => $refund_at,
                 ]);
             if (!$updateOk) {
                 throw new RuntimeException('The order status does not meet the refund conditions, the current status value is:' . $disbursementOrder->status);
@@ -437,7 +453,21 @@ final class DisbursementOrderService extends IService
                 $disbursementOrder->total_fee
             );
             if ($oT) {
-                $this->notify($disbursementOrder, 5);
+                $this->notify($disbursementOrder, [
+                    'tenant_id'         => $disbursementOrder->tenant_id,
+                    'app_id'            => $disbursementOrder->app_id,
+                    'platform_order_no' => $disbursementOrder->platform_order_no,
+                    'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+                    'status'            => DisbursementOrder::STATUS_REFUND,
+                    'refund_at'         => $refund_at,
+                    'refund_reason'     => $refund_reason,
+                    'amount'            => $disbursementOrder->amount,
+                    'total_fee'         => $disbursementOrder->total_fee,
+                    'settlement_amount' => $disbursementOrder->settlement_amount,
+                    'utr'               => $disbursementOrder->utr,
+                    'notify_remark'     => $disbursementOrder->notify_remark,
+                    'created_at'        => $disbursementOrder->created_at,
+                ], 5);
             }
             Db::commit();
         } catch (\Throwable $e) {
@@ -448,7 +478,7 @@ final class DisbursementOrderService extends IService
     }
 
     // 回调通知
-    public function notify(ModelDisbursementOrder $disbursementOrder, int $max_retry_count = 1): bool
+    public function notify(ModelDisbursementOrder $disbursementOrder, array $data, int $max_retry_count = 1): bool
     {
         if (!$disbursementOrder) {
             return false;
@@ -461,20 +491,7 @@ final class DisbursementOrderService extends IService
             'notification_type'     => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
             'notification_url'      => $disbursementOrder->notify_url,
             'max_retry_count'       => $max_retry_count,
-            'request_data'          => json_encode([
-                'tenant_id'         => $disbursementOrder->tenant_id,
-                'app_id'            => $disbursementOrder->app_id,
-                'platform_order_no' => $disbursementOrder->platform_order_no,
-                'tenant_order_no'   => $disbursementOrder->tenant_order_no,
-                'status'            => $disbursementOrder->status,
-                'pay_time'          => $disbursementOrder->pay_time,
-                'amount'            => $disbursementOrder->amount,
-                'total_fee'         => $disbursementOrder->total_fee,
-                'settlement_amount' => $disbursementOrder->settlement_amount,
-                'utr'               => $disbursementOrder->utr,
-                'notify_remark'     => $disbursementOrder->notify_remark,
-                'created_at'        => $disbursementOrder->created_at,
-            ], JSON_THROW_ON_ERROR)
+            'request_data'          => json_encode($data, JSON_THROW_ON_ERROR)
         ]);
         return $this->repository->updateById($disbursementOrder->id, [
             'notify_status' => DisbursementOrder::NOTIFY_STATUS_CALLBACK_ING,
