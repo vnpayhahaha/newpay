@@ -88,6 +88,12 @@ final class ModelTenantNotificationQueue extends BasicModel
         'lock_version'          => 'integer',
     ];
 
+    // hasMany ModelTenantNotificationRecord
+    public function records(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelTenantNotificationRecord::class, 'queue_id', 'id');
+    }
+
     public static function boot(): void
     {
         parent::boot();
