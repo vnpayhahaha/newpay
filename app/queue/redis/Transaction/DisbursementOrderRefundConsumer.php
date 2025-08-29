@@ -31,7 +31,7 @@ class DisbursementOrderRefundConsumer implements Consumer
                 if (!$disbursementOrder) {
                     continue;
                 }
-                if ($disbursementOrder->status === DisbursementOrder::STATUS_REFUND) {
+                if ($disbursementOrder->status === DisbursementOrder::AdjustToFailure) {
                     continue;
                 }
                 $this->disbursementOrderService->refund($id, $data['refund_reason']);

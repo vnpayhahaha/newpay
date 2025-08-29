@@ -36,7 +36,7 @@ use Carbon\Carbon;
  * @property string $description 订单描述
  * @property int $status 订单状态:
  * 0-创建中 10-待支付 11-待回填 20-成功 30-挂起
- * 40-失败 41-已取消 43-已失效 44-已退款
+ * 40-失败 41-已取消 43-已失效 44-冲正
  * @property Carbon $expire_time 订单失效时间
  * @property string $notify_url 回调地址
  * @property string $notify_remark 回调原样返回

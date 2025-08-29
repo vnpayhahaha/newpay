@@ -18,7 +18,7 @@ class DisbursementOrder
     public const STATUS_FAIL = 40;
     public const STATUS_CANCEL = 41;
     public const STATUS_INVALID = 43;
-    public const STATUS_REFUND = 44;
+    public const AdjustToFailure = 44;
     public static array $status_list = [
         self::STATUS_CREATING  => 'disbursement_order.enums.status.0',
         self::STATUS_CREATED   => 'disbursement_order.enums.status.1',
@@ -29,7 +29,7 @@ class DisbursementOrder
         self::STATUS_FAIL      => 'disbursement_order.enums.status.40',
         self::STATUS_CANCEL    => 'disbursement_order.enums.status.41',
         self::STATUS_INVALID   => 'disbursement_order.enums.status.43',
-        self::STATUS_REFUND    => 'disbursement_order.enums.status.44',
+        self::AdjustToFailure  => 'disbursement_order.enums.status.44',
     ];
 
     // `channel_type` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '渠道类型：1-银行 2-上游第三方',

@@ -146,6 +146,7 @@ final class DisbursementOrderService extends IService
         ];
     }
 
+    // 核销订单
     public function writeOff(int $disbursementOrderId, int $transactionVoucherId): bool
     {
         /** @var ModelDisbursementOrder $order */
@@ -216,6 +217,7 @@ final class DisbursementOrderService extends IService
         return $isOk;
     }
 
+    // 管理员取消订单
     public function cancelById(mixed $id, int $operatorId): int
     {
         return Db::transaction(function () use ($id, $operatorId) {
@@ -256,6 +258,7 @@ final class DisbursementOrderService extends IService
         });
     }
 
+    // 客户取消订单
     public function cancelByCustomerId(mixed $id, int $customerId): int
     {
         return Db::transaction(function () use ($id, $customerId) {
@@ -298,6 +301,7 @@ final class DisbursementOrderService extends IService
         });
     }
 
+    // 分配
     public function distribute(array $params, int $operatorId): int
     {
         return Db::transaction(function () use ($params, $operatorId) {
@@ -431,13 +435,8 @@ final class DisbursementOrderService extends IService
         try {
             $updateOk = $this->repository->getModel()
                 ->where('id', $orderId)
-                ->where(function ($query) {
-                    // 订单支付中 或 支付成功 退款
-                    $query->where('status', DisbursementOrder::STATUS_WAIT_FILL)
-                        ->orWhere('status', DisbursementOrder::STATUS_SUCCESS);
-                })
+                ->whereNull('refund_at')
                 ->update([
-                    'status'        => DisbursementOrder::STATUS_REFUND,
                     'refund_reason' => $refund_reason,
                     'refund_at'     => $refund_at,
                 ]);
@@ -458,7 +457,7 @@ final class DisbursementOrderService extends IService
                     'app_id'            => $disbursementOrder->app_id,
                     'platform_order_no' => $disbursementOrder->platform_order_no,
                     'tenant_order_no'   => $disbursementOrder->tenant_order_no,
-                    'status'            => DisbursementOrder::STATUS_REFUND,
+                    'status'            => $disbursementOrder->status,
                     'refund_at'         => $refund_at,
                     'refund_reason'     => $refund_reason,
                     'amount'            => $disbursementOrder->amount,
@@ -498,4 +497,27 @@ final class DisbursementOrderService extends IService
         ]);
     }
 
+    // 冲正 Adjusted to payment failure
+    public function adjustToFailure(int $orderId): bool
+    {
+        $disbursementOrder = $this->repository->findById($orderId);
+        if (!$disbursementOrder) {
+            return false;
+        }
+        if ($disbursementOrder->status !== DisbursementOrder::STATUS_SUCCESS) {
+            return false;
+        }
+        $updateOk = $this->repository->getModel()
+            ->where([
+                'id'     => $orderId,
+                'status' => DisbursementOrder::STATUS_SUCCESS,
+            ])
+            ->update([
+                'status' => DisbursementOrder::AdjustToFailure,
+            ]);
+        if (!$updateOk) {
+            return false;
+        }
+        return $this->refund($orderId, 'Payment failure');
+    }
 }
