@@ -42,13 +42,18 @@ class CollectionOrderController extends BasicController
     public function writeOff(Request $request, int $id): Response
     {
         $validator = validate($request->all(), [
-            'transaction_voucher_id' => ['required', 'integer', 'between:1,9999999999'],
+            'transaction_voucher_id' => [
+                'required',
+                'integer',
+                'between:1,9999999999'
+            ],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-        return $this->service->writeOff($id, $validatedData['transaction_voucher_id']) ? $this->success() : $this->error();
+        return $this->service->writeOff($id, $validatedData['transaction_voucher_id']) ? $this->success() :
+            $this->error();
     }
 
     #[PutMapping('/collection_order/cancel')]
@@ -57,7 +62,10 @@ class CollectionOrderController extends BasicController
     public function cancel(Request $request): Response
     {
         $validator = validate($request->all(), [
-            'data' => ['required', 'array'],
+            'data' => [
+                'required',
+                'array'
+            ],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -66,5 +74,13 @@ class CollectionOrderController extends BasicController
         $user = $request->user;
         $this->service->cancelById($validatedData['data'], $user['id']);
         return $this->success();
+    }
+
+    // 回调通知
+    #[GetMapping('/collection_order/manual_notify/{id}')]
+    #[OperationLog('收款订单手动回调')]
+    public function notify(Request $request, int $id): Response
+    {
+        return $this->service->manualNotify($id) ? $this->success() : $this->error();
     }
 }

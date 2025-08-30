@@ -592,4 +592,27 @@ final class CollectionOrderService extends IService
             'notify_status' => CollectionOrder::NOTIFY_STATUS_CALLBACK_ING,
         ]);
     }
+
+    // 人工回调通知
+    public function manualNotify(int $collectionOrderId): bool
+    {
+        $collectionOrder = $this->repository->findById($collectionOrderId);
+        if (!$collectionOrder) {
+            return false;
+        }
+        return $this->notify($collectionOrder, [
+            'tenant_id'         => $collectionOrder->tenant_id,
+            'app_id'            => $collectionOrder->app_id,
+            'platform_order_no' => $collectionOrder->platform_order_no,
+            'tenant_order_no'   => $collectionOrder->tenant_order_no,
+            'status'            => $collectionOrder->status,
+            'pay_time'          => $collectionOrder->pay_time,
+            'amount'            => $collectionOrder->amount,
+            'total_fee'         => $collectionOrder->total_fee,
+            'settlement_amount' => $collectionOrder->settlement_amount,
+            'utr'               => $collectionOrder->utr,
+            'notify_remark'     => $collectionOrder->notify_remark,
+            'created_at'        => $collectionOrder->created_at,
+        ]);
+    }
 }
