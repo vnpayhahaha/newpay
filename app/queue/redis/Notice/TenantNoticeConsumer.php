@@ -87,7 +87,6 @@ class TenantNoticeConsumer implements Consumer
 
                 // 检查是否已经达到最大重试次数
                 if ($queueModel->execute_count >= $queueModel->max_retry_count) {
-                    $this->updateQueueStatus($queueModel, TenantNotificationQueue::EXECUTE_STATUS_FAILURE, '达到最大重试次数');
                     Log::error('TenantNoticeConsumer: max retry count reached', ['queue_id' => $queueId]);
                     Db::commit();
                     return;
