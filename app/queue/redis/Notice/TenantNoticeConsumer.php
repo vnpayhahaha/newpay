@@ -2,8 +2,11 @@
 
 namespace app\queue\redis\Notice;
 
+use app\constants\TenantAccount;
 use app\constants\TenantNotificationQueue;
 use app\constants\TenantNotificationRecord;
+use app\repository\CollectionOrderRepository;
+use app\repository\DisbursementOrderRepository;
 use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantNotificationRecordRepository;
 use app\model\ModelTenantNotificationQueue;
@@ -28,6 +31,11 @@ class TenantNoticeConsumer implements Consumer
     #[Inject]
     protected TenantNotificationRecordRepository $tenantNotificationRecordRepository;
 
+    #[Inject]
+    public CollectionOrderRepository $collectionOrderRepository;
+    #[Inject]
+    public DisbursementOrderRepository $disbursementOrderRepository;
+
     // 消费
 
     /**
@@ -47,7 +55,6 @@ class TenantNoticeConsumer implements Consumer
      */
     public function consume($data)
     {
-        // todo 待调试
         $queueId = $data['queue_id'] ?? null;
         if (!$queueId) {
             Log::error('TenantNoticeConsumer: queue_id is missing', ['data' => $data]);
@@ -297,7 +304,32 @@ class TenantNoticeConsumer implements Consumer
             $updateData['next_execute_time'] = null;
         }
 
-        $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
+        $isUpdate = $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
+        // 同步订单的通知状态
+        if ($isUpdate) {
+            $this->syncOrderNotificationStatus($queueId);
+        }
+    }
+
+    // 同步订单的通知状态
+    private function syncOrderNotificationStatus(int $queueId): void
+    {
+        $queueFind = $this->tenantNotificationQueueRepository->findById($queueId);
+        if (!$queueFind) {
+            return;
+        }
+        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_RECEIVE && $queueFind->collection_order_id > 0) {
+            $this->collectionOrderRepository->updateById($queueFind->collection_order_id, [
+                'notify_status' => $queueFind->execute_status,
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+        }
+        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_PAY && $queueFind->disbursement_order_id > 0) {
+            $this->disbursementOrderRepository->updateById($queueFind->disbursement_order_id, [
+                'notify_status' => $queueFind->execute_status,
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+        }
     }
 
     /**
@@ -334,6 +366,8 @@ class TenantNoticeConsumer implements Consumer
         } else {
             // 达到最大重试次数，清除下次执行时间
             $updateData['next_execute_time'] = null;
+            // 同步订单的通知状态
+            $this->syncOrderNotificationStatus($queueId);
         }
 
         $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
