@@ -112,4 +112,13 @@ class DisbursementOrderController extends BasicController
     {
         return $this->service->downloadBankBill($request->all());
     }
+
+
+    // 回调通知
+    #[GetMapping('/disbursement_order/manual_notify/{id}')]
+    #[OperationLog('付款订单手动回调')]
+    public function notify(Request $request, int $id): Response
+    {
+        return $this->service->manualNotify($id) ? $this->success() : $this->error();
+    }
 }
