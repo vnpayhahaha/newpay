@@ -5,6 +5,7 @@ namespace app\service;
 use app\constants\CollectionOrder;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
+use app\constants\TenantNotificationQueue;
 use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\exception\OpenApiException;
@@ -16,6 +17,7 @@ use app\repository\BankAccountRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
 use app\repository\TenantAccountRepository;
+use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
@@ -48,6 +50,8 @@ final class CollectionOrderService extends IService
     protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
     protected TransactionRecordRepository $transactionRecordRepository;
+    #[Inject]
+    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -464,6 +468,24 @@ final class CollectionOrderService extends IService
             if (!$isOk) {
                 throw new Exception('Failed to update the order');
             }
+            // 回调通知队列
+            $collectionOrder = $this->repository->findById($collectionOrderId);
+            $this->notify($collectionOrder, [
+                [
+                    'tenant_id'         => $collectionOrder->tenant_id,
+                    'app_id'            => $collectionOrder->app_id,
+                    'platform_order_no' => $collectionOrder->platform_order_no,
+                    'tenant_order_no'   => $collectionOrder->tenant_order_no,
+                    'status'            => $collectionOrder->status,
+                    'pay_time'          => $collectionOrder->pay_time,
+                    'amount'            => $collectionOrder->amount,
+                    'total_fee'         => $collectionOrder->total_fee,
+                    'settlement_amount' => $collectionOrder->settlement_amount,
+                    'utr'               => $collectionOrder->utr,
+                    'notify_remark'     => $collectionOrder->notify_remark,
+                    'created_at'        => $collectionOrder->created_at,
+                ]
+            ], 5);
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
@@ -520,5 +542,26 @@ final class CollectionOrderService extends IService
                     'cancelled_at'          => date('Y-m-d H:i:s'),
                 ]);
         });
+    }
+
+    // 回调通知
+    public function notify(ModelCollectionOrder $collectionOrder, array $data, int $max_retry_count = 1): bool
+    {
+        if (!$collectionOrder || !filled($collectionOrder->notify_url)) {
+            return false;
+        }
+        $this->tenantNotificationQueueRepository->create([
+            'tenant_id'             => $collectionOrder->tenant_id,
+            'app_id'                => $collectionOrder->app_id,
+            'account_type'          => TenantAccount::ACCOUNT_TYPE_RECEIVE,
+            'disbursement_order_id' => $collectionOrder->id,
+            'notification_type'     => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
+            'notification_url'      => $collectionOrder->notify_url,
+            'max_retry_count'       => $max_retry_count,
+            'request_data'          => json_encode($data, JSON_THROW_ON_ERROR)
+        ]);
+        return $this->repository->updateById($collectionOrder->id, [
+            'notify_status' => CollectionOrder::NOTIFY_STATUS_CALLBACK_ING,
+        ]);
     }
 }

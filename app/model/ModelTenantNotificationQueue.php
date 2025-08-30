@@ -100,7 +100,7 @@ final class ModelTenantNotificationQueue extends BasicModel
 
         self::created(static function (ModelTenantNotificationQueue $model) {
             // 待付核销队列 TenantNotificationQueue
-            if ($model->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING) {
+            if ($model->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($model->notification_url)) {
                 var_dump('待执行回调通知队列 TenantNotificationQueue');
                 Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
                     'queue_id'              => $model->id,

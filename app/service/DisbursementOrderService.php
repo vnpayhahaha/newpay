@@ -496,7 +496,7 @@ final class DisbursementOrderService extends IService
     // 回调通知
     public function notify(ModelDisbursementOrder $disbursementOrder, array $data, int $max_retry_count = 1): bool
     {
-        if (!$disbursementOrder) {
+        if (!$disbursementOrder || !filled($disbursementOrder->notify_url)) {
             return false;
         }
         $this->tenantNotificationQueueRepository->create([
