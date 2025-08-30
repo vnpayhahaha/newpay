@@ -558,33 +558,33 @@ final class CollectionOrderService extends IService
             return false;
         }
         $insertOk = $this->tenantNotificationQueueRepository->create([
-            'tenant_id'             => $collectionOrder->tenant_id,
-            'app_id'                => $collectionOrder->app_id,
-            'account_type'          => TenantAccount::ACCOUNT_TYPE_RECEIVE,
+            'tenant_id'           => $collectionOrder->tenant_id,
+            'app_id'              => $collectionOrder->app_id,
+            'account_type'        => TenantAccount::ACCOUNT_TYPE_RECEIVE,
             'collection_order_id' => $collectionOrder->id,
-            'notification_type'     => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
-            'notification_url'      => $collectionOrder->notify_url,
-            'max_retry_count'       => $max_retry_count,
-            'request_data'          => json_encode($data, JSON_THROW_ON_ERROR)
+            'notification_type'   => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
+            'notification_url'    => $collectionOrder->notify_url,
+            'max_retry_count'     => $max_retry_count,
+            'request_data'        => json_encode($data, JSON_THROW_ON_ERROR)
         ]);
         if (!$insertOk) {
             return false;
         }
         $tenantNotificationQueue = $this->tenantNotificationQueueRepository->findById($insertOk->id);
-        dump('待执行回调通知队列 TenantNotificationQueue',$insertOk);
+        dump('待执行回调通知队列 TenantNotificationQueue', $insertOk);
         if ($tenantNotificationQueue->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($tenantNotificationQueue->notification_url)) {
             var_dump('待执行回调通知队列 TenantNotificationQueue-===========');
             \Webman\RedisQueue\Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-                'queue_id'              => $tenantNotificationQueue->id,
-                'tenant_id'             => $tenantNotificationQueue->tenant_id,
-                'app_id'                => $tenantNotificationQueue->app_id,
-                'account_type'          => $tenantNotificationQueue->account_type,
-                'collection_order_id'   => $tenantNotificationQueue->collection_order_id,
-                'notification_type'     => $tenantNotificationQueue->notification_type,
-                'notification_url'      => $tenantNotificationQueue->notification_url,
-                'request_method'        => $tenantNotificationQueue->request_method,
-                'request_data'          => $tenantNotificationQueue->request_data,
-                'max_retry_count'       => $tenantNotificationQueue->max_retry_count,
+                'id'                  => $tenantNotificationQueue->id,
+                'tenant_id'           => $tenantNotificationQueue->tenant_id,
+                'app_id'              => $tenantNotificationQueue->app_id,
+                'account_type'        => $tenantNotificationQueue->account_type,
+                'collection_order_id' => $tenantNotificationQueue->collection_order_id,
+                'notification_type'   => $tenantNotificationQueue->notification_type,
+                'notification_url'    => $tenantNotificationQueue->notification_url,
+                'request_method'      => $tenantNotificationQueue->request_method,
+                'request_data'        => $tenantNotificationQueue->request_data,
+                'max_retry_count'     => $tenantNotificationQueue->max_retry_count,
             ]);
         }
 

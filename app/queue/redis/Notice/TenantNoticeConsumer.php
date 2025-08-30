@@ -5,17 +5,16 @@ namespace app\queue\redis\Notice;
 use app\constants\TenantAccount;
 use app\constants\TenantNotificationQueue;
 use app\constants\TenantNotificationRecord;
+use app\model\ModelTenantNotificationQueue;
 use app\repository\CollectionOrderRepository;
 use app\repository\DisbursementOrderRepository;
 use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantNotificationRecordRepository;
-use app\model\ModelTenantNotificationQueue;
 use DI\Attribute\Inject;
-use Webman\RedisQueue\Consumer;
-use support\Log;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use support\Db;
+use support\Log;
+use Webman\RedisQueue\Consumer;
 use Webman\RedisQueue\Redis;
 
 class TenantNoticeConsumer implements Consumer
@@ -40,7 +39,7 @@ class TenantNoticeConsumer implements Consumer
 
     /**
      * @param $data [
-     * 'queue_id'              => $model->id,
+     * 'id'              => $model->id,
      * 'tenant_id'             => $model->tenant_id,
      * 'app_id'                => $model->app_id,
      * 'account_type'          => $model->account_type,
@@ -55,7 +54,7 @@ class TenantNoticeConsumer implements Consumer
      */
     public function consume($data)
     {
-        $queueId = $data['queue_id'] ?? null;
+        $queueId = $data['id'] ?? null;
         if (!$queueId) {
             Log::error('TenantNoticeConsumer: queue_id is missing', ['data' => $data]);
             return;
@@ -230,12 +229,12 @@ class TenantNoticeConsumer implements Consumer
     private function recordNotificationLog(array $requestData, int $statusCode, string $response, int $status, int $currentExecuteNum = 1): void
     {
         $logData = [
-            'queue_id'              => $requestData['queue_id'] ?? null,
-            'tenant_id'             => $requestData['tenant_id'] ?? null,
-            'app_id'                => $requestData['app_id'] ?? null,
-            'account_type'          => $requestData['account_type'] ?? null,
-            'disbursement_order_id' => $requestData['disbursement_order_id'] ?? null,
-            'notification_type'     => $requestData['notification_type'] ?? null,
+            'queue_id'              => $requestData['id'] ?? null,
+            'tenant_id'             => $requestData['tenant_id'] ?? '',
+            'app_id'                => $requestData['app_id'] ?? '',
+            'account_type'          => $requestData['account_type'] ?? 0,
+            'disbursement_order_id' => $requestData['disbursement_order_id'] ?? 0,
+            'notification_type'     => $requestData['notification_type'] ?? 0,
             'notification_url'      => $requestData['notification_url'] ?? '',
             'request_method'        => $requestData['request_method'] ?? 'POST',
             'request_data'          => isset($requestData['request_data']) ?
@@ -249,8 +248,8 @@ class TenantNoticeConsumer implements Consumer
         ];
 
         // 获取当前队列的执行次数
-        if (!empty($requestData['queue_id'])) {
-            $queueModel = $this->tenantNotificationQueueRepository->findById($requestData['queue_id']);
+        if (!empty($requestData['id'])) {
+            $queueModel = $this->tenantNotificationQueueRepository->findById($requestData['id']);
             if ($queueModel) {
                 $logData['execute_count'] = $queueModel->execute_count;
             }
@@ -373,7 +372,7 @@ class TenantNoticeConsumer implements Consumer
         $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
         // 重新入队列，并计算设置延迟时间
         Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-            'queue_id'              => $queueId,
+            'id'                    => $queueId,
             'tenant_id'             => $queueModel->tenant_id,
             'app_id'                => $queueModel->app_id,
             'account_type'          => $queueModel->account_type,
@@ -399,7 +398,7 @@ class TenantNoticeConsumer implements Consumer
         dump('TenantNoticeConsumer===========onConsumeFailure=====', $e, $package);
 
         $data = $package['data'] ?? [];
-        $queueId = $data['queue_id'] ?? null;
+        $queueId = $data['id'] ?? null;
 
         if ($queueId) {
             // 记录错误日志

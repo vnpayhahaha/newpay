@@ -37,25 +37,25 @@ use Webman\RedisQueue\Redis;
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository           $repository;
+    public DisbursementOrderRepository $repository;
     #[Inject]
-    protected TenantRepository                   $tenantRepository;
+    protected TenantRepository $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository            $tenantAccountRepository;
+    protected TenantAccountRepository $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository              $bankAccountRepository;
+    protected BankAccountRepository $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository           $channelAccountRepository;
+    protected ChannelAccountRepository $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository       $transactionVoucherRepository;
+    protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository        $transactionRecordRepository;
+    protected TransactionRecordRepository $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository               $attachmentRepository;
+    protected AttachmentRepository $attachmentRepository;
     #[Inject]
-    protected TenantNotificationQueueRepository  $tenantNotificationQueueRepository;
+    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -523,7 +523,7 @@ final class DisbursementOrderService extends IService
         if ($tenantNotificationQueue->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($tenantNotificationQueue->notification_url)) {
             var_dump('待执行回调通知队列 TenantNotificationQueue');
             \Webman\RedisQueue\Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-                'queue_id'              => $tenantNotificationQueue->id,
+                'id'                    => $tenantNotificationQueue->id,
                 'tenant_id'             => $tenantNotificationQueue->tenant_id,
                 'app_id'                => $tenantNotificationQueue->app_id,
                 'account_type'          => $tenantNotificationQueue->account_type,
