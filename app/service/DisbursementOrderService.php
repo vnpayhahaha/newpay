@@ -210,6 +210,8 @@ final class DisbursementOrderService extends IService
                 'tenant_order_no'   => $disbursementOrder->tenant_order_no,
                 'status'            => $disbursementOrder->status,
                 'pay_time'          => $disbursementOrder->pay_time,
+                'refund_at'         => $disbursementOrder->refund_at,
+                'refund_reason'     => $disbursementOrder->refund_reason,
                 'amount'            => $disbursementOrder->amount,
                 'total_fee'         => $disbursementOrder->total_fee,
                 'settlement_amount' => $disbursementOrder->settlement_amount,
@@ -488,8 +490,9 @@ final class DisbursementOrderService extends IService
             'platform_order_no' => $disbursementOrderNotify->platform_order_no,
             'tenant_order_no'   => $disbursementOrderNotify->tenant_order_no,
             'status'            => $disbursementOrderNotify->status,
+            'pay_time'          => $disbursementOrder->pay_time,
             'refund_at'         => $refund_at,
-            'refund_reason'     => $disbursementOrderNotify,
+            'refund_reason'     => $disbursementOrderNotify->refund_reason,
             'amount'            => $disbursementOrderNotify->amount,
             'total_fee'         => $disbursementOrderNotify->total_fee,
             'settlement_amount' => $disbursementOrderNotify->settlement_amount,
@@ -562,5 +565,31 @@ final class DisbursementOrderService extends IService
             return false;
         }
         return $this->refund($orderId, 'Payment failure');
+    }
+
+
+    // 人工回调通知
+    public function manualNotify(int $disbursementOrderId): bool
+    {
+        $disbursementOrder = $this->repository->findById($disbursementOrderId);
+        if (!$disbursementOrder) {
+            return false;
+        }
+        return $this->notify($disbursementOrder, [
+            'tenant_id'         => $disbursementOrder->tenant_id,
+            'app_id'            => $disbursementOrder->app_id,
+            'platform_order_no' => $disbursementOrder->platform_order_no,
+            'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+            'status'            => $disbursementOrder->status,
+            'pay_time'          => $disbursementOrder->pay_time,
+            'refund_at'         => $disbursementOrder->refund_at,
+            'refund_reason'     => $disbursementOrder->refund_reason,
+            'amount'            => $disbursementOrder->amount,
+            'total_fee'         => $disbursementOrder->total_fee,
+            'settlement_amount' => $disbursementOrder->settlement_amount,
+            'utr'               => $disbursementOrder->utr,
+            'notify_remark'     => $disbursementOrder->notify_remark,
+            'created_at'        => $disbursementOrder->created_at,
+        ]);
     }
 }
