@@ -393,6 +393,14 @@ class TenantNoticeConsumer implements Consumer
         dump('TenantNoticeConsumer===========onConsumeFailure=====', $e, $package);
 
         $data = $package['data'] ?? [];
+        $queueId = $data['id'] ?? null;
+
+        if ($queueId) {
+            // 记录错误信息
+            $this->tenantNotificationQueueRepository->updateById($queueId, [
+                'error_message' => $e->getMessage(),
+            ]);
+        }
         Log::error('TenantNoticeConsumer consume failure', [
             'exception' => $e->getMessage(),
             'data'      => $data
