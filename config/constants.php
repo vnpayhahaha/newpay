@@ -45,4 +45,5 @@ return [
     // 交易原始数据
     'bank_disbursement_upload'  => app\constants\BankDisbursementUpload::class,
     // 银行代付上传
+    'tenant_notification_queue'=> app\constants\TenantNotificationQueue::class,
 ];
