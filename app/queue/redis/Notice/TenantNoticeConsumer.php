@@ -153,16 +153,6 @@ class TenantNoticeConsumer implements Consumer
             } else {
                 // 响应内容不符合要求，视为失败
                 $errorMessage = "Invalid response content: " . $response;
-                $this->recordNotificationLog($queueData, 200, $response, TenantNotificationRecord::STATUS_FAIL, $currentExecuteNum);
-
-                // 更新队列状态为失败，并设置下次执行时间
-                $this->updateQueueStatusWithRetry($queueId, $errorMessage, $data['max_retry_count'] ?? 3);
-
-                Log::error('TenantNoticeConsumer: invalid response content', [
-                    'queue_id' => $queueId,
-                    'response' => $response
-                ]);
-
                 // 抛出异常触发重试机制
                 throw new \RuntimeException($errorMessage);
             }
@@ -317,13 +307,13 @@ class TenantNoticeConsumer implements Consumer
         if (!$queueFind) {
             return;
         }
-        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_RECEIVE && $queueFind->collection_order_id > 0) {
+        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_RECEIVE && $queueFind->notification_type === TenantNotificationQueue::NOTIFICATION_TYPE_ORDER && $queueFind->collection_order_id > 0) {
             $this->collectionOrderRepository->updateById($queueFind->collection_order_id, [
                 'notify_status' => $queueFind->execute_status,
                 'updated_at'    => date('Y-m-d H:i:s')
             ]);
         }
-        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_PAY && $queueFind->disbursement_order_id > 0) {
+        if ($queueFind->account_type === TenantAccount::ACCOUNT_TYPE_PAY && $queueFind->notification_type === TenantNotificationQueue::NOTIFICATION_TYPE_ORDER && $queueFind->disbursement_order_id > 0) {
             $this->disbursementOrderRepository->updateById($queueFind->disbursement_order_id, [
                 'notify_status' => $queueFind->execute_status,
                 'updated_at'    => date('Y-m-d H:i:s')
@@ -350,7 +340,7 @@ class TenantNoticeConsumer implements Consumer
         // 计算下次执行时间（指数退避算法：10秒、20秒、40秒...）
         $executeCount = $queueModel->execute_count;
         $baseDelay = 10; // 基础延迟时间（秒）
-        $delaySeconds = $baseDelay * pow(2, $executeCount - 1); // 指数退避
+        $delaySeconds = $baseDelay * (2 ** ($executeCount - 1)); // 指数退避
 
         $updateData = [
             'execute_status'    => TenantNotificationQueue::EXECUTE_STATUS_FAILURE,
@@ -360,29 +350,35 @@ class TenantNoticeConsumer implements Consumer
         ];
 
         // 如果还没达到最大重试次数，设置下次执行时间
+        dump('如果还没达到最大重试次数，设置下次执行时间==', $executeCount, $maxRetryCount);
         if ($executeCount < $maxRetryCount) {
             $updateData['next_execute_time'] = date('Y-m-d H:i:s', time() + $delaySeconds);
         } else {
             // 达到最大重试次数，清除下次执行时间
             $updateData['next_execute_time'] = null;
+
+        }
+
+        $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
+        if ($executeCount < $maxRetryCount) {
+            // 重新入队列，并计算设置延迟时间
+            Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
+                'id'                    => $queueId,
+                'tenant_id'             => $queueModel->tenant_id,
+                'app_id'                => $queueModel->app_id,
+                'account_type'          => $queueModel->account_type,
+                'disbursement_order_id' => $queueModel->disbursement_order_id,
+                'notification_type'     => $queueModel->notification_type,
+                'notification_url'      => $queueModel->notification_url,
+                'request_method'        => $queueModel->request_method,
+                'request_data'          => $queueModel->request_data,
+                'max_retry_count'       => $queueModel->max_retry_count,
+            ], $delaySeconds - 1);
+        } else {
             // 同步订单的通知状态
             $this->syncOrderNotificationStatus($queueId);
         }
 
-        $this->tenantNotificationQueueRepository->updateById($queueId, $updateData);
-        // 重新入队列，并计算设置延迟时间
-        Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-            'id'                    => $queueId,
-            'tenant_id'             => $queueModel->tenant_id,
-            'app_id'                => $queueModel->app_id,
-            'account_type'          => $queueModel->account_type,
-            'disbursement_order_id' => $queueModel->disbursement_order_id,
-            'notification_type'     => $queueModel->notification_type,
-            'notification_url'      => $queueModel->notification_url,
-            'request_method'        => $queueModel->request_method,
-            'request_data'          => $queueModel->request_data,
-            'max_retry_count'       => $queueModel->max_retry_count,
-        ], $delaySeconds - 1);
 
     }
 
@@ -398,16 +394,6 @@ class TenantNoticeConsumer implements Consumer
         dump('TenantNoticeConsumer===========onConsumeFailure=====', $e, $package);
 
         $data = $package['data'] ?? [];
-        $queueId = $data['id'] ?? null;
-
-        if ($queueId) {
-            // 记录错误日志
-            $this->recordNotificationLog($data, 500, $e->getMessage(), TenantNotificationRecord::STATUS_FAIL);
-
-            // 更新队列状态并设置重试时间
-            $this->updateQueueStatusWithRetry($queueId, $e->getMessage(), $data['max_retry_count'] ?? 3);
-        }
-
         Log::error('TenantNoticeConsumer consume failure', [
             'exception' => $e->getMessage(),
             'data'      => $data
