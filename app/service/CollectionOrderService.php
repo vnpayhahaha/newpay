@@ -425,7 +425,7 @@ final class CollectionOrderService extends IService
             // 更新凭证表 collection_status order_no
             $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
             if (!$isOk) {
-                throw new Exception('The update of the voucher table failed');
+                throw new \RuntimeException('The update of the voucher table failed');
             }
             // 加帐
             $settlement_type = $order->settlement_type;
@@ -561,7 +561,7 @@ final class CollectionOrderService extends IService
             'tenant_id'             => $collectionOrder->tenant_id,
             'app_id'                => $collectionOrder->app_id,
             'account_type'          => TenantAccount::ACCOUNT_TYPE_RECEIVE,
-            'disbursement_order_id' => $collectionOrder->id,
+            'collection_order_id' => $collectionOrder->id,
             'notification_type'     => TenantNotificationQueue::NOTIFICATION_TYPE_ORDER,
             'notification_url'      => $collectionOrder->notify_url,
             'max_retry_count'       => $max_retry_count,
@@ -570,20 +570,21 @@ final class CollectionOrderService extends IService
         if (!$insertOk) {
             return false;
         }
+        $tenantNotificationQueue = $this->tenantNotificationQueueRepository->findById($insertOk->id);
         dump('待执行回调通知队列 TenantNotificationQueue',$insertOk);
-        if ($insertOk->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($insertOk->notification_url)) {
-            var_dump('待执行回调通知队列 TenantNotificationQueue');
+        if ($tenantNotificationQueue->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($tenantNotificationQueue->notification_url)) {
+            var_dump('待执行回调通知队列 TenantNotificationQueue-===========');
             \Webman\RedisQueue\Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-                'queue_id'              => $insertOk->id,
-                'tenant_id'             => $insertOk->tenant_id,
-                'app_id'                => $insertOk->app_id,
-                'account_type'          => $insertOk->account_type,
-                'disbursement_order_id' => $insertOk->disbursement_order_id,
-                'notification_type'     => $insertOk->notification_type,
-                'notification_url'      => $insertOk->notification_url,
-                'request_method'        => $insertOk->request_method,
-                'request_data'          => $insertOk->request_data,
-                'max_retry_count'       => $insertOk->max_retry_count,
+                'queue_id'              => $tenantNotificationQueue->id,
+                'tenant_id'             => $tenantNotificationQueue->tenant_id,
+                'app_id'                => $tenantNotificationQueue->app_id,
+                'account_type'          => $tenantNotificationQueue->account_type,
+                'collection_order_id'   => $tenantNotificationQueue->collection_order_id,
+                'notification_type'     => $tenantNotificationQueue->notification_type,
+                'notification_url'      => $tenantNotificationQueue->notification_url,
+                'request_method'        => $tenantNotificationQueue->request_method,
+                'request_data'          => $tenantNotificationQueue->request_data,
+                'max_retry_count'       => $tenantNotificationQueue->max_retry_count,
             ]);
         }
 

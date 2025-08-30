@@ -2,6 +2,7 @@
 
 namespace app\repository;
 
+use app\constants\TransactionRecord;
 use app\constants\TransactionVoucher;
 use app\model\ModelTransactionVoucher;
 use DI\Attribute\Inject;
@@ -79,6 +80,17 @@ class TransactionVoucherRepository extends IRepository
     // 核销
     public function writeOff(int $transactionVoucherId, string $platform_order_no): bool
     {
+        $find = $this->model::where('id', $transactionVoucherId)
+            ->first();
+        if (!$find) {
+            throw new \RuntimeException('The verification certificate does not exist');
+        }
+        if (!in_array($find->collection_status, [
+            TransactionVoucher::COLLECTION_STATUS_WAITING,
+            TransactionVoucher::COLLECTION_STATUS_FAIL
+        ], true)) {
+            throw new \RuntimeException('The verification failed, please check the status of the verification certificate:' . TransactionVoucher::getHumanizeValue(TransactionVoucher::$collection_status_list, $find->collection_status));
+        }
         return $this->model::where('id', $transactionVoucherId)
                 ->where(function (Builder $query) {
                     $query->where('collection_status', TransactionVoucher::COLLECTION_STATUS_FAIL)
