@@ -134,9 +134,9 @@ final class ModelTransactionRecord extends BasicModel
             }
         });
 
-        self::created(static function (ModelTransactionRecord $model) {
-            Event::dispatch('app.transaction.created', $model);
-        });
+//        self::created(static function (ModelTransactionRecord $model) {
+//            Event::dispatch('app.transaction.created', $model);
+//        });
 
     }
 }

@@ -119,25 +119,28 @@ final class DisbursementOrderService extends IService
                 throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
             }
             // 扣款
-            $oT = $this->transactionRecordRepository->orderTransaction(
+            $modelTransactionRecord = $this->transactionRecordRepository->orderTransaction(
                 $disbursementOrder->id,
                 $disbursementOrder->platform_order_no,
                 $tenantAccount,
                 -$disbursementOrder->amount,
                 -$disbursementOrder->total_fee
             );
-            if (!$oT) {
+            if (!$modelTransactionRecord) {
                 throw new \RuntimeException('Failed to update the recharge record');
             }
             $this->repository->getModel()->where('id', $disbursementOrder->id)->update([
-                'transaction_record_id' => $oT->id,
+                'transaction_record_id' => $modelTransactionRecord->id,
             ]);
+            $isOk = true;
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
             throw $e;
         }
-
+        // 执行成功，添加队列
+        // 交易队列
+        Event::dispatch('app.transaction.created', $modelTransactionRecord);
         return [
             'platform_order_no' => $disbursementOrder->platform_order_no,
             'tenant_order_no'   => $disbursementOrder->tenant_order_no,
@@ -191,29 +194,30 @@ final class DisbursementOrderService extends IService
             if (!$isOk) {
                 throw new \RuntimeException('Failed to update the order');
             }
-            // 回调通知队列
-            $disbursementOrder = $this->repository->findById($disbursementOrderId);
-            $this->notify($disbursementOrder, [
-                [
-                    'tenant_id'         => $disbursementOrder->tenant_id,
-                    'app_id'            => $disbursementOrder->app_id,
-                    'platform_order_no' => $disbursementOrder->platform_order_no,
-                    'tenant_order_no'   => $disbursementOrder->tenant_order_no,
-                    'status'            => $disbursementOrder->status,
-                    'pay_time'          => $disbursementOrder->pay_time,
-                    'amount'            => $disbursementOrder->amount,
-                    'total_fee'         => $disbursementOrder->total_fee,
-                    'settlement_amount' => $disbursementOrder->settlement_amount,
-                    'utr'               => $disbursementOrder->utr,
-                    'notify_remark'     => $disbursementOrder->notify_remark,
-                    'created_at'        => $disbursementOrder->created_at,
-                ]
-            ], 5);
+
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
             throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
         }
+        // 回调通知队列
+        $disbursementOrder = $this->repository->findById($disbursementOrderId);
+        $this->notify($disbursementOrder, [
+            [
+                'tenant_id'         => $disbursementOrder->tenant_id,
+                'app_id'            => $disbursementOrder->app_id,
+                'platform_order_no' => $disbursementOrder->platform_order_no,
+                'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+                'status'            => $disbursementOrder->status,
+                'pay_time'          => $disbursementOrder->pay_time,
+                'amount'            => $disbursementOrder->amount,
+                'total_fee'         => $disbursementOrder->total_fee,
+                'settlement_amount' => $disbursementOrder->settlement_amount,
+                'utr'               => $disbursementOrder->utr,
+                'notify_remark'     => $disbursementOrder->notify_remark,
+                'created_at'        => $disbursementOrder->created_at,
+            ]
+        ], 5);
         return $isOk;
     }
 
@@ -461,35 +465,38 @@ final class DisbursementOrderService extends IService
                 throw new RuntimeException('The order status does not meet the refund conditions, the current status value is:' . $disbursementOrder->status);
             }
 
-            $oT = $this->transactionRecordRepository->orderTransaction(
+            $modelTransactionRecord = $this->transactionRecordRepository->orderTransaction(
                 $orderId,
                 $disbursementOrder->platform_order_no,
                 $tenantAccount,
                 $disbursementOrder->amount,
                 $disbursementOrder->total_fee
             );
-            if ($oT) {
-                $this->notify($disbursementOrder, [
-                    'tenant_id'         => $disbursementOrder->tenant_id,
-                    'app_id'            => $disbursementOrder->app_id,
-                    'platform_order_no' => $disbursementOrder->platform_order_no,
-                    'tenant_order_no'   => $disbursementOrder->tenant_order_no,
-                    'status'            => $disbursementOrder->status,
-                    'refund_at'         => $refund_at,
-                    'refund_reason'     => $refund_reason,
-                    'amount'            => $disbursementOrder->amount,
-                    'total_fee'         => $disbursementOrder->total_fee,
-                    'settlement_amount' => $disbursementOrder->settlement_amount,
-                    'utr'               => $disbursementOrder->utr,
-                    'notify_remark'     => $disbursementOrder->notify_remark,
-                    'created_at'        => $disbursementOrder->created_at,
-                ], 5);
-            }
+
             Db::commit();
         } catch (\Throwable $e) {
             Db::rollBack();
             throw $e;
         }
+        // 交易队列
+        Event::dispatch('app.transaction.created', $modelTransactionRecord);
+        // 回调通知队列
+        $disbursementOrderNotify = $this->repository->findById($orderId);
+        $this->notify($disbursementOrderNotify, [
+            'tenant_id'         => $disbursementOrderNotify->tenant_id,
+            'app_id'            => $disbursementOrderNotify->app_id,
+            'platform_order_no' => $disbursementOrderNotify->platform_order_no,
+            'tenant_order_no'   => $disbursementOrderNotify->tenant_order_no,
+            'status'            => $disbursementOrderNotify->status,
+            'refund_at'         => $refund_at,
+            'refund_reason'     => $disbursementOrderNotify,
+            'amount'            => $disbursementOrderNotify->amount,
+            'total_fee'         => $disbursementOrderNotify->total_fee,
+            'settlement_amount' => $disbursementOrderNotify->settlement_amount,
+            'utr'               => $disbursementOrderNotify->utr,
+            'notify_remark'     => $disbursementOrderNotify->notify_remark,
+            'created_at'        => $disbursementOrderNotify->created_at,
+        ], 5);
         return true;
     }
 
@@ -499,7 +506,7 @@ final class DisbursementOrderService extends IService
         if (!$disbursementOrder || !filled($disbursementOrder->notify_url)) {
             return false;
         }
-        $this->tenantNotificationQueueRepository->create([
+        $insertOk = $this->tenantNotificationQueueRepository->create([
             'tenant_id'             => $disbursementOrder->tenant_id,
             'app_id'                => $disbursementOrder->app_id,
             'account_type'          => TenantAccount::ACCOUNT_TYPE_PAY,
@@ -509,6 +516,25 @@ final class DisbursementOrderService extends IService
             'max_retry_count'       => $max_retry_count,
             'request_data'          => json_encode($data, JSON_THROW_ON_ERROR)
         ]);
+        if (!$insertOk) {
+            return false;
+        }
+
+        if ($insertOk->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($insertOk->notification_url)) {
+            var_dump('待执行回调通知队列 TenantNotificationQueue');
+            \Webman\RedisQueue\Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
+                'queue_id'              => $insertOk->id,
+                'tenant_id'             => $insertOk->tenant_id,
+                'app_id'                => $insertOk->app_id,
+                'account_type'          => $insertOk->account_type,
+                'disbursement_order_id' => $insertOk->disbursement_order_id,
+                'notification_type'     => $insertOk->notification_type,
+                'notification_url'      => $insertOk->notification_url,
+                'request_method'        => $insertOk->request_method,
+                'request_data'          => $insertOk->request_data,
+                'max_retry_count'       => $insertOk->max_retry_count,
+            ]);
+        }
         return $this->repository->updateById($disbursementOrder->id, [
             'notify_status' => DisbursementOrder::NOTIFY_STATUS_CALLBACK_ING,
         ]);

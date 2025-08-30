@@ -32,6 +32,7 @@ use support\Context;
 use support\Db;
 use support\Log;
 use support\Redis;
+use Webman\Event\Event;
 use Webman\Http\Request;
 
 final class CollectionOrderService extends IService
@@ -418,6 +419,7 @@ final class CollectionOrderService extends IService
         if (!$transactionVoucher) {
             throw new BusinessException(ResultCode::TRANSACTION_VOUCHER_NOT_EXIST);
         }
+
         Db::beginTransaction();
         try {
             // 更新凭证表 collection_status order_no
@@ -433,7 +435,7 @@ final class CollectionOrderService extends IService
             }
             $rate_fee_amount = bcdiv(bcmul((string)$settlement_amount, (string)$order->rate_fee, 4), '100', 4);
             $fee_amount = bcadd($rate_fee_amount, $order->fixed_fee);
-            $isOk = $this->transactionRecordRepository->orderTransaction(
+            $modelTransactionRecord = $this->transactionRecordRepository->orderTransaction(
                 $order->id,
                 $order->platform_order_no,
                 $tenantAccount,
@@ -442,9 +444,10 @@ final class CollectionOrderService extends IService
                 $order->settlement_delay_mode,
                 $order->settlement_delay_days,
             );
-            if (!$isOk) {
+            if (!$modelTransactionRecord) {
                 throw new Exception('Failed to update the recharge record');
             }
+            dump('更新订单表 transaction_voucher_id  status isOk');
             // 更新订单表 transaction_voucher_id  status
             $isOk = $this->repository->getQuery()
                 ->where('id', $collectionOrderId)
@@ -466,31 +469,35 @@ final class CollectionOrderService extends IService
                         $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
-                throw new Exception('Failed to update the order');
+                throw new \RuntimeException('Failed to update the order');
             }
-            // 回调通知队列
-            $collectionOrder = $this->repository->findById($collectionOrderId);
-            $this->notify($collectionOrder, [
-                [
-                    'tenant_id'         => $collectionOrder->tenant_id,
-                    'app_id'            => $collectionOrder->app_id,
-                    'platform_order_no' => $collectionOrder->platform_order_no,
-                    'tenant_order_no'   => $collectionOrder->tenant_order_no,
-                    'status'            => $collectionOrder->status,
-                    'pay_time'          => $collectionOrder->pay_time,
-                    'amount'            => $collectionOrder->amount,
-                    'total_fee'         => $collectionOrder->total_fee,
-                    'settlement_amount' => $collectionOrder->settlement_amount,
-                    'utr'               => $collectionOrder->utr,
-                    'notify_remark'     => $collectionOrder->notify_remark,
-                    'created_at'        => $collectionOrder->created_at,
-                ]
-            ], 5);
             Db::commit();
         } catch (\Throwable $exception) {
             Db::rollBack();
             throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
         }
+        // 执行成功，添加队列
+        // 交易队列
+        Event::dispatch('app.transaction.created', $modelTransactionRecord);
+        dump('回调通知队列=======');
+        // 回调通知队列
+        $collectionOrder = $this->repository->findById($collectionOrderId);
+        $this->notify($collectionOrder, [
+            [
+                'tenant_id'         => $collectionOrder->tenant_id,
+                'app_id'            => $collectionOrder->app_id,
+                'platform_order_no' => $collectionOrder->platform_order_no,
+                'tenant_order_no'   => $collectionOrder->tenant_order_no,
+                'status'            => $collectionOrder->status,
+                'pay_time'          => $collectionOrder->pay_time,
+                'amount'            => $collectionOrder->amount,
+                'total_fee'         => $collectionOrder->total_fee,
+                'settlement_amount' => $collectionOrder->settlement_amount,
+                'utr'               => $collectionOrder->utr,
+                'notify_remark'     => $collectionOrder->notify_remark,
+                'created_at'        => $collectionOrder->created_at,
+            ]
+        ], 5);
         return $isOk;
     }
 
@@ -550,7 +557,7 @@ final class CollectionOrderService extends IService
         if (!$collectionOrder || !filled($collectionOrder->notify_url)) {
             return false;
         }
-        $this->tenantNotificationQueueRepository->create([
+        $insertOk = $this->tenantNotificationQueueRepository->create([
             'tenant_id'             => $collectionOrder->tenant_id,
             'app_id'                => $collectionOrder->app_id,
             'account_type'          => TenantAccount::ACCOUNT_TYPE_RECEIVE,
@@ -560,6 +567,26 @@ final class CollectionOrderService extends IService
             'max_retry_count'       => $max_retry_count,
             'request_data'          => json_encode($data, JSON_THROW_ON_ERROR)
         ]);
+        if (!$insertOk) {
+            return false;
+        }
+        dump('待执行回调通知队列 TenantNotificationQueue',$insertOk);
+        if ($insertOk->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($insertOk->notification_url)) {
+            var_dump('待执行回调通知队列 TenantNotificationQueue');
+            \Webman\RedisQueue\Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
+                'queue_id'              => $insertOk->id,
+                'tenant_id'             => $insertOk->tenant_id,
+                'app_id'                => $insertOk->app_id,
+                'account_type'          => $insertOk->account_type,
+                'disbursement_order_id' => $insertOk->disbursement_order_id,
+                'notification_type'     => $insertOk->notification_type,
+                'notification_url'      => $insertOk->notification_url,
+                'request_method'        => $insertOk->request_method,
+                'request_data'          => $insertOk->request_data,
+                'max_retry_count'       => $insertOk->max_retry_count,
+            ]);
+        }
+
         return $this->repository->updateById($collectionOrder->id, [
             'notify_status' => CollectionOrder::NOTIFY_STATUS_CALLBACK_ING,
         ]);

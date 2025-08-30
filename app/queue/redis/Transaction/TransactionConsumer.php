@@ -2,7 +2,6 @@
 
 namespace app\queue\redis\Transaction;
 
-use app\constants\DisbursementOrder;
 use app\constants\TenantAccount;
 use app\constants\TransactionQueueStatus;
 use app\constants\TransactionRecord;

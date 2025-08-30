@@ -7,6 +7,7 @@ use app\model\ModelTenantAccount;
 use app\model\ModelTransactionRecord;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
+use Webman\Event\Event;
 
 /**
  * Class TransactionRecordRepository.

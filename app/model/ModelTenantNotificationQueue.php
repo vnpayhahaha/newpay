@@ -98,25 +98,6 @@ final class ModelTenantNotificationQueue extends BasicModel
     {
         parent::boot();
 
-        self::created(static function (ModelTenantNotificationQueue $model) {
-            // 待付核销队列 TenantNotificationQueue
-            if ($model->execute_status === TenantNotificationQueue::EXECUTE_STATUS_WAITING && filled($model->notification_url)) {
-                var_dump('待执行回调通知队列 TenantNotificationQueue');
-                Redis::send(TenantNotificationQueue::TENANT_NOTIFICATION_QUEUE_NAME, [
-                    'queue_id'              => $model->id,
-                    'tenant_id'             => $model->tenant_id,
-                    'app_id'                => $model->app_id,
-                    'account_type'          => $model->account_type,
-                    'disbursement_order_id' => $model->disbursement_order_id,
-                    'notification_type'     => $model->notification_type,
-                    'notification_url'      => $model->notification_url,
-                    'request_method'        => $model->request_method,
-                    'request_data'          => $model->request_data,
-                    'max_retry_count'       => $model->max_retry_count,
-                ]);
-            }
-
-        });
     }
 
 }
