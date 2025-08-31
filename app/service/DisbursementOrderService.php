@@ -37,25 +37,25 @@ use Webman\RedisQueue\Redis;
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository $repository;
+    public DisbursementOrderRepository           $repository;
     #[Inject]
-    protected TenantRepository $tenantRepository;
+    protected TenantRepository                   $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository $tenantAccountRepository;
+    protected TenantAccountRepository            $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository $bankAccountRepository;
+    protected BankAccountRepository              $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository $channelAccountRepository;
+    protected ChannelAccountRepository           $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository $transactionVoucherRepository;
+    protected TransactionVoucherRepository       $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository $transactionRecordRepository;
+    protected TransactionRecordRepository        $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository $attachmentRepository;
+    protected AttachmentRepository               $attachmentRepository;
     #[Inject]
-    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
+    protected TenantNotificationQueueRepository  $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -220,6 +220,9 @@ final class DisbursementOrderService extends IService
                 'created_at'        => $disbursementOrder->created_at,
             ]
         ], 5);
+        // 构建交易凭证图片并存储
+        $disbursementOrder->payment_voucher_image = $this->repository->buildOrderPaymentImage($disbursementOrder);
+        $disbursementOrder->save();
         return $isOk;
     }
 
@@ -500,6 +503,9 @@ final class DisbursementOrderService extends IService
             'notify_remark'     => $disbursementOrderNotify->notify_remark,
             'created_at'        => $disbursementOrderNotify->created_at,
         ], 5);
+        // 构建交易凭证图片并存储
+        $disbursementOrder->payment_voucher_image = $this->repository->buildOrderPaymentImage($disbursementOrder);
+        $disbursementOrder->save();
         return true;
     }
 
