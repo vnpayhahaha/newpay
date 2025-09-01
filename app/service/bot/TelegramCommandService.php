@@ -29,6 +29,7 @@ class TelegramCommandService
     #[Inject]
     protected TransactionVoucherRepository $transactionVoucherRepository;
 
+
     public function setTelegramBot(TelegramBot $telegramBot): static
     {
         $this->telegramBot = $telegramBot;
@@ -336,6 +337,26 @@ class TelegramCommandService
         ];
     }
 
+
+    // ===================================================================================================================
+
+    public function Help(int $uid, array $params, int $recordID): string|array
+    {
+        $reply = [
+            'Welcome to this system',
+        ];
+        $commandArr = CommandEnum::getHelpReply();
+        return array_merge($reply, $commandArr);
+    }
+
+    public function cnHelp(int $uid, array $params, int $recordID): string|array
+    {
+        $reply = [
+            '欢迎使用本系统',
+        ];
+        $commandArr = CommandEnum::getHelpReply(true);
+        return array_merge($reply, $commandArr);
+    }
 
     public function Bind(int $uid, array $params, int $recordID): string|array
     {

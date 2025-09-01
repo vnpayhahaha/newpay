@@ -88,8 +88,8 @@ class TelegramService
                 ], $this->telegramBot->MessageID());
             }
             return $this->sendMessageProducer($chat_id, [
-                'Unknown command, help can be obtained through help!',
-                '未知指令,可通过 /help 获取帮助信息!',
+                'Unknown commands, you can obtain command information through /help!',
+                '未知指令,可通过[/帮助]获取指令信息!',
             ], $this->telegramBot->MessageID());
         }
 
