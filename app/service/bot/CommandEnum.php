@@ -14,12 +14,12 @@ class CommandEnum
         '获取ID'       => 'get-id',
         '获取群ID'     => 'get-group-id',
         '绑定'         => 'bind',
-        '查询余额'     => 'balance',
+        '查询'         => 'query',
         '查询订单'     => 'order',
         '查询收款订单' => 'query-collect-order',
         '查询付款订单' => 'query-pay-order',
         '创建付款订单' => 'create-order',
-        '提交UTR补单'  => 'submit-utr',  //1
+        '提交UTR补单'  => 'submit-utr',
         '统计收款订单' => 'count-collect-order',
         '统计付款订单' => 'count-pay-order',
     ];
@@ -30,12 +30,14 @@ class CommandEnum
         'get-id'              => 'GetId',
         'get-group-id'        => 'GetGroupId',
         'bind'                => 'Bind',
-        'balance'             => 'Balance',
+        // 1
+        'query'               => 'Query', //1
         'order'               => 'Order',
         'query-collect-order' => 'QueryCollectOrder',
         'query-pay-order'     => 'QueryPayOrder',
         'create-order'        => 'CreateOrder',
         'submit-utr'          => 'SubmitUtr',
+        //1
         'count-collect-order' => 'CountCollectOrder',
         'count-pay-order'     => 'CountPayOrder',
     ];

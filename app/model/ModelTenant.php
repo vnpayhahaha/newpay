@@ -211,4 +211,10 @@ final class ModelTenant extends BasicModel
             $model->deleted_by = $deletedBy;
         });
     }
+
+    // hasMany accounts
+    public function accounts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelTenantAccount::class, 'tenant_id', 'tenant_id');
+    }
 }

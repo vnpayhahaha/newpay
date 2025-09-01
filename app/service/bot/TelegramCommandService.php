@@ -3,6 +3,7 @@
 namespace app\service\bot;
 
 use app\constants\CollectionOrder;
+use app\constants\TenantAccount;
 use app\constants\TransactionVoucher;
 use app\repository\TenantRepository;
 use app\repository\TransactionVoucherRepository;
@@ -364,6 +365,49 @@ class TelegramCommandService
         return [
             'Binding successful',
             '绑定成功',
+        ];
+    }
+
+    public function Query(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+                '请先绑定商户',
+            ];
+        }
+        $collectionBalance = '0.00';
+        $collectionBalanceFrozen = '0.00';
+        $disbursementBalance = '0.00';
+        $disbursementBalanceFrozen = '0.00';
+        if (isset($chatIdTenant['accounts']) && filled($chatIdTenant['accounts'])) {
+            foreach ($chatIdTenant['accounts'] as $account) {
+                if ($account['account_type'] === TenantAccount::ACCOUNT_TYPE_RECEIVE) {
+                    $collectionBalance = $account['balance_available'];
+                    $collectionBalanceFrozen = $account['balance_frozen'];
+                } elseif ($account['account_type'] === TenantAccount::ACCOUNT_TYPE_PAY) {
+                    $disbursementBalance = $account['balance_available'];
+                    $disbursementBalanceFrozen = $account['balance_frozen'];
+                }
+            }
+        }
+        return [
+            'Merchant number：[商户号]',
+            $chatIdTenant->tenant_id,
+            'Merchant name：[商户名称]',
+            $chatIdTenant->company_name,
+            'Merchant status：[商户状态]',
+            $chatIdTenant->is_enabled,
+            '------------------------',
+            'Available balance for collection: [收款可用余额]',
+            $collectionBalance,
+            'Freeze amount of collection：[收款冻结金额]',
+            $collectionBalanceFrozen,
+            'Available balance for disbursement：[付款可用余额]',
+            $disbursementBalance,
+            'Freeze amount of disbursement：[付款冻结金额]',
+            $disbursementBalanceFrozen,
         ];
     }
 

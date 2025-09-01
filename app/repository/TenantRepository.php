@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 class TenantRepository extends IRepository
 {
     #[Inject]
-    protected  ModelTenant $model;
+    protected ModelTenant $model;
 
     public function handleSearch(Builder $query, array $params): Builder
     {
@@ -60,7 +60,10 @@ class TenantRepository extends IRepository
 
     public function getTenantByTgChatId(int $tg_chat_id): ?ModelTenant
     {
-        return $this->model::query()->where('tg_chat_id', $tg_chat_id)->first();
+        return $this->model::query()
+            ->with('accounts')
+            ->where('tg_chat_id', $tg_chat_id)
+            ->first();
     }
 
     public function getTenantByTenantId(int $tenant_id): ?ModelTenant
