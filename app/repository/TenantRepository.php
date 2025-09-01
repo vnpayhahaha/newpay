@@ -62,4 +62,9 @@ class TenantRepository extends IRepository
     {
         return $this->model::query()->where('tg_chat_id', $tg_chat_id)->first();
     }
+
+    public function getTenantByTenantId(int $tenant_id): ?ModelTenant
+    {
+        return $this->model::query()->where('tenant_id', $tenant_id)->first();
+    }
 }

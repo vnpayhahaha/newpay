@@ -9,7 +9,6 @@ use app\repository\TransactionVoucherRepository;
 use app\service\CollectionOrderService;
 use app\service\DisbursementOrderService;
 use DI\Attribute\Inject;
-use http\Exception\RuntimeException;
 use support\Log;
 use Telegram as TelegramBot;
 
@@ -35,7 +34,7 @@ class TelegramCommandService
         return $this;
     }
 
-    private function getMemberUser(): ?\app\model\ModelTenant
+    private function getTenant(): ?\app\model\ModelTenant
     {
         $chatID = $this->telegramBot->ChatID();
         return $this->tenantRepository->getTenantByTgChatId($chatID);
@@ -84,7 +83,7 @@ class TelegramCommandService
         preg_match('/(?<!\d)\d{12}(?!\@)(?!\d)/', $getPicWordData['data'], $matches);
 
         // $matches[0] 将包含第一个匹配的字符串
-        $utr = isset($matches[0]) ? $matches[0] : '';
+        $utr = $matches[0] ?? '';
 
         if ($utr === '') {
             return [
@@ -93,21 +92,12 @@ class TelegramCommandService
             ];
         }
         $user_id = $this->telegramBot->UserId();
-        try {
-            Log::info('TelegramBot OCR 补单核销', [
-                $user_id,
-                $order_no,
-                $utr,
-                json_encode($getPicWordData)
-            ]);
-        } catch (\Throwable $ex) {
-            var_dump('TelegramBot OCR 补单核销', [
-                $user_id,
-                $order_no,
-                $utr,
-                json_encode($getPicWordData)
-            ]);
-        }
+        Log::info('TelegramBot OCR 补单核销', [
+            $user_id,
+            $order_no,
+            $utr,
+            json_encode($getPicWordData, JSON_THROW_ON_ERROR)
+        ]);
         return $this->SubmitUtr($user_id, [
             $order_no,
             $utr
@@ -132,7 +122,7 @@ class TelegramCommandService
                 '参数错误: 平台订单编号和UTR不能为空'
             ];
         }
-        if (!$this->getMemberUser()) {
+        if (!$this->getTenant()) {
             return [
                 'You have not bound a merchant yet, please bind the merchant first and submit a UTR supplementary order',
                 '您还未绑定商户，请先绑定商户再提交UTR补单'
@@ -330,4 +320,51 @@ class TelegramCommandService
             $collectionOrder->customer_submitted_utr,
         ];
     }
+
+
+    public function Bind(int $uid, array $params, int $recordID): string|array
+    {
+        if (!filled($params)) {
+            return [
+                'Please enter the merchant number',
+                '请输入商户号',
+            ];
+        }
+        $param_tenant_id = $params[0];
+        $tenant = $this->tenantRepository->getTenantByTenantId($param_tenant_id);
+        if (!$tenant) {
+            return [
+                'Please enter the correct merchant number to bind',
+                '请输入正确的商户号进行绑定',
+            ];
+        }
+        $chatIdTenant = $this->getTenant();
+        if ($chatIdTenant) {
+            if ($chatIdTenant->tenant_id === $tenant->tenant_id) {
+                return [
+                    'This merchant has been bound to this chat',
+                    '此商户已绑定此群聊',
+                ];
+            }
+            $chatIdTenant->tenant_id = $param_tenant_id;
+            if (!$chatIdTenant->save()) {
+                return [
+                    'Binding failed',
+                    '绑定失败',
+                ];
+            }
+        }
+        $tenant->tg_chat_id = $this->telegramBot->ChatID();
+        if (!$tenant->save()) {
+            return [
+                'Binding failed',
+                '绑定失败',
+            ];
+        }
+        return [
+            'Binding successful',
+            '绑定成功',
+        ];
+    }
+
 }

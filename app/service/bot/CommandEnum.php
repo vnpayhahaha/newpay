@@ -19,7 +19,7 @@ class CommandEnum
         '查询收款订单' => 'query-collect-order',
         '查询付款订单' => 'query-pay-order',
         '创建付款订单' => 'create-order',
-        '提交UTR补单'  => 'submit-utr',
+        '提交UTR补单'  => 'submit-utr',  //1
         '统计收款订单' => 'count-collect-order',
         '统计付款订单' => 'count-pay-order',
     ];
