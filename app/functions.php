@@ -4,6 +4,7 @@
  */
 
 use app\lib\JwtAuth\JwtAuth;
+use GuzzleHttp\Client;
 use support\Context;
 
 if (!function_exists('validate')) {
@@ -88,6 +89,24 @@ if (!function_exists('t')) {
         return $key;
     }
 }
+
+// 双语返回 tt
+if (!function_exists('tt')) {
+    function tt(string $key, array $replace = []): array
+    {
+        if (str_contains($key, '.')) {
+            $tranKey = substr($key, strpos($key, '.') + 1);
+            $domain = substr($key, 0, strpos($key, '.'));
+            return [
+                'zh' => trans($tranKey, $replace, $domain, 'zh_CN'),
+                'en' => trans($tranKey, $replace, $domain, 'en_US'),
+            ];
+        }
+        return [];
+    }
+}
+
+
 if (!function_exists('parseAcceptLanguage')) {
     function parseAcceptLanguage(string $acceptLanguage): string
     {
@@ -297,7 +316,7 @@ if (!function_exists('columnIndexToString')) {
     {
         // 类型转换与校验
         $original = $columnIndex;
-        $columnIndex = (int) floor($columnIndex);
+        $columnIndex = (int)floor($columnIndex);
 
         if ($columnIndex < 1 || $original !== $columnIndex) {
             throw new InvalidArgumentException(
@@ -310,9 +329,69 @@ if (!function_exists('columnIndexToString')) {
         while ($columnIndex > 0) {
             $remainder = ($columnIndex - 1) % 26;
             $letters = chr(65 + $remainder) . $letters;
-            $columnIndex = (int) floor(($columnIndex - $remainder) / 26);
+            $columnIndex = (int)floor(($columnIndex - $remainder) / 26);
         }
 
         return $letters;
+    }
+}
+
+if (!function_exists('get_ocr_words')) {
+    function get_ocr_words(string $image, string $type = 'url'): array
+    {
+
+        if ($type !== 'url') {
+            return [
+                'ok'   => false,
+                'data' => '仅支持url类型',
+            ];
+        }
+        //$base = base64_encode($content);
+        //var_dump('===$base==', $base);
+        $ocrUrl = 'https://channel.yypay.cloud/api/ocr/runocr';
+        try {
+            $client = new Client();
+
+            $options = [
+                'timeout'     => 30,
+                'headers'     => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ],
+                'form_params' => [
+                    'image_url' => $image,
+                ]
+            ];
+
+            // 根据请求方法设置请求参数
+            if (!empty($data['request_data'])) {
+                if (isset($data['request_method']) && strtoupper($data['request_method']) === 'GET') {
+                    $options['query'] = $data['request_data'];
+                } else {
+                    $options['json'] = $data['request_data'];
+                }
+            }
+            $response = $client->request('POST', $ocrUrl, $options);
+            $response_result = $response->getBody()->getContents();
+            $data = json_decode($response_result, true, 512, JSON_THROW_ON_ERROR);
+            if (isset($data['status'], $data['utrValues']) && filled($data['utrValues']) && $data['status']) {
+                return [
+                    'ok'   => true,
+                    'data' => str_replace(PHP_EOL, '', $data['utrValues']),
+                ];
+            }
+            return [
+                'ok'   => false,
+                'data' => $response_result,
+            ];
+        } catch (\Throwable $e) {
+            $errorMsg = $e->getMessage();
+            // $resultMsg 取$errorMsg前1000字符
+            $resultMsg = substr($errorMsg, 0, 1000);
+            var_dump('解析图片异常：', $e->getMessage());
+            return [
+                'ok'   => false,
+                'data' => $resultMsg,
+            ];
+        }
     }
 }

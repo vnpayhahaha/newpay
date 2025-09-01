@@ -50,6 +50,16 @@ class TenantRepository extends IRepository
             $query->where('safe_level', $params['safe_level']);
         }
 
+
+        if (isset($params['tg_chat_id']) && filled($params['tg_chat_id'])) {
+            $query->where('tg_chat_id', $params['tg_chat_id']);
+        }
+
         return $query;
+    }
+
+    public function getTenantByTgChatId(int $tg_chat_id): ?ModelTenant
+    {
+        return $this->model::query()->where('tg_chat_id', $tg_chat_id)->first();
     }
 }

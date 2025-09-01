@@ -35,4 +35,10 @@ trait ConstantsOptionTrait
         return t($optionList[$key], $parameters);
     }
 
+    // 获取双语翻译返回
+    public static function getHumanizeValueDouble(array $optionList, int $key, array $parameters = []): array
+    {
+        return tt($optionList[$key], $parameters);
+    }
+
 }

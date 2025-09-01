@@ -41,6 +41,11 @@ class AnnotationProvider
             if (isset($configMiddleware[$pathPrefix[1]]) && is_array($item['middleware'])) {
                 $item['middleware'] = array_merge($item['middleware'], $configMiddleware[$pathPrefix[1]]);
             }
+            // 如果 $item['method']的字符串包含逗号，则进行拆分
+            if (str_contains($method, ',')) {
+                $method = explode(',', $method);
+            }
+
             if (is_array($method)) {
                 Route::add($method, $item['path'], [$item['className'], $item['action']])->middleware($item['middleware']);
             } else if ($method === 'resource') {

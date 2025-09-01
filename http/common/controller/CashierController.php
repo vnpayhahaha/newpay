@@ -5,8 +5,6 @@ namespace http\common\controller;
 use app\controller\BasicController;
 use app\exception\OpenApiException;
 use app\exception\UnprocessableEntityException;
-use app\lib\annotation\OperationLog;
-use app\lib\annotation\Permission;
 use app\lib\enum\ResultCode;
 use app\model\ModelCollectionOrder;
 use app\router\Annotations\GetMapping;
