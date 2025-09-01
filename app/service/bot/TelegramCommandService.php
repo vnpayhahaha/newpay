@@ -358,6 +358,34 @@ class TelegramCommandService
         return array_merge($reply, $commandArr);
     }
 
+    public function GetId(int $uid, array $params, int $recordID): string|array
+    {
+        return [
+            'Your chat ID is:' . $this->telegramBot->ChatID(),
+        ];
+    }
+
+    public function cnGetId(int $uid, array $params, int $recordID): string|array
+    {
+        return [
+            '你的聊天ID是:' . $this->telegramBot->ChatID(),
+        ];
+    }
+
+    public function GetGroupId(int $uid, array $params, int $recordID): string|array
+    {
+        return [
+            'Your group ID is:' . $this->telegramBot->ChatID(),
+        ];
+    }
+
+    public function cnGetGroupId(int $uid, array $params, int $recordID): string|array
+    {
+        return [
+            '你的群组ID是:' . $this->telegramBot->ChatID(),
+        ];
+    }
+
     public function Bind(int $uid, array $params, int $recordID): string|array
     {
         if (!filled($params)) {
@@ -517,6 +545,103 @@ class TelegramCommandService
             $disbursementBalance,
             '[付款冻结金额]',
             $disbursementBalanceFrozen,
+        ];
+    }
+
+    public function Order(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        $platform_order_no = $params[0];
+        // 判断订单号 platform_order_no CO开头是收款订单 DO开头是付款订单 否则错误
+        if (str_starts_with($platform_order_no, 'CO')) {
+            $order = $this->collectionOrderService->repository->getQuery()->where('platform_order_no', $platform_order_no)->first();
+            if (!$order) {
+                return [
+                    'Collection order does not exist',
+                ];
+            }
+            $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        } elseif (str_starts_with($platform_order_no, 'DO')) {
+            $order = $this->disbursementOrderService->repository->getQuery()->where('platform_order_no', $platform_order_no)->first();
+            if (!$order) {
+                return [
+                    'Disbursement order does not exist',
+                ];
+            }
+            $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        } else {
+            return [
+                'Invalid order number',
+            ];
+        }
+
+        return [
+            '------------------------',
+            'Platform Order Number：',
+            $order->platform_order_no,
+            'Merchant Order Number：',
+            $order->tenant_order_no,
+            'UTR credentials：',
+            $order->utr,
+            'Order Status：',
+            $orderStatusMsg['en'],
+            'Order amount：',
+            $order->amount,
+            'Paid time：',
+            $order->pay_time,
+        ];
+    }
+
+    public function cnOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        $platform_order_no = $params[0];
+        // 判断订单号 platform_order_no CO开头是收款订单 DO开头是付款订单 否则错误
+        if (str_starts_with($platform_order_no, 'CO')) {
+            $order = $this->collectionOrderService->repository->getQuery()->where('platform_order_no', $platform_order_no)->first();
+            if (!$order) {
+                return [
+                    '收款订单不存在',
+                ];
+            }
+            $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        } elseif (str_starts_with($platform_order_no, 'DO')) {
+            $order = $this->disbursementOrderService->repository->getQuery()->where('platform_order_no', $platform_order_no)->first();
+            if (!$order) {
+                return [
+                    '付款订单不存在',
+                ];
+            }
+            $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        } else {
+            return [
+                '无效的订单号',
+            ];
+        }
+        return [
+            '------------------------',
+            '平台订单号：',
+            $order->platform_order_no,
+            '商户订单号：',
+            $order->tenant_order_no,
+            'UTR凭证：',
+            $order->utr,
+            '订单状态：',
+            $orderStatusMsg['zh'],
+            '订单金额：',
+            $order->amount,
+            '付款时间：',
+            $order->pay_time,
         ];
     }
 

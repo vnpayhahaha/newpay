@@ -13,15 +13,12 @@ class CommandEnum
         'get-id'              => 'GetId',
         'get-group-id'        => 'GetGroupId',
         'bind'                => 'Bind',
-        // 1
         'query'               => 'Query',
-        //1
         'order'               => 'Order',
         'query-collect-order' => 'QueryCollectOrder',
         'query-pay-order'     => 'QueryPayOrder',
         'create-order'        => 'CreateOrder',
         'submit-utr'          => 'SubmitUtr',
-        //1
         'count-collect-order' => 'CountCollectOrder',
         'count-pay-order'     => 'CountPayOrder',
     ];
@@ -32,12 +29,11 @@ class CommandEnum
         'get-group-id'        => "<blockquote>[Eg]/get-group-id</blockquote>",
         'bind'                => "<blockquote>[Eg]/bind 000001" . PHP_EOL . "/Param/tenant_id !Merchant ID</blockquote>",
         'query'               => "<blockquote>[Eg]/query</blockquote>",
-        'order'               => 'Order',
+        'order'               => "<blockquote>[Eg]/order CO20250723234556781156197C9" . PHP_EOL . "/Param/platform_order_no !Platform Order Number</blockquote>",
         'query-collect-order' => 'QueryCollectOrder',
         'query-pay-order'     => 'QueryPayOrder',
         'create-order'        => 'CreateOrder',
         'submit-utr'          => 'SubmitUtr',
-        //1
         'count-collect-order' => 'CountCollectOrder',
         'count-pay-order'     => 'CountPayOrder',
     ];
@@ -62,7 +58,7 @@ class CommandEnum
         '获取群ID'     => "<blockquote>[示例]/获取群ID</blockquote>",
         '绑定'         => "<blockquote>[示例]/绑定 000001" . PHP_EOL . "/参数/tenant_id !商户ID</blockquote>",
         '查询'         => "<blockquote>[示例]/查询</blockquote>",
-        '查询订单'     => 'cnOrder',
+        '查询订单'     => "<blockquote>[示例]/查询订单 CO20250723234556781156197C9" . PHP_EOL . "/参数/platform_order_no !平台订单号</blockquote>",
         '查询收款订单' => 'cnQueryCollectOrder',
         '查询付款订单' => 'cnQueryPayOrder',
         '创建付款订单' => 'cnCreateOrder',
@@ -91,15 +87,15 @@ class CommandEnum
     public static function getHelpReply(bool $isCn = false): array
     {
         $reply = [];
-        if($isCn){
-            $reply[] = '*命令列表*';
+        if ($isCn) {
+            $reply[] = '***** 命令列表 *****';
             $keys = array_keys(self::COMMAND_SET_CN);
             foreach ($keys as $key) {
                 $reply[] = '/' . $key;
                 $reply[] = self::$commandDescCnMap[$key];
             }
-        }else{
-            $reply[] = '*Command List*';
+        } else {
+            $reply[] = '***** Command List *****';
             $keys = array_keys(self::COMMAND_SET);
             foreach ($keys as $key) {
                 $reply[] = '/' . $key;
