@@ -64,21 +64,34 @@ class TelegramCommandService
     {
         $order_no = $this->telegramBot->Caption();
         if (!$order_no) {
-            return '请发送图片，图片下方输入订单编号';
+            return [
+                'Please enter the platform order number below the picture',
+                '请在图片下方输入平台订单编号'
+            ];
         }
         $file_id = $this->telegramBot->PhotoFileId();
         if (!$file_id) {
-            return '图片解析失败！请重新发送图片';
+            return [
+                'Image acquisition failed! Please resend the picture',
+                '图片获取失败！请重新发送图片'
+            ];
         }
         $pic_url_arr = $this->getFileUrl($file_id);
         if (empty($pic_url_arr)) {
-            return '图片解析失败！请重新发送图片';
+            return [
+                'Image acquisition failed! Please resend the picture',
+                '图片获取失败！请重新发送图片'
+            ];
         }
         Log::info('writeOffOrderByPhoto :', $pic_url_arr);
         $getPicWordData = get_ocr_words($pic_url_arr['url']);
 
         if ($getPicWordData['ok'] === false) {
-            return '图片解析失败！请重新发送图片' . $getPicWordData['data'];
+            return [
+                'Image parsing failed! Please resend the picture',
+                '图片解析失败！请重新发送图片',
+                $getPicWordData['data']
+            ];
         }
         // 正则表达式：匹配连续12位数字且后面不是@字符
         preg_match('/(?<!\d)\d{12}(?!\@)(?!\d)/', $getPicWordData['data'], $matches);
@@ -88,7 +101,8 @@ class TelegramCommandService
 
         if ($utr === '') {
             return [
-                '图片解析失败,没有解析到UTR:',
+                'The image parsing failed and the UTR was not parsed',
+                '图片解析失败,没有解析到UTR',
                 $getPicWordData['data']
             ];
         }
@@ -328,7 +342,6 @@ class TelegramCommandService
         if (!filled($params)) {
             return [
                 'Please enter the merchant number',
-                '请输入商户号',
             ];
         }
         $param_tenant_id = $params[0];
@@ -336,7 +349,6 @@ class TelegramCommandService
         if (!$tenant) {
             return [
                 'Please enter the correct merchant number to bind',
-                '请输入正确的商户号进行绑定',
             ];
         }
         $chatIdTenant = $this->getTenant();
@@ -344,14 +356,12 @@ class TelegramCommandService
             if ($chatIdTenant->tenant_id === $tenant->tenant_id) {
                 return [
                     'This merchant has been bound to this chat',
-                    '此商户已绑定此群聊',
                 ];
             }
             $chatIdTenant->tenant_id = $param_tenant_id;
             if (!$chatIdTenant->save()) {
                 return [
                     'Binding failed',
-                    '绑定失败',
                 ];
             }
         }
@@ -359,11 +369,48 @@ class TelegramCommandService
         if (!$tenant->save()) {
             return [
                 'Binding failed',
-                '绑定失败',
             ];
         }
         return [
             'Binding successful',
+        ];
+    }
+
+    public function cnBind(int $uid, array $params, int $recordID): string|array
+    {
+        if (!filled($params)) {
+            return [
+                '请输入商户号',
+            ];
+        }
+        $param_tenant_id = $params[0];
+        $tenant = $this->tenantRepository->getTenantByTenantId($param_tenant_id);
+        if (!$tenant) {
+            return [
+                '请输入正确的商户号进行绑定',
+            ];
+        }
+        $chatIdTenant = $this->getTenant();
+        if ($chatIdTenant) {
+            if ($chatIdTenant->tenant_id === $tenant->tenant_id) {
+                return [
+                    '此商户已绑定此群聊',
+                ];
+            }
+            $chatIdTenant->tenant_id = $param_tenant_id;
+            if (!$chatIdTenant->save()) {
+                return [
+                    '绑定失败',
+                ];
+            }
+        }
+        $tenant->tg_chat_id = $this->telegramBot->ChatID();
+        if (!$tenant->save()) {
+            return [
+                '绑定失败',
+            ];
+        }
+        return [
             '绑定成功',
         ];
     }
@@ -374,6 +421,47 @@ class TelegramCommandService
         if (!$chatIdTenant) {
             return [
                 'Please bind the merchant first',
+            ];
+        }
+        $collectionBalance = '0.00';
+        $collectionBalanceFrozen = '0.00';
+        $disbursementBalance = '0.00';
+        $disbursementBalanceFrozen = '0.00';
+        if (isset($chatIdTenant['accounts']) && filled($chatIdTenant['accounts'])) {
+            foreach ($chatIdTenant['accounts'] as $account) {
+                if ($account['account_type'] === TenantAccount::ACCOUNT_TYPE_RECEIVE) {
+                    $collectionBalance = $account['balance_available'];
+                    $collectionBalanceFrozen = $account['balance_frozen'];
+                } elseif ($account['account_type'] === TenantAccount::ACCOUNT_TYPE_PAY) {
+                    $disbursementBalance = $account['balance_available'];
+                    $disbursementBalanceFrozen = $account['balance_frozen'];
+                }
+            }
+        }
+        return [
+            'Merchant number：',
+            $chatIdTenant->tenant_id,
+            'Merchant name：',
+            $chatIdTenant->company_name,
+            'Merchant status：',
+            $chatIdTenant->is_enabled,
+            '------------------------',
+            'Available balance for collection: ',
+            $collectionBalance,
+            'Freeze amount of collection：',
+            $collectionBalanceFrozen,
+            'Available balance for disbursement：',
+            $disbursementBalance,
+            'Freeze amount of disbursement：',
+            $disbursementBalanceFrozen,
+        ];
+    }
+
+    public function cnQuery(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
                 '请先绑定商户',
             ];
         }
@@ -393,20 +481,20 @@ class TelegramCommandService
             }
         }
         return [
-            'Merchant number：[商户号]',
+            '[商户号]',
             $chatIdTenant->tenant_id,
-            'Merchant name：[商户名称]',
+            '[商户名称]',
             $chatIdTenant->company_name,
-            'Merchant status：[商户状态]',
+            '[商户状态]',
             $chatIdTenant->is_enabled,
             '------------------------',
-            'Available balance for collection: [收款可用余额]',
+            '[收款可用余额]',
             $collectionBalance,
-            'Freeze amount of collection：[收款冻结金额]',
+            '[收款冻结金额]',
             $collectionBalanceFrozen,
-            'Available balance for disbursement：[付款可用余额]',
+            '[付款可用余额]',
             $disbursementBalance,
-            'Freeze amount of disbursement：[付款冻结金额]',
+            '[付款冻结金额]',
             $disbursementBalanceFrozen,
         ];
     }
