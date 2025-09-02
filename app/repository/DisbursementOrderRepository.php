@@ -286,7 +286,7 @@ final class DisbursementOrderRepository extends IRepository
         return $this->getQuery()
             ->whereRaw("1 {$queryWhereSql}")
             ->whereBetween('created_at', [$startTime, $endTime])
-            ->where('order_status', DisbursementOrder::STATUS_SUCCESS)
+            ->where('status', DisbursementOrder::STATUS_SUCCESS)
             ->count();
     }
 }

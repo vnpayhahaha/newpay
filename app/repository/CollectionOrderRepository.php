@@ -164,7 +164,7 @@ final class CollectionOrderRepository extends IRepository
         return $this->getQuery()
             ->whereRaw("1 {$queryWhereSql}")
             ->whereBetween('created_at', [$startTime, $endTime])
-            ->where('order_status', CollectionOrder::STATUS_SUCCESS)
+            ->where('status', CollectionOrder::STATUS_SUCCESS)
             ->count();
     }
 }
