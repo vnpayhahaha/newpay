@@ -172,6 +172,7 @@ final class CollectionOrderService extends IService
         $request = Context::get(Request::class);
         $user = $request->user ?? null;
         $app = Context::get(ModelTenantApp::class);
+        $cashier_template = Tenant::$cashier_template_list[$findTenant->cashier_template] ?? 'DEFAULT';
         // 收款订单创建
         $collectionOrder = $this->repository->create([
             'tenant_id'             => $data['tenant_id'],
@@ -205,10 +206,12 @@ final class CollectionOrderService extends IService
             'settlement_delay_mode' => $findTenant->settlement_delay_mode,
             'settlement_delay_days' => $findTenant->settlement_delay_days,
         ]);
+        $collectionOrder->pay_url = config('app.cash_desk_url') . "/{$cashier_template}/" . $collectionOrder->platform_order_no;
+        $collectionOrder->save();
         if (!filled($collectionOrder)) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
         }
-        return $this->formatCreatOrderResult($collectionOrder);
+        return $this->formatCreatOrderResult($collectionOrder, $cashier_template);
 
     }
 
@@ -272,11 +275,11 @@ final class CollectionOrderService extends IService
     }
 
 
-    public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder): array
+    public function formatCreatOrderResult(ModelCollectionOrder $collectionOrder, string $cashier_template = 'DEFAULT'): array
     {
         $platform_order_no = $collectionOrder->platform_order_no;
         $tenant_order_no = $collectionOrder->tenant_order_no;
-        $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . '?order_no=' . $collectionOrder->platform_order_no;
+        $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . "/{$cashier_template}/" . $collectionOrder->platform_order_no;
 
         $order_id_code = Base62Converter::decToBase62($collectionOrder->id, 5);
 

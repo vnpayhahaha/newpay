@@ -60,6 +60,7 @@ use Webman\Event\Event;
  * @property array $payment_assign_items 付款分配项(JSON格式)
  * @property array $collection_use_method 收款使用方法1公户 2上游
  * @property int $tg_chat_id telegram bot chat id
+ * @property int $cashier_template 收银台模板
  */
 final class ModelTenant extends BasicModel
 {
@@ -133,6 +134,7 @@ final class ModelTenant extends BasicModel
         'payment_assign_items',
         'collection_use_method',
         'tg_chat_id',
+        'cashier_template',
     ];
 
     protected $casts = [
@@ -177,6 +179,7 @@ final class ModelTenant extends BasicModel
         'notify_range'             => 'array',
         'collection_use_method'    => 'array',
         'tg_chat_id'               => 'integer',
+        'cashier_template'         => 'integer',
     ];
 
     public static function boot()

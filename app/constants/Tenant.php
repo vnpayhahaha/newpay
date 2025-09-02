@@ -78,4 +78,14 @@ class Tenant
         self::PAYMENT_FEE_TYPE_FIXED => 'tenant.enums.payment_fee_type.fixed',
         self::PAYMENT_FEE_TYPE_RATE  => 'tenant.enums.payment_fee_type.rate',
     ];
+
+    // 收银台页面模板
+    public const CASHIER_TEMPLATE_DEFAULT = 0;
+    public const CASHIER_TEMPLATE_CUSTOM1  = 1;
+    public const CASHIER_TEMPLATE_CUSTOM2  = 2;
+    public static array $cashier_template_list = [
+        self::CASHIER_TEMPLATE_DEFAULT => 'DEFAULT',
+        self::CASHIER_TEMPLATE_CUSTOM1  => 'CUSTOM1',
+        self::CASHIER_TEMPLATE_CUSTOM2  => 'CUSTOM2',
+    ];
 }

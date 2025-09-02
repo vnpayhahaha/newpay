@@ -50,9 +50,12 @@ class TenantRepository extends IRepository
             $query->where('safe_level', $params['safe_level']);
         }
 
-
         if (isset($params['tg_chat_id']) && filled($params['tg_chat_id'])) {
             $query->where('tg_chat_id', $params['tg_chat_id']);
+        }
+
+        if (isset($params['cashier_template']) && filled($params['cashier_template'])) {
+            $query->where('cashier_template', $params['cashier_template']);
         }
 
         return $query;
