@@ -645,4 +645,136 @@ class TelegramCommandService
         ];
     }
 
+    public function QueryCollectOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        $tenant_order_no = $params[0];
+        $order = $this->collectionOrderService->repository->getQuery()->where('tenant_order_no', $tenant_order_no)->first();
+        if (!$order) {
+            return [
+                'Collection order does not exist',
+            ];
+        }
+        $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        return [
+            '------------------------',
+            'Platform Order Number：',
+            $order->platform_order_no,
+            'Merchant Order Number：',
+            $order->tenant_order_no,
+            'UTR credentials：',
+            $order->utr,
+            'Order Status：',
+            $orderStatusMsg['en'],
+            'Order amount：',
+            $order->amount,
+            'Paid time：',
+            $order->pay_time,
+        ];
+    }
+
+    public function cnQueryCollectOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        $tenant_order_no = $params[0];
+        $order = $this->collectionOrderService->repository->getQuery()->where('tenant_order_no', $tenant_order_no)->first();
+        if (!$order) {
+            return [
+                '收款订单不存在',
+            ];
+        }
+        $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        return [
+            '------------------------',
+            '平台订单号：',
+            $order->platform_order_no,
+            '商户订单号：',
+            $order->tenant_order_no,
+            'UTR凭证：',
+            $order->utr,
+            '订单状态：',
+            $orderStatusMsg['zh'],
+            '订单金额：',
+            $order->amount,
+            '付款时间：',
+            $order->pay_time,
+        ];
+    }
+
+    public function QueryPayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        $tenant_order_no = $params[0];
+        $order = $this->disbursementOrderService->repository->getQuery()->where('tenant_order_no', $tenant_order_no)->first();
+        if (!$order) {
+            return [
+                'Payment order does not exist',
+            ];
+        }
+        $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        return [
+            '------------------------',
+            'Platform Order Number：',
+            $order->platform_order_no,
+            'Merchant Order Number：',
+            $order->tenant_order_no,
+            'UTR credentials：',
+            $order->utr,
+            'Order Status：',
+            $orderStatusMsg['en'],
+            'Order amount：',
+            $order->amount,
+            'Paid time：',
+            $order->pay_time,
+        ];
+    }
+
+    public function cnQueryPayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        $tenant_order_no = $params[0];
+        $order = $this->disbursementOrderService->repository->getQuery()->where('tenant_order_no', $tenant_order_no)->first();
+        if (!$order) {
+            return [
+                '付款订单不存在',
+            ];
+        }
+        $orderStatusMsg = CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order->status);
+        return [
+            '------------------------',
+            '平台订单号：',
+            $order->platform_order_no,
+            '商户订单号：',
+            $order->tenant_order_no,
+            'UTR凭证：',
+            $order->utr,
+            '订单状态：',
+            $orderStatusMsg['zh'],
+            '订单金额：',
+            $order->amount,
+            '付款时间：',
+            $order->pay_time,
+        ];
+    }
+
 }
