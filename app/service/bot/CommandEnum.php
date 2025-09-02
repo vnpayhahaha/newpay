@@ -33,19 +33,19 @@ class CommandEnum
         'query_collect_order' => "<blockquote>[Eg] /query_collect_order 123456" . PHP_EOL . "[Param] tenant_order_no !Merchant Order Number</blockquote>",
         'query_pay_order'     => "<blockquote>[Eg] /query_pay_order 654321" . PHP_EOL . "[Param] tenant_order_no !Merchant Order Number</blockquote>",
         'create_pay_order'    => "<blockquote>[Eg] /create_pay_order 654321 99.00 b bankName HDFC0000021 FAILURE 8019970602" . PHP_EOL .
-            "[Param] tenant_order_no !Merchant Order Number". PHP_EOL .
-            "[Param] amount !Amount". PHP_EOL .
-            "[Param] payment_type !Payment Type(b/u !Bank or UPI)". PHP_EOL .
-            "[Param] payee_bank_name !Payee Bank Name(b)". PHP_EOL .
-            "[Param] payee_bank_code !Payee Bank IFSC Code(b)". PHP_EOL .
-            "[Param] payee_account_name !Payee Account Name(b)". PHP_EOL .
-            "[Param] payee_account_number !Payee Account Number(b)". PHP_EOL .
-            "[Eg] /create_pay_order 654321 99.00 u upi@gmail.com". PHP_EOL .
-            "[Param] payee_upi !Payee UPI(u)". PHP_EOL .
+            "[Param] tenant_order_no !Merchant Order Number" . PHP_EOL .
+            "[Param] amount !Amount" . PHP_EOL .
+            "[Param] payment_type !Payment Type(b/u !Bank or UPI)" . PHP_EOL .
+            "[Param] payee_bank_name !Payee Bank Name(b)" . PHP_EOL .
+            "[Param] payee_bank_code !Payee Bank IFSC Code(b)" . PHP_EOL .
+            "[Param] payee_account_name !Payee Account Name(b)" . PHP_EOL .
+            "[Param] payee_account_number !Payee Account Number(b)" . PHP_EOL .
+            "[Eg] /create_pay_order 654321 99.00 u upi@gmail.com" . PHP_EOL .
+            "[Param] payee_upi !Payee UPI(u)" . PHP_EOL .
             "</blockquote>",
         'submit_utr'          => "<blockquote>[Eg] /submit_utr CO20250723234556781156197C9 432219999747" . PHP_EOL . "[Param] platform_order_no !Platform Order Number" . PHP_EOL . "[Param] utr !UTR credentials</blockquote>",
-        'count_collect_order' => 'CountCollectOrder',
-        'count_pay_order'     => 'CountPayOrder',
+        'count_collect_order' => "<blockquote>[Eg] /count_collect_order</blockquote>",
+        'count_pay_order'     => "<blockquote>[Eg] /count_pay_order</blockquote>",
     ];
 
     public const COMMAND_SET_CN = [
@@ -72,19 +72,19 @@ class CommandEnum
         '查询收款订单' => "<blockquote>[示例] /查询收款订单 123456" . PHP_EOL . "[参数] tenant_order_no !商户订单号</blockquote>",
         '查询付款订单' => "<blockquote>[示例] /查询付款订单 654321" . PHP_EOL . "[参数] tenant_order_no !商户订单号</blockquote>",
         '创建付款订单' => "<blockquote>[示例] /创建付款订单 654321 99.00 b bankName HDFC0000021 FAILURE 8019970602" . PHP_EOL .
-            "[参数] tenant_order_no !商户订单号". PHP_EOL .
-            "[参数] amount !金额". PHP_EOL .
-            "[参数] payment_type !支付类型(b/u !银行卡 或 UPI)". PHP_EOL .
-            "[参数] payee_bank_name !收款银行名称(b)". PHP_EOL .
-            "[参数] payee_bank_code !收款银行IFSC代码(b)". PHP_EOL .
-            "[参数] payee_account_name !收款人账户名称(b)". PHP_EOL .
-            "[参数] payee_account_number !收款人账号(b)". PHP_EOL .
-            "[示例] /创建付款订单 654321 99.00 u upi@gmail.com". PHP_EOL .
-            "[参数] payee_upi !收款人UPI(u)". PHP_EOL .
+            "[参数] tenant_order_no !商户订单号" . PHP_EOL .
+            "[参数] amount !金额" . PHP_EOL .
+            "[参数] payment_type !支付类型(b/u !银行卡 或 UPI)" . PHP_EOL .
+            "[参数] payee_bank_name !收款银行名称(b)" . PHP_EOL .
+            "[参数] payee_bank_code !收款银行IFSC代码(b)" . PHP_EOL .
+            "[参数] payee_account_name !收款人账户名称(b)" . PHP_EOL .
+            "[参数] payee_account_number !收款人账号(b)" . PHP_EOL .
+            "[示例] /创建付款订单 654321 99.00 u upi@gmail.com" . PHP_EOL .
+            "[参数] payee_upi !收款人UPI(u)" . PHP_EOL .
             "</blockquote>",
         '提交UTR补单'  => "<blockquote>[示例] /提交UTR补单 CO20250723234556781156197C9 432219999747" . PHP_EOL . "[参数] platform_order_no !平台订单号" . PHP_EOL . "[参数] utr !UTR凭证</blockquote>",
-        '统计收款订单' => 'cnCountCollectOrder',
-        '统计付款订单' => 'cnCountPayOrder',
+        '统计收款订单' => "<blockquote>[示例] /统计收款订单</blockquote>",
+        '统计付款订单' => "<blockquote>[示例] /统计付款订单</blockquote>",
     ];
 
     // 是否是命令

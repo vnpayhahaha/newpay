@@ -266,4 +266,27 @@ final class DisbursementOrderRepository extends IRepository
         // base_path等于 $filePath 去掉前面 public_path()
         return str_replace(public_path(), '', $file_name);
     }
+
+    public function queryCountOrderNum(string $queryWhereSql, string $startTime, string $endTime = null): int
+    {
+        if ($endTime === null) {
+            $endTime = date('Y-m-d H:i:s');
+        }
+        return $this->getQuery()
+            ->whereRaw("1 {$queryWhereSql}")
+            ->whereBetween('created_at', [$startTime, $endTime])
+            ->count();
+    }
+
+    public function queryOrderSuccessfulNum(string $queryWhereSql, string $startTime, string $endTime = null): int
+    {
+        if ($endTime === null) {
+            $endTime = date('Y-m-d H:i:s');
+        }
+        return $this->getQuery()
+            ->whereRaw("1 {$queryWhereSql}")
+            ->whereBetween('created_at', [$startTime, $endTime])
+            ->where('order_status', DisbursementOrder::STATUS_SUCCESS)
+            ->count();
+    }
 }

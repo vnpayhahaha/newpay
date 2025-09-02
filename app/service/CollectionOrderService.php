@@ -615,4 +615,44 @@ final class CollectionOrderService extends IService
             'created_at'        => $collectionOrder->created_at,
         ]);
     }
+
+    public function statisticsSuccessfulOrderRateOfTelegramBot(string $tenant_id): array
+    {
+        $queryWhereSql = " and tenant_id = {$tenant_id}";
+        $date = date('Y-m-d');
+        // 10分钟内统计
+        $order_num = $this->repository->queryCountOrderNum($queryWhereSql, $date, date('Y-m-d H:i:s'));
+        $order_successful_num = $this->repository->queryOrderSuccessfulNum($queryWhereSql, $date, date('Y-m-d H:i:s'));
+        // 10分钟内统计
+        $order_num_10_minutes = $this->repository->queryCountOrderNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-10 minutes')), date('Y-m-d H:i:s'));
+        $order_successful_num_10_minutes = $this->repository->queryOrderSuccessfulNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-10 minutes')), date('Y-m-d H:i:s'));
+        // 30分钟内统计
+        $order_num_30_minutes = $this->repository->queryCountOrderNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-30 minutes')), date('Y-m-d H:i:s'));
+        $order_successful_num_30_minutes = $this->repository->queryOrderSuccessfulNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-30 minutes')), date('Y-m-d H:i:s'));
+        // 60分钟内统计
+        $order_num_60_minutes = $this->repository->queryCountOrderNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-60 minutes')), date('Y-m-d H:i:s'));
+        $order_successful_num_60_minutes = $this->repository->queryOrderSuccessfulNum($queryWhereSql, date('Y-m-d H:i:s', strtotime('-60 minutes')), date('Y-m-d H:i:s'));
+
+        return [
+            'order_num'                          => $order_num,
+            'order_successful_num'               => $order_successful_num,
+            'payment_successful_rate'            => ($order_num > 0) ?
+                (bcdiv((string)$order_successful_num, (string)$order_num, 4) * 100) : 0,
+            // 10分钟内统计
+            'order_num_10_minutes'               => $order_num_10_minutes,
+            'order_successful_num_10_minutes'    => $order_successful_num_10_minutes,
+            'payment_successful_rate_10_minutes' => $order_num_10_minutes > 0 ?
+                (bcdiv((string)$order_successful_num_10_minutes, (string)$order_num_10_minutes, 4) * 100) : 0.00,
+            // 30分钟内统计
+            'order_num_30_minutes'               => $order_num_30_minutes,
+            'order_successful_num_30_minutes'    => $order_successful_num_30_minutes,
+            'payment_successful_rate_30_minutes' => $order_num_30_minutes > 0 ?
+                (bcdiv((string)$order_successful_num_30_minutes, (string)$order_num_30_minutes, 4) * 100) : 0.00,
+            // 60分钟内统计
+            'order_num_60_minutes'               => $order_num_60_minutes,
+            'order_successful_num_60_minutes'    => $order_successful_num_60_minutes,
+            'payment_successful_rate_60_minutes' => $order_num_60_minutes > 0 ?
+                (bcdiv((string)$order_successful_num_60_minutes, (string)$order_num_60_minutes, 4) * 100) : 0.00,
+        ];
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace app\repository;
 
+use app\constants\CollectionOrder;
 use app\model\ModelCollectionOrder;
 use DI\Attribute\Inject;
 use Illuminate\Database\Eloquent\Builder;
@@ -142,5 +143,28 @@ final class CollectionOrderRepository extends IRepository
                 page: $page,
             );
         return $this->handlePage($result);
+    }
+
+    public function queryCountOrderNum(string $queryWhereSql, string $startTime, string $endTime = null): int
+    {
+        if ($endTime === null) {
+            $endTime = date('Y-m-d H:i:s');
+        }
+        return $this->getQuery()
+            ->whereRaw("1 {$queryWhereSql}")
+            ->whereBetween('created_at', [$startTime, $endTime])
+            ->count();
+    }
+
+    public function queryOrderSuccessfulNum(string $queryWhereSql, string $startTime, string $endTime = null): int
+    {
+        if ($endTime === null) {
+            $endTime = date('Y-m-d H:i:s');
+        }
+        return $this->getQuery()
+            ->whereRaw("1 {$queryWhereSql}")
+            ->whereBetween('created_at', [$startTime, $endTime])
+            ->where('order_status', CollectionOrder::STATUS_SUCCESS)
+            ->count();
     }
 }

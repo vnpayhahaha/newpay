@@ -853,8 +853,10 @@ class TelegramCommandService
             $order = $this->disbursementOrderService->createOrder($createParams, 'TgGroupID,' . $this->telegramBot->ChatID() . ',TgUserID,' . $this->telegramBot->UserID() . ',TgUserName,' . $this->telegramBot->UserName());
         } catch (\Exception $e) {
             Log::error('TelegramCommandService.CreatePayOrder error:' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'     => $e->getFile(),
+                'line'     => $e->getLine(),
+                'recordID' => $recordID,
+                'params'   => $params
             ]);
             return [
                 'Failed to create order, Please contact the administrator'
@@ -939,8 +941,10 @@ class TelegramCommandService
             $order = $this->disbursementOrderService->createOrder($createParams, 'TgGroupID,' . $this->telegramBot->ChatID() . ',TgUserID,' . $this->telegramBot->UserID() . ',TgUserName,' . $this->telegramBot->UserName());
         } catch (\Exception $e) {
             Log::error('TelegramCommandService.cnCreatePayOrder error:' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'     => $e->getFile(),
+                'line'     => $e->getLine(),
+                'recordID' => $recordID,
+                'params'   => $params
             ]);
             return [
                 '未能创建订单，请联系管理员'
@@ -960,5 +964,111 @@ class TelegramCommandService
         ];
     }
 
+    public function CountCollectOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        $collection_order = $this->collectionOrderService->statisticsSuccessfulOrderRateOfTelegramBot($chatIdTenant->tenant_id);
+        return [
+            'Merchant name：' . $chatIdTenant->company_name,
+            "<code>Total order count：{$collection_order['order_num']}</code>",
+            "<code>Number of successful orders：{$collection_order['order_successful_num']}</code>",
+            "<code>Payment success rate：{$collection_order['payment_successful_rate']}</code>",
+            '----------------------',
+            "<code>Number of orders within 10 minutes：{$collection_order['order_num_10_minutes']}</code>",
+            "<code>Number of successful orders within 10 minutes：{$collection_order['order_successful_num_10_minutes']}</code>",
+            "<code>Payment success rate within 10 minutes：{$collection_order['payment_successful_rate_10_minutes']}</code>",
+            "<code>Number of orders within 30 minutes：{$collection_order['order_num_30_minutes']}</code>",
+            "<code>Number of successful orders within 30 minutes：{$collection_order['order_successful_num_30_minutes']}</code>",
+            "<code>Payment success rate within 30 minutes：{$collection_order['payment_successful_rate_30_minutes']}</code>",
+            "<code>Number of orders within 60 minutes：{$collection_order['order_num_60_minutes']}</code>",
+            "<code>Number of successful orders within 60 minutes：{$collection_order['order_successful_num_60_minutes']}</code>",
+            "<code>Payment success rate within 60 minutes：{$collection_order['payment_successful_rate_60_minutes']}</code>",
+        ];
+    }
 
+    public function cnCountCollectOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        $collection_order = $this->collectionOrderService->statisticsSuccessfulOrderRateOfTelegramBot($chatIdTenant->tenant_id);
+        return [
+            '商户名：' . $chatIdTenant->company_name,
+            "<code>总订单数：{$collection_order['order_num']}</code>",
+            "<code>支付成功订单数：{$collection_order['order_successful_num']}</code>",
+            "<code>支付成功率：{$collection_order['payment_successful_rate']}</code>",
+            '----------------------',
+            "<code>10分钟内订单数：{$collection_order['order_num_10_minutes']}</code>",
+            "<code>10分钟内成功订单数：{$collection_order['order_successful_num_10_minutes']}</code>",
+            "<code>10分钟内支付成功率：{$collection_order['payment_successful_rate_10_minutes']}</code>",
+            "<code>30分钟内订单数：{$collection_order['order_num_30_minutes']}</code>",
+            "<code>30分钟内成功订单数：{$collection_order['order_successful_num_30_minutes']}</code>",
+            "<code>30分钟内支付成功率：{$collection_order['payment_successful_rate_30_minutes']}</code>",
+            "<code>60分钟内订单数：{$collection_order['order_num_60_minutes']}</code>",
+            "<code>60分钟内成功订单数：{$collection_order['order_successful_num_60_minutes']}</code>",
+            "<code>60分钟内支付成功率：{$collection_order['payment_successful_rate_60_minutes']}</code>",
+        ];
+    }
+
+    public function CountPayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        $disbursement_order = $this->disbursementOrderService->statisticsSuccessfulOrderRateOfTelegramBot($chatIdTenant->tenant_id);
+        return [
+            'Merchant name：' . $chatIdTenant->company_name,
+            "<code>Total order count：{$disbursement_order['order_num']}</code>",
+            "<code>Number of successful orders：{$disbursement_order['order_successful_num']}</code>",
+            "<code>Payment success rate：{$disbursement_order['payment_successful_rate']}</code>",
+            '----------------------',
+            "<code>Number of orders within 10 minutes：{$disbursement_order['order_num_10_minutes']}</code>",
+            "<code>Number of successful orders within 10 minutes：{$disbursement_order['order_successful_num_10_minutes']}</code>",
+            "<code>Payment success rate within 10 minutes：{$disbursement_order['payment_successful_rate_10_minutes']}</code>",
+            "<code>Number of orders within 30 minutes：{$disbursement_order['order_num_30_minutes']}</code>",
+            "<code>Number of successful orders within 30 minutes：{$disbursement_order['order_successful_num_30_minutes']}</code>",
+            "<code>Payment success rate within 30 minutes：{$disbursement_order['payment_successful_rate_30_minutes']}</code>",
+            "<code>Number of orders within 60 minutes：{$disbursement_order['order_num_60_minutes']}</code>",
+            "<code>Number of successful orders within 60 minutes：{$disbursement_order['order_successful_num_60_minutes']}</code>",
+            "<code>Payment success rate within 60 minutes：{$disbursement_order['payment_successful_rate_60_minutes']}</code>",
+        ];
+    }
+
+    public function cnCountPayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        $disbursement_order = $this->disbursementOrderService->statisticsSuccessfulOrderRateOfTelegramBot($chatIdTenant->tenant_id);
+        return [
+            '商户名：' . $chatIdTenant->company_name,
+            "<code>总订单数：{$disbursement_order['order_num']}</code>",
+            "<code>支付成功订单数：{$disbursement_order['order_successful_num']}</code>",
+            "<code>支付成功率：{$disbursement_order['payment_successful_rate']}</code>",
+            '----------------------',
+            "<code>10分钟内订单数：{$disbursement_order['order_num_10_minutes']}</code>",
+            "<code>10分钟内成功订单数：{$disbursement_order['order_successful_num_10_minutes']}</code>",
+            "<code>10分钟内支付成功率：{$disbursement_order['payment_successful_rate_10_minutes']}</code>",
+            "<code>30分钟内订单数：{$disbursement_order['order_num_30_minutes']}</code>",
+            "<code>30分钟内成功订单数：{$disbursement_order['order_successful_num_30_minutes']}</code>",
+            "<code>30分钟内支付成功率：{$disbursement_order['payment_successful_rate_30_minutes']}</code>",
+            "<code>60分钟内订单数：{$disbursement_order['order_num_60_minutes']}</code>",
+            "<code>60分钟内成功订单数：{$disbursement_order['order_successful_num_60_minutes']}</code>",
+            "<code>60分钟内支付成功率：{$disbursement_order['payment_successful_rate_60_minutes']}</code>",
+        ];
+    }
 }
