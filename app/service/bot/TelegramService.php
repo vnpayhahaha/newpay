@@ -120,8 +120,8 @@ class TelegramService
     {
         $firstParam = array_shift($params);
         $command = strtolower(trim($firstParam));
-        if (CommandEnum::isCommand($command)) {
-            return true;
+        if (!CommandEnum::isCommand($command)) {
+            return false;
         }
         $method = CommandEnum::getCommand($command);
         var_dump('$method=', $method);
