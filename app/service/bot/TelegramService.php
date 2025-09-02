@@ -120,6 +120,7 @@ class TelegramService
     {
         $firstParam = array_shift($params);
         $command = strtolower(trim($firstParam));
+        var_dump('$command=', $command);
         if (CommandEnum::isCommand($command)) {
             return false;
         }
@@ -128,6 +129,7 @@ class TelegramService
         $params = array_filter($params);
         // trim
         $params = array_map('trim', array_values($params));
+        var_dump('$method_exists==params=', $params);
         if (method_exists($this->commandService, $method)) {
             $data = [
                 'data'    => $this->telegramBot->getData(),
@@ -135,8 +137,7 @@ class TelegramService
                 'method'  => $method,
                 'command' => $command,
             ];
-            Redis::send(CommandEnum::TELEGRAM_COMMAND_RUN_QUEUE_NAME, $data);
-            return true;
+            return Redis::send(CommandEnum::TELEGRAM_COMMAND_RUN_QUEUE_NAME, $data);
         }
         return false;
     }
