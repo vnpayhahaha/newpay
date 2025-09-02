@@ -3,6 +3,7 @@
 namespace app\service\bot;
 
 use app\constants\CollectionOrder;
+use app\constants\DisbursementOrder;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
 use app\constants\TransactionVoucher;
@@ -786,5 +787,178 @@ class TelegramCommandService
             $order->pay_time ?: 'N/A',
         ];
     }
+
+    public function CreatePayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                'Please bind the merchant first',
+            ];
+        }
+        if (count($params) < 4) {
+            return [
+                'Parameters are incorrect, please check the /help'
+            ];
+        }
+        if (strtolower($params[2]) === 'b') {
+            if (count($params) !== 7) {
+                return [
+                    'Parameters are incorrect, please check the /help'
+                ];
+            }
+            [
+                $tenant_order_no,
+                $amount,
+                $payment_type,
+                $payee_bank_name,
+                $payee_bank_code,
+                $payee_account_name,
+                $payee_account_number
+            ] = $params;
+            $createParams = [
+                'tenant_id'          => $chatIdTenant->tenant_id,
+                'tenant_order_no'    => $tenant_order_no,
+                'amount'             => $amount,
+                'payment_type'       => DisbursementOrder::PAYMENT_TYPE_BANK_CARD,
+                'payee_bank_name'    => $payee_bank_name,
+                'payee_bank_code'    => $payee_bank_code,
+                'payee_account_name' => $payee_account_name,
+                'payee_account_no'   => $payee_account_number,
+            ];
+        } else if (strtolower($params[2]) === 'u') {
+            if (count($params) !== 4) {
+                return [
+                    'Parameters are incorrect, please check the /help'
+                ];
+            }
+            [
+                $tenant_order_no,
+                $amount,
+                $payee_upi
+            ] = $params;
+            $createParams = [
+                'tenant_id'       => $chatIdTenant->tenant_id,
+                'tenant_order_no' => $tenant_order_no,
+                'amount'          => $amount,
+                'payment_type'    => DisbursementOrder::PAYMENT_TYPE_UPI,
+                'payee_upi'       => $payee_upi,
+            ];
+        } else {
+            return [
+                'Parameters are incorrect, please check the /help'
+            ];
+        }
+        try {
+            $order = $this->disbursementOrderService->createOrder($createParams, 'TgGroupID,' . $this->telegramBot->ChatID() . ',TgUserID,' . $this->telegramBot->UserID() . ',TgUserName,' . $this->telegramBot->UserName());
+        } catch (\Exception $e) {
+            Log::error('TelegramCommandService.CreatePayOrder error:' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return [
+                'Failed to create order, Please contact the administrator'
+            ];
+        }
+        return [
+            'Created successfully, Please wait for the merchant to confirm the order',
+            '------------------------',
+            'Platform Order Number：',
+            $order['platform_order_no'] ?? 'N/A',
+            'Merchant Order Number：',
+            $order['tenant_order_no'] ?? 'N/A',
+            'Order amount：',
+            $order['amount'] ?? 'N/A',
+            'Order Status：',
+            CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order['status'])['en'],
+        ];
+    }
+
+    public function cnCreatePayOrder(int $uid, array $params, int $recordID): string|array
+    {
+        $chatIdTenant = $this->getTenant();
+        if (!$chatIdTenant) {
+            return [
+                '请先绑定商户',
+            ];
+        }
+        if (count($params) < 4) {
+            return [
+                '参数错误，请检查执行命令 /帮助'
+            ];
+        }
+        if (strtolower($params[2]) === 'b') {
+            if (count($params) !== 7) {
+                return [
+                    '参数错误，请检查执行命令 /帮助'
+                ];
+            }
+            [
+                $tenant_order_no,
+                $amount,
+                $payment_type,
+                $payee_bank_name,
+                $payee_bank_code,
+                $payee_account_name,
+                $payee_account_number
+            ] = $params;
+            $createParams = [
+                'tenant_id'          => $chatIdTenant->tenant_id,
+                'tenant_order_no'    => $tenant_order_no,
+                'amount'             => $amount,
+                'payment_type'       => DisbursementOrder::PAYMENT_TYPE_BANK_CARD,
+                'payee_bank_name'    => $payee_bank_name,
+                'payee_bank_code'    => $payee_bank_code,
+                'payee_account_name' => $payee_account_name,
+                'payee_account_no'   => $payee_account_number,
+            ];
+        } else if (strtolower($params[2]) === 'u') {
+            if (count($params) !== 4) {
+                return [
+                    '参数错误，请检查执行命令 /帮助'
+                ];
+            }
+            [
+                $tenant_order_no,
+                $amount,
+                $payee_upi
+            ] = $params;
+            $createParams = [
+                'tenant_id'       => $chatIdTenant->tenant_id,
+                'tenant_order_no' => $tenant_order_no,
+                'amount'          => $amount,
+                'payment_type'    => DisbursementOrder::PAYMENT_TYPE_UPI,
+                'payee_upi'       => $payee_upi,
+            ];
+        } else {
+            return [
+                '参数错误，请检查执行命令 /帮助'
+            ];
+        }
+        try {
+            $order = $this->disbursementOrderService->createOrder($createParams, 'TgGroupID,' . $this->telegramBot->ChatID() . ',TgUserID,' . $this->telegramBot->UserID() . ',TgUserName,' . $this->telegramBot->UserName());
+        } catch (\Exception $e) {
+            Log::error('TelegramCommandService.cnCreatePayOrder error:' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return [
+                '未能创建订单，请联系管理员'
+            ];
+        }
+        return [
+            '成功创建，请等待商家确认订单',
+            '------------------------',
+            '平台订单号：',
+            $order['platform_order_no'] ?? 'N/A',
+            '商户订单号：',
+            $order['tenant_order_no'] ?? 'N/A',
+            '订单金额：',
+            $order['amount'] ?? 'N/A',
+            '订单状态：',
+            CollectionOrder::getHumanizeValueDouble(CollectionOrder::$status_list, $order['status'])['cn'],
+        ];
+    }
+
 
 }

@@ -132,7 +132,6 @@ final class DisbursementOrderService extends IService
             $this->repository->getModel()->where('id', $disbursementOrder->id)->update([
                 'transaction_record_id' => $modelTransactionRecord->id,
             ]);
-            $isOk = true;
             Db::commit();
         } catch (Exception $e) {
             Db::rollBack();
