@@ -25,15 +25,15 @@ class CommandEnum
 
     public static array $commandDescMap = [
         'help'                => "<blockquote>[Eg]/help</blockquote>",
-        'get_id'              => "<blockquote>[Eg]/get-id</blockquote>",
-        'get_group_id'        => "<blockquote>[Eg]/get-group-id</blockquote>",
+        'get_id'              => "<blockquote>[Eg]/get_id</blockquote>",
+        'get_group_id'        => "<blockquote>[Eg]/get_group_id</blockquote>",
         'bind'                => "<blockquote>[Eg]/bind 000001" . PHP_EOL . "/Param/tenant_id !Merchant ID</blockquote>",
         'query'               => "<blockquote>[Eg]/query</blockquote>",
         'order'               => "<blockquote>[Eg]/order CO20250723234556781156197C9" . PHP_EOL . "/Param/platform_order_no !Platform Order Number</blockquote>",
-        'query_collect_order' => "<blockquote>[Eg]/query-collect-order 123456" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
-        'query_pay_order'     => "<blockquote>[Eg]/query-pay-order 654321" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
+        'query_collect_order' => "<blockquote>[Eg]/query_collect_order 123456" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
+        'query_pay_order'     => "<blockquote>[Eg]/query_pay_order 654321" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
         'create_pay_order'    => 'CreatePayOrder',
-        'submit_utr'          => "<blockquote>[Eg]/submit-utr CO20250723234556781156197C9 432219999747" . PHP_EOL . "/Param/platform_order_no !Platform Order Number" . PHP_EOL . "/Param/utr !UTR credentials</blockquote>",
+        'submit_utr'          => "<blockquote>[Eg]/submit_utr CO20250723234556781156197C9 432219999747" . PHP_EOL . "/Param/platform_order_no !Platform Order Number" . PHP_EOL . "/Param/utr !UTR credentials</blockquote>",
         'count_collect_order' => 'CountCollectOrder',
         'count_pay_order'     => 'CountPayOrder',
     ];
