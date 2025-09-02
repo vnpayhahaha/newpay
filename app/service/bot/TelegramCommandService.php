@@ -344,6 +344,7 @@ class TelegramCommandService
     {
         $reply = [
             'Welcome to this system',
+            "<blockquote>Note: Please use parameter separators [@, spaces, line breaks]</blockquote>"
         ];
         $commandArr = CommandEnum::getHelpReply();
         return array_merge($reply, $commandArr);
@@ -353,6 +354,7 @@ class TelegramCommandService
     {
         $reply = [
             '欢迎使用本系统',
+            "<blockquote>注意：请统一使用参数分隔符【@ 空格 换行】</blockquote>",
         ];
         $commandArr = CommandEnum::getHelpReply(true);
         return array_merge($reply, $commandArr);

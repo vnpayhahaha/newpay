@@ -24,7 +24,7 @@ class CommandEnum
     ];
 
     public static array $commandDescMap = [
-        'help'                => "<blockquote>Note: Please use parameter separators [@, spaces, line breaks]</blockquote>",
+        'help'                => "<blockquote>[Eg]/help</blockquote>",
         'get_id'              => "<blockquote>[Eg]/get-id</blockquote>",
         'get_group_id'        => "<blockquote>[Eg]/get-group-id</blockquote>",
         'bind'                => "<blockquote>[Eg]/bind 000001" . PHP_EOL . "/Param/tenant_id !Merchant ID</blockquote>",
@@ -53,7 +53,7 @@ class CommandEnum
         '统计付款订单' => 'cnCountPayOrder',
     ];
     public static array $commandDescCnMap = [
-        '帮助'         => "<blockquote>注意：请统一使用参数分隔符【@ 空格 换行】</blockquote>",
+        '帮助'         => "<blockquote>[示例]/帮助</blockquote>",
         '获取ID'       => "<blockquote>[示例]/获取ID</blockquote>",
         '获取群ID'     => "<blockquote>[示例]/获取群ID</blockquote>",
         '绑定'         => "<blockquote>[示例]/绑定 000001" . PHP_EOL . "/参数/tenant_id !商户ID</blockquote>",
