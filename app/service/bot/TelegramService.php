@@ -120,11 +120,12 @@ class TelegramService
     {
         $firstParam = array_shift($params);
         $command = strtolower(trim($firstParam));
-        var_dump('$command=', $command);
+        var_dump('$command=', $command,CommandEnum::isCommand($command));
         if (CommandEnum::isCommand($command)) {
             return false;
         }
         $method = CommandEnum::getCommand($command);
+        var_dump('$method=', $method);
         // 过滤空并重置索引
         $params = array_filter($params);
         // trim
