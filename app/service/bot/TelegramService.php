@@ -129,7 +129,6 @@ class TelegramService
         $params = array_filter($params);
         // trim
         $params = array_map('trim', array_values($params));
-        var_dump('$method_exists==params=', $params);
         if (method_exists($this->commandService, $method)) {
             $data = [
                 'data'    => $this->telegramBot->getData(),

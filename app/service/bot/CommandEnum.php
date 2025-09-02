@@ -70,15 +70,19 @@ class CommandEnum
     // 是否是命令
     public static function isCommand(string $command): bool
     {
-        return in_array($command, self::COMMAND_SET_CN) || in_array(strtolower(trim($command)), self::COMMAND_SET);
+        $command_set_cn_keys = array_keys(self::COMMAND_SET_CN);
+        $command_set_keys = array_keys(self::COMMAND_SET);
+        return in_array($command, $command_set_cn_keys, true) || in_array(strtolower(trim($command)), $command_set_keys, true);
     }
 
     public static function getCommand(string $command): string
     {
-        if (in_array($command, self::COMMAND_SET_CN)) {
+        $command_set_cn_keys = array_keys(self::COMMAND_SET_CN);
+        if (in_array($command, $command_set_cn_keys, true)) {
             return self::COMMAND_SET_CN[$command];
         }
-        if (in_array(strtolower($command), self::COMMAND_SET)) {
+        $command_set_keys = array_keys(self::COMMAND_SET);
+        if (in_array(strtolower($command), $command_set_keys, true)) {
             return self::COMMAND_SET[$command];
         }
         return '';
