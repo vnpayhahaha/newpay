@@ -10,32 +10,32 @@ class CommandEnum
     // 定义中文指令集
     public const COMMAND_SET = [
         'help'                => 'Help',
-        'get-id'              => 'GetId',
-        'get-group-id'        => 'GetGroupId',
+        'get_id'              => 'GetId',
+        'get_group_id'        => 'GetGroupId',
         'bind'                => 'Bind',
         'query'               => 'Query',
         'order'               => 'Order',
-        'query-collect-order' => 'QueryCollectOrder',
-        'query-pay-order'     => 'QueryPayOrder',
-        'create-pay-order'    => 'CreatePayOrder',
-        'submit-utr'          => 'SubmitUtr',
-        'count-collect-order' => 'CountCollectOrder',
-        'count-pay-order'     => 'CountPayOrder',
+        'query_collect_order' => 'QueryCollectOrder',
+        'query_pay_order'     => 'QueryPayOrder',
+        'create_pay_order'    => 'CreatePayOrder',
+        'submit_utr'          => 'SubmitUtr',
+        'count_collect_order' => 'CountCollectOrder',
+        'count_pay_order'     => 'CountPayOrder',
     ];
 
     public static array $commandDescMap = [
         'help'                => "<blockquote>Note: Please use parameter separators [@, spaces, line breaks]</blockquote>",
-        'get-id'              => "<blockquote>[Eg]/get-id</blockquote>",
-        'get-group-id'        => "<blockquote>[Eg]/get-group-id</blockquote>",
+        'get_id'              => "<blockquote>[Eg]/get-id</blockquote>",
+        'get_group_id'        => "<blockquote>[Eg]/get-group-id</blockquote>",
         'bind'                => "<blockquote>[Eg]/bind 000001" . PHP_EOL . "/Param/tenant_id !Merchant ID</blockquote>",
         'query'               => "<blockquote>[Eg]/query</blockquote>",
         'order'               => "<blockquote>[Eg]/order CO20250723234556781156197C9" . PHP_EOL . "/Param/platform_order_no !Platform Order Number</blockquote>",
-        'query-collect-order' => "<blockquote>[Eg]/query-collect-order 123456" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
-        'query-pay-order'     => "<blockquote>[Eg]/query-pay-order 654321" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
-        'create-pay-order'    => 'CreatePayOrder',
-        'submit-utr'          => "<blockquote>[Eg]/submit-utr CO20250723234556781156197C9 432219999747" . PHP_EOL . "/Param/platform_order_no !Platform Order Number" . PHP_EOL . "/Param/utr !UTR credentials</blockquote>",
-        'count-collect-order' => 'CountCollectOrder',
-        'count-pay-order'     => 'CountPayOrder',
+        'query_collect_order' => "<blockquote>[Eg]/query-collect-order 123456" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
+        'query_pay_order'     => "<blockquote>[Eg]/query-pay-order 654321" . PHP_EOL . "/Param/tenant_order_no !Merchant Order Number</blockquote>",
+        'create_pay_order'    => 'CreatePayOrder',
+        'submit_utr'          => "<blockquote>[Eg]/submit-utr CO20250723234556781156197C9 432219999747" . PHP_EOL . "/Param/platform_order_no !Platform Order Number" . PHP_EOL . "/Param/utr !UTR credentials</blockquote>",
+        'count_collect_order' => 'CountCollectOrder',
+        'count_pay_order'     => 'CountPayOrder',
     ];
 
     public const COMMAND_SET_CN = [
