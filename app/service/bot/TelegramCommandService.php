@@ -3,6 +3,7 @@
 namespace app\service\bot;
 
 use app\constants\CollectionOrder;
+use app\constants\Tenant;
 use app\constants\TenantAccount;
 use app\constants\TransactionVoucher;
 use app\repository\TenantRepository;
@@ -489,13 +490,14 @@ class TelegramCommandService
                 }
             }
         }
+        $statusMsg = Tenant::getHumanizeValueDouble(Tenant::$status_list, $chatIdTenant->is_enabled);
         return [
             'Merchant number：',
             $chatIdTenant->tenant_id,
             'Merchant name：',
             $chatIdTenant->company_name,
             'Merchant status：',
-            $chatIdTenant->is_enabled,
+            $statusMsg['en'],
             '------------------------',
             'Available balance for collection: ',
             $collectionBalance,
@@ -531,13 +533,14 @@ class TelegramCommandService
                 }
             }
         }
+        $statusMsg = Tenant::getHumanizeValueDouble(Tenant::$status_list, $chatIdTenant->is_enabled);
         return [
             '[商户号]',
             $chatIdTenant->tenant_id,
             '[商户名称]',
             $chatIdTenant->company_name,
             '[商户状态]',
-            $chatIdTenant->is_enabled,
+            $statusMsg['zh'],
             '------------------------',
             '[收款可用余额]',
             $collectionBalance,

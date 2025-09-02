@@ -14,7 +14,7 @@ class TelegramService
 
     #[Inject]
     protected TelegramCommandService $commandService;
-    
+
     #[Inject]
     protected TelegramCommandMessageRecordRepository $telegramCommandMessageRecordRepository;
 
@@ -81,7 +81,7 @@ class TelegramService
                 if ($this->commandRunProducer($params)) {
                     return true;
                 }
-            }catch (\Throwable $e){
+            } catch (\Throwable $e) {
                 return $this->sendMessageProducer($chat_id, [
                     'Execute command exception:',
                     $e->getMessage(),
@@ -252,9 +252,10 @@ class TelegramService
         } else {
             return false;
         }
-        $data = array('chat_id'    => $chat_id,
-                      'text'       => $content,
-                      'parse_mode' => 'HTML'
+        $data = array(
+            'chat_id'    => $chat_id,
+            'text'       => $content,
+            'parse_mode' => 'HTML'
         );
         if ($reply_markup > 0) {
             $data['reply_to_message_id'] = $reply_markup;
@@ -272,7 +273,7 @@ class TelegramService
     {
         $message_id = $data['reply_to_message_id'] ?? 0;
         if ($message_id > 0) {
-            $data['text'] = '[Reply|回复]' . $data['text'];
+            $data['text'] = '[Reply|回复]' . PHP_EOL . $data['text'];
             $this->telegramCommandMessageRecordRepository->getModel()->where([
                 'chat_id'    => $data['chat_id'],
                 'message_id' => $message_id,
