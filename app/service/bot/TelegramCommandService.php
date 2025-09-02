@@ -171,7 +171,7 @@ class TelegramCommandService
                         'Order amount：[订单金额]',
                         $collectionOrder->amount,
                         'Payment time：[支付时间]',
-                        $collectionOrder->pay_time,
+                        $collectionOrder->pay_time ?: 'N/A',
                     ];
                 }
 
@@ -285,7 +285,7 @@ class TelegramCommandService
                 'Payment amount：[收款金额]',
                 $transactionVoucher->collection_amount,
                 'Collection time：[收款时间]',
-                $transactionVoucher->collection_time,
+                $transactionVoucher->collection_time ?: 'N/A',
             ];
         }
         if ($transactionVoucher->collection_status >= TransactionVoucher::COLLECTION_STATUS_FAIL) {
@@ -300,7 +300,7 @@ class TelegramCommandService
                 'Payment amount：[收款金额]',
                 $transactionVoucher->collection_amount,
                 'Collection time：[收款时间]',
-                $transactionVoucher->collection_time,
+                $transactionVoucher->collection_time ?: 'N/A',
             ];
         }
 
@@ -321,6 +321,11 @@ class TelegramCommandService
                 'Order Status：[订单状态]',
                 $orderStatusMsg['en'] . '[' . $orderStatusMsg['zh'] . ']',
                 'Order amount：[订单金额]',
+                $collectionOrder->amount,
+                'Collection amount：[收款金额]',
+                $transactionVoucher->collection_amount,
+                'Collection time：[收款时间]',
+                $transactionVoucher->collection_time ?: 'N/A',
             ];
         }
         return [
@@ -598,7 +603,7 @@ class TelegramCommandService
             'Order amount：',
             $order->amount,
             'Paid time：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
@@ -646,7 +651,7 @@ class TelegramCommandService
             '订单金额：',
             $order->amount,
             '付款时间：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
@@ -679,7 +684,7 @@ class TelegramCommandService
             'Order amount：',
             $order->amount,
             'Paid time：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
@@ -712,7 +717,7 @@ class TelegramCommandService
             '订单金额：',
             $order->amount,
             '付款时间：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
@@ -745,7 +750,7 @@ class TelegramCommandService
             'Order amount：',
             $order->amount,
             'Paid time：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
@@ -778,7 +783,7 @@ class TelegramCommandService
             '订单金额：',
             $order->amount,
             '付款时间：',
-            $order->pay_time,
+            $order->pay_time ?: 'N/A',
         ];
     }
 
