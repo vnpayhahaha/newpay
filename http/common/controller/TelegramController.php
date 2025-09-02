@@ -25,7 +25,7 @@ class TelegramController extends BasicController
         return $this->success($this->service->notify($url));
     }
 
-    #[RequestMapping(path: '/webHook', methods: 'get,post')]
+    #[PostMapping('/webHook')]
     public function webHook(Request $request): Response
     {
         $token = env('TELEGRAM_TOKEN');
