@@ -21,7 +21,7 @@ class TelegramController extends BasicController
     #[PostMapping('/notify')]
     public function notify(): \support\Response
     {
-        $url = env('APP_DOMAIN', 'https://server.yypay.cloud') . '/telegram/webHook';
+        $url = env('APP_DOMAIN', 'https://server.yypay.cloud') . '/v1/common/telegram/webHook';
         return $this->success($this->service->notify($url));
     }
 
