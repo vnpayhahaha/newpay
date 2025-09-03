@@ -26,13 +26,26 @@ final class ModelUserBelongsRole extends BasicModel
     protected $primaryKey = 'id';
 
     /**
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * The attributes that are mass assignable.
      * @var array
      */
     protected $fillable = [
+        'id',
         'user_id',
         'role_id',
-        'created_at',
-        'updated_at'
+    ];
+    /**
+     * The attributes that should be cast to native types.
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'role_id' => 'integer',
     ];
 }

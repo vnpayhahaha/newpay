@@ -35,6 +35,7 @@ use support\Log;
 use support\Redis;
 use Webman\Event\Event;
 use Webman\Http\Request;
+use Workerman\Coroutine\Parallel;
 
 final class CollectionOrderService extends IService
 {
@@ -665,20 +666,33 @@ final class CollectionOrderService extends IService
     {
         // 统计当日订单数
         $date = date('Y-m-d');
-        $order_num_today = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $date)->count();
+        $query = $this->repository->getQuery();
+        $order_num_today = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $date)->count();
         // 统计昨日订单数
         $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $order_num_yesterday = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $yesterday)->where('created_at', '<', $date)->count();
+        $query = $this->repository->getQuery();
+        $order_num_yesterday = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $yesterday)->where('created_at', '<', $date)->count();
         // 计算近7天的日期范围，每天的订单数量
-        $date_range = [];
+        $parallel = new Parallel(7);
+        $user = Context::get('user');
         for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime('-' . $i . ' day'));
-            $date_range[$date] = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $date)->where('created_at', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))->count();
+            $parallel->add(function () use ($i, $user) {
+                Context::set('user', $user);
+                $query = $this->repository->getQuery();
+                $date = date('Y-m-d', strtotime('-' . $i . ' day'));
+                $date_range[$date] = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $date)->where('created_at', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))->count();
+                return $date_range;
+            });
         }
+        $results = $parallel->wait();
+        // order_num_range 合并 $results 的值
+        $order_num_range = array_merge(...$results);
+        // $order_num_range 数组排序
+        ksort($order_num_range);
         return [
             'order_num_today'     => $order_num_today,
             'order_num_yesterday' => $order_num_yesterday,
-            'order_num_range'     => $date_range,
+            'order_num_range'     => $order_num_range,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\scope\TenantDataPermissionScope;
 use Carbon\Carbon;
 
 /**
@@ -218,5 +219,10 @@ final class ModelDisbursementOrder extends BasicModel
     public function transaction_record(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelTransactionRecord::class, 'transaction_record_id', 'id');
+    }
+
+    public function scopeWithTenantPermission($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return (new TenantDataPermissionScope())->apply($query, $this);
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use support\Container;
+use support\Context;
 use support\Db;
 use support\Redis;
 
@@ -21,11 +22,11 @@ class TenantDataPermissionScope implements Scope
     // 缓存过期时间（秒）
     private const CACHE_TTL = 60;
 
-    public function apply(Builder $builder, Model $model): void
+    public function apply(Builder $builder, Model $model): Builder
     {
-        $user = request()->user ?? null;
+        $user = Context::get('user');
         if (!$user) {
-            return;
+            return $builder;
         }
         // 检查是否为超级管理员，如果是则不应用任何过滤
         if (!$user->isSuperAdmin()) {
@@ -34,11 +35,12 @@ class TenantDataPermissionScope implements Scope
 
             // 如果没有获取到租户ID，则不返回任何数据
             if (empty($tenantIds)) {
-                $builder->where('tenant_id', '<', 0); // 添加一个永远不成立的条件
+                $builder->where('id', '=', 0); // 添加一个永远不成立的条件
             } else {
                 $builder->whereIn('tenant_id', $tenantIds);
             }
         }
+        return $builder;
     }
 
     /**

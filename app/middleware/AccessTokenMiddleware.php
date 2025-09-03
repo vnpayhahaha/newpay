@@ -59,7 +59,7 @@ class AccessTokenMiddleware implements MiddlewareInterface
             }
             //var_dump('refresh_token == autoRefresh ==');
             $request->user = JwtAuth::getUser();
-
+            Context::set('user', $request->user);
             $response = $handler($request);
             if ($token !== $verifyToken->toString()) {
                 return $response->withHeaders([

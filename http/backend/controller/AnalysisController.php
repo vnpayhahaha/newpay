@@ -10,6 +10,7 @@ use app\service\DisbursementOrderService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
+
 #[RestController("/admin/analysis")]
 class AnalysisController extends BasicController
 {
@@ -25,8 +26,8 @@ class AnalysisController extends BasicController
         $collectionOrder = $this->collectionOrderService->statisticsOrderOfWeek();
 //        $disbursementOrder = $this->disbursementOrderService->statisticsOrderOfWeek();
         return $this->success([
-            'collectionOrder' => $collectionOrder,
-            'disbursementOrder' => []
+            'collectionOrder'   => $collectionOrder,
+            'disbursementOrder' => [],
         ]);
     }
 

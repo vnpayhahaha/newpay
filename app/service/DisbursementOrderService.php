@@ -33,29 +33,30 @@ use support\Response;
 use Webman\Event\Event;
 use Webman\Http\Request;
 use Webman\RedisQueue\Redis;
+use Workerman\Coroutine\Parallel;
 
 final class DisbursementOrderService extends IService
 {
     #[Inject]
-    public DisbursementOrderRepository           $repository;
+    public DisbursementOrderRepository $repository;
     #[Inject]
-    protected TenantRepository                   $tenantRepository;
+    protected TenantRepository $tenantRepository;
     #[Inject]
-    protected TenantAccountRepository            $tenantAccountRepository;
+    protected TenantAccountRepository $tenantAccountRepository;
     #[Inject]
-    protected BankAccountRepository              $bankAccountRepository;
+    protected BankAccountRepository $bankAccountRepository;
     #[Inject]
-    protected ChannelAccountRepository           $channelAccountRepository;
+    protected ChannelAccountRepository $channelAccountRepository;
     #[Inject]
-    protected TransactionVoucherRepository       $transactionVoucherRepository;
+    protected TransactionVoucherRepository $transactionVoucherRepository;
     #[Inject]
-    protected TransactionRecordRepository        $transactionRecordRepository;
+    protected TransactionRecordRepository $transactionRecordRepository;
     #[Inject]
     protected BankDisbursementDownloadRepository $downloadFileRepository;
     #[Inject]
-    protected AttachmentRepository               $attachmentRepository;
+    protected AttachmentRepository $attachmentRepository;
     #[Inject]
-    protected TenantNotificationQueueRepository  $tenantNotificationQueueRepository;
+    protected TenantNotificationQueueRepository $tenantNotificationQueueRepository;
 
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
@@ -635,6 +636,41 @@ final class DisbursementOrderService extends IService
             'order_successful_num_60_minutes'    => $order_successful_num_60_minutes,
             'payment_successful_rate_60_minutes' => $order_num_60_minutes > 0 ?
                 (bcdiv((string)$order_successful_num_60_minutes, (string)$order_num_60_minutes, 4) * 100) : 0.00,
+        ];
+    }
+
+    // 分析统计最近一周的订单
+    public function statisticsOrderOfWeek(): array
+    {
+        // 统计当日订单数
+        $date_today = date('Y-m-d');
+        $query = $this->repository->getQuery();
+        $order_num_today = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $date_today)->count();
+        // 统计昨日订单数
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $query = $this->repository->getQuery();
+        $order_num_yesterday = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $yesterday)->where('created_at', '<', $date_today)->count();
+        // 计算近7天的日期范围，每天的订单数量
+        $parallel = new Parallel(7);
+        $user = Context::get('user');
+        for ($i = 6; $i >= 0; $i--) {
+            $parallel->add(function () use ($i, $user) {
+                Context::set('user', $user);
+                $query = $this->repository->getQuery();
+                $date = date('Y-m-d', strtotime('-' . $i . ' day'));
+                $date_range[$date] = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $date)->where('created_at', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))->count();
+                return $date_range;
+            });
+        }
+        $results = $parallel->wait();
+        // order_num_range 合并 $results 的值
+        $order_num_range = array_merge(...$results);
+        // $order_num_range 数组排序
+        ksort($order_num_range);
+        return [
+            'order_num_today'     => $order_num_today,
+            'order_num_yesterday' => $order_num_yesterday,
+            'order_num_range'     => $order_num_range,
         ];
     }
 }

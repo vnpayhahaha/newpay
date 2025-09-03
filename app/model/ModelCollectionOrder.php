@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\scope\TenantDataPermissionScope;
 use Carbon\Carbon;
 use support\Db;
 
@@ -220,5 +221,10 @@ final class ModelCollectionOrder extends BasicModel
     public function created_customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ModelTenantUser::class, 'customer_created_by', 'id');
+    }
+
+    public function scopeWithTenantPermission($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return (new TenantDataPermissionScope())->apply($query, $this);
     }
 }
