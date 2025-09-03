@@ -658,4 +658,10 @@ final class CollectionOrderService extends IService
                 (bcdiv((string)$order_successful_num_60_minutes, (string)$order_num_60_minutes, 4) * 100) : 0.00,
         ];
     }
+
+    // 分析统计最近一周的订单
+    public function statisticsOrderOfWeek(string $tenant_id): array
+    {
+
+    }
 }

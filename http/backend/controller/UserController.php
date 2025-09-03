@@ -169,9 +169,9 @@ class UserController extends BasicController
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
-        $validatedData = $validator->validate();
+//        $validatedData = $validator->validate();
         $this->userService->updateById($userId, array_merge(
-            $validatedData,
+            $request->all(),
             [
                 'updated_by' => $request->user->id,
             ]

@@ -4,15 +4,14 @@ namespace app\lib\annotation;
 
 
 use app\model\enums\ScopeType;
-use Hyperf\Di\Annotation\AbstractAnnotation;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
-class DataScope extends AbstractAnnotation
+class DataScope
 {
     public function __construct(
         private readonly string $deptColumn = 'dept_id',
         private readonly string $createdByColumn = 'created_by',
-        private readonly ScopeType $scopeType = ScopeType::DEPT_CREATED_BY,
+        private readonly ScopeType $scopeType = ScopeType::SELF,
         private readonly ?array $onlyTables = null
     ) {}
 

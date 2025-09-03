@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use app\model\enums\ScopeType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,6 +59,18 @@ class ModelPolicy extends BasicModel
         'created_at',
         'updated_at',
         'deleted_at',
+    ];
+
+    protected $casts = [
+        'id'          => 'integer',
+        'user_id'     => 'integer',
+        'position_id' => 'integer',
+        'policy_type' => ScopeType::class,
+        'is_default'  => 'boolean',
+        'value'       => 'array',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+        'deleted_at'  => 'datetime',
     ];
 
     public function positions(): BelongsToMany

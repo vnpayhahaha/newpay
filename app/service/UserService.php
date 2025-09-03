@@ -28,7 +28,7 @@ final class UserService extends IService
     protected RoleRepository $roleRepository;
 
     #[DataScope(
-        scopeType: ScopeType::CREATED_BY,
+        scopeType: ScopeType::SELF,
         onlyTables: ['user']
     )]
     public function page(array $params, int $page = 1, int $pageSize = 10): array

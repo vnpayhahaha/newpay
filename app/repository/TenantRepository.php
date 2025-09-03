@@ -73,4 +73,10 @@ class TenantRepository extends IRepository
     {
         return $this->model::query()->where('tenant_id', $tenant_id)->first();
     }
+
+    // 获取租户ID by CreatedBy
+    public function getTenantIdsByCreatedBy(int $created_by): array
+    {
+        return $this->model::query()->where('created_by', $created_by)->pluck('tenant_id')->toArray();
+    }
 }

@@ -2,17 +2,21 @@
 
 namespace app\model\enums;
 
-enum ScopeType: int
+enum ScopeType: string
 {
+
+    // 所有
+    case ALL = 'ALL';
     // 只根据部门过滤
-    case DEPT = 1;
+    case DEPT_SELF = 'DEPT_SELF';
 
-    // 只根据创建人过滤
-    case CREATED_BY = 2;
+    // 只根据部门树过滤
+    case DEPT_TREE = 'DEPT_TREE';
 
-    // 根据部门 and 创建人过滤
-    case DEPT_CREATED_BY = 3;
-
-    // 根据部门 or 创建人过滤
-    case DEPT_OR_CREATED_BY = 4;
+    // 只根据用户过滤
+    case SELF = 'SELF';
+    // 自定义部门过滤
+    case CUSTOM_DEPT = 'CUSTOM_DEPT';
+    // 自定义函数过滤
+    case CUSTOM_FUNC = 'CUSTOM_FUNC';
 }

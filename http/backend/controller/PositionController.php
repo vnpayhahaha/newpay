@@ -13,6 +13,7 @@ use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
+use app\service\DepartmentService;
 use app\service\PositionService;
 use DI\Attribute\Inject;
 use Illuminate\Validation\Rule;
@@ -24,6 +25,9 @@ class PositionController extends BasicController
 {
     #[Inject]
     protected PositionService $service;
+
+    #[Inject]
+    protected DepartmentService $departmentService;
 
     #[GetMapping('/position/list')]
     #[Permission(code: 'permission:position:index')]
@@ -77,22 +81,30 @@ class PositionController extends BasicController
                 'required',
                 'string',
                 'max:60',
-                //'unique:position,name',
                 function ($attribute, $value, $fail) {
-                    if ($this->service->repository->getModel()->where($attribute, $value)->exists()) {
+                    if ($this->service->repository->getQuery()->where($attribute, $value)->exists()) {
                         $fail(trans('unique', [':attribute' => $attribute], 'validation'));
                     }
                 }
 
             ],
-            'dept_id' => 'required|integer|exists:department,id',
+            'dept_id' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) {
+                    if (!$this->departmentService->repository->findById($value)) {
+                        $fail(trans('exists', [':attribute' => $attribute], 'validation'));
+                    }
+                }
+            ],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
-        $validatedData = $validator->validate();
+        // $validatedData = $validator->validate();
         $this->service->create(array_merge(
-            $validatedData,
+            $request->all(),
             [
                 'created_by' => $request->user->id,
             ]
@@ -113,7 +125,7 @@ class PositionController extends BasicController
                 'max:60',
                 //'unique:position,name',
                 function ($attribute, $value, $fail) use ($id) {
-                    if ($this->service->repository->getModel()->where($attribute, $value)->where('id', '<>', $id)->exists()) {
+                    if ($this->service->repository->getQuery()->where($attribute, $value)->where('id', '<>', $id)->exists()) {
                         $fail(trans('unique', [':attribute' => $attribute], 'validation'));
                     }
                 }
