@@ -32,7 +32,7 @@ use Illuminate\Support\Collection;
  * @property string $remark 备注
  * @property null|Collection|ModelRole[] $roles
  * @property mixed $password 密码
- * @property null|ModelPolicy $policy 数据权限策略
+ * @property null|ModelDataPermissionPolicy $policy 数据权限策略
  * @property Collection|ModelDepartment[] $department 部门
  * @property Collection|ModelDepartment[] $dept_leader 部门领导
  * @property Collection|ModelPosition[] $position 岗位
@@ -116,7 +116,7 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
 
     public function setPasswordAttribute($value): void
     {
-        $this->attributes['password'] = password_hash((string)$value, \PASSWORD_DEFAULT);
+        $this->attributes['password'] = password_hash((string)$value, PASSWORD_DEFAULT);
     }
 
     public function verifyPassword(string $password): bool
@@ -127,7 +127,7 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
     public function resetPassword(): void
     {
         var_dump('---setPasswordAttribute--');
-        $this->password = 123456;
+        $this->password = '123456';
     }
 
     public function isSuperAdmin(): bool
@@ -155,7 +155,7 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
 
     public function policy(): HasOne
     {
-        return $this->hasOne(ModelPolicy::class, 'user_id', 'id');
+        return $this->hasOne(ModelDataPermissionPolicy::class, 'user_id', 'id');
     }
 
     public function department(): BelongsToMany
@@ -173,10 +173,10 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
         return $this->belongsToMany(ModelPosition::class, 'user_position', 'user_id', 'position_id');
     }
 
-    public function getPolicy(): ?ModelPolicy
+    public function getPolicy(): ?ModelDataPermissionPolicy
     {
         /**
-         * @var null|ModelPolicy $policy
+         * @var null|ModelDataPermissionPolicy $policy
          */
         $policy = $this->policy()->first();
         if (!empty($policy)) {
@@ -194,16 +194,16 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
         return null;
     }
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
-        ModelUser::creating(function (ModelUser $model) {
+        self::creating(static function (ModelUser $model) {
             // isDirty 方法是 Laravel Eloquent 模型中的一个方法，用于检查模型或其指定属性是否已被修改。它通常用于在保存模型之前检查是否有任何属性被更改。
             if (!$model->isDirty('password')) {
                 $model->resetPassword();
             }
         });
-        ModelUser::created(function (ModelUser $model) {
+        self::created(static function (ModelUser $model) {
             $model->roles()->detach();
             $model->policy()->delete();
         });

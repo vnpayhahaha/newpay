@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
  * @property Carbon $deleted_at
  * @property null|ModelDepartment $department
  * @property Collection<int,ModelUser>|ModelUser[] $users
- * @property ModelPolicy $policy
+ * @property ModelDataPermissionPolicy $policy
  */
 class ModelPosition extends BasicModel
 {
@@ -66,6 +66,6 @@ class ModelPosition extends BasicModel
 
     public function policy(): HasOne
     {
-        return $this->hasOne(ModelPolicy::class, 'position_id', 'id');
+        return $this->hasOne(ModelDataPermissionPolicy::class, 'position_id', 'id');
     }
 }

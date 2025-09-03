@@ -36,8 +36,11 @@ class PermissionMiddleware implements MiddlewareInterface
             // 检查方法级别的注解
             if ($reflectionClass->hasMethod($action)) {
                 $reflectionMethod = $reflectionClass->getMethod($action);
-
-                if ($methodAnnotation = $reflectionMethod->getAttributes(Permission::class)[0]->newInstance() ?? null) {
+                $attributes = $reflectionMethod->getAttributes(Permission::class);
+                if(!$attributes){
+                    return $handler($request);
+                }
+                if ($methodAnnotation = $attributes[0]->newInstance()) {
                     // 获取注解参数
                     $this->handlePermission($methodAnnotation, $user);
                 }

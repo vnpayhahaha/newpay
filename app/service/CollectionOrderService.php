@@ -21,6 +21,7 @@ use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
+use app\scope\TenantDataPermissionScope;
 use app\tools\Base62Converter;
 use app\upstream\Handle\TransactionCollectionOrderFactory;
 use Carbon\Carbon;
@@ -660,8 +661,24 @@ final class CollectionOrderService extends IService
     }
 
     // 分析统计最近一周的订单
-    public function statisticsOrderOfWeek(string $tenant_id): array
+    public function statisticsOrderOfWeek(): array
     {
-
+        // 统计当日订单数
+        $date = date('Y-m-d');
+        $order_num_today = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $date)->count();
+        // 统计昨日订单数
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $order_num_yesterday = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $yesterday)->where('created_at', '<', $date)->count();
+        // 计算近7天的日期范围，每天的订单数量
+        $date_range = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime('-' . $i . ' day'));
+            $date_range[$date] = $this->repository->getQuery()->withoutGlobalScope(TenantDataPermissionScope::class)->where('created_at', '>=', $date)->where('created_at', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))->count();
+        }
+        return [
+            'order_num_today'     => $order_num_today,
+            'order_num_yesterday' => $order_num_yesterday,
+            'order_num_range'     => $date_range,
+        ];
     }
 }
