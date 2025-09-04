@@ -84,8 +84,8 @@ class Tenant
     public const CASHIER_TEMPLATE_CUSTOM1  = 1;
     public const CASHIER_TEMPLATE_CUSTOM2  = 2;
     public static array $cashier_template_list = [
-        self::CASHIER_TEMPLATE_DEFAULT => 'DEFAULT',
-        self::CASHIER_TEMPLATE_CUSTOM1  => 'CUSTOM1',
-        self::CASHIER_TEMPLATE_CUSTOM2  => 'CUSTOM2',
+        self::CASHIER_TEMPLATE_DEFAULT => 'QrBaseDefault',
+        self::CASHIER_TEMPLATE_CUSTOM1  => 'QrBaseCashdesk',
+        self::CASHIER_TEMPLATE_CUSTOM2  => 'QrBasePPAndPTM',
     ];
 }
