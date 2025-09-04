@@ -395,3 +395,31 @@ if (!function_exists('get_ocr_words')) {
         }
     }
 }
+
+if (!function_exists('format_chart_data_x_y_date_count')) {
+    function format_chart_data_x_y_date_count(array $rawChartData, string $startDate, string $endDate, string $name = 'count_num'): array
+    {
+
+        // 转换查询结果为关联数组，以日期为键
+        $chartData = array_map(static function ($value) {
+            return $value;
+        }, $rawChartData);
+
+        // 填充缺失的日期，并设置订单数为0
+        $dateRange = new \DatePeriod(
+            new \DateTime($startDate),
+            new \DateInterval('P1D'),
+            new \DateTime($endDate)
+        );
+
+        $formattedChartData = [];
+        foreach ($dateRange as $dateObj) {
+            $dateStr = $dateObj->format('Y-m-d');
+            $count = $chartData[$dateStr] ?? 0;
+            $formattedChartData[] = ['x' => $dateStr, 'y' => $count, 'name' => $name];
+        }
+
+        // 将处理后的数据赋值给$data['chartData']
+        return $formattedChartData;
+    }
+}

@@ -9,6 +9,7 @@ use app\constants\TenantNotificationQueue;
 use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
 use app\exception\OpenApiException;
+use app\lib\annotation\Cacheable;
 use app\lib\enum\ResultCode;
 use app\model\ModelCollectionOrder;
 use app\model\ModelTenant;
@@ -37,7 +38,7 @@ use Webman\Event\Event;
 use Webman\Http\Request;
 use Workerman\Coroutine\Parallel;
 
-final class CollectionOrderService extends IService
+final class CollectionOrderService extends BaseService
 {
     #[Inject]
     public CollectionOrderRepository $repository;
@@ -662,16 +663,14 @@ final class CollectionOrderService extends IService
     }
 
     // 分析统计最近一周的订单
-    public function statisticsOrderOfWeek(): array
+    #[Cacheable(
+        prefix: 'statistics:collection:order:number:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function statisticsOrderNumberOfWeek(int $userId): array
     {
-        // 统计当日订单数
-        $date = date('Y-m-d');
-        $query = $this->repository->getQuery();
-        $order_num_today = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $date)->count();
-        // 统计昨日订单数
-        $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $query = $this->repository->getQuery();
-        $order_num_yesterday = $this->repository->getModel()->scopeWithTenantPermission($query)->where('created_at', '>=', $yesterday)->where('created_at', '<', $date)->count();
         // 计算近7天的日期范围，每天的订单数量
         $parallel = new Parallel(7);
         $user = Context::get('user');
@@ -689,10 +688,98 @@ final class CollectionOrderService extends IService
         $order_num_range = array_merge(...$results);
         // $order_num_range 数组排序
         ksort($order_num_range);
+        $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $endDate = date('Y-m-d', strtotime('+1 day'));
+        $startDate = date('Y-m-d', strtotime('-6 days'));
         return [
-            'order_num_today'     => $order_num_today,
-            'order_num_yesterday' => $order_num_yesterday,
-            'order_num_range'     => $order_num_range,
+            'count'     => $order_num_range[$today],
+            'yesterday' => $order_num_range[$yesterday],
+            'growth'    => (int)bcsub($order_num_range[$today], $order_num_range[$yesterday], 0),
+            'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate),
+        ];
+    }
+
+    #[Cacheable(
+        prefix: 'statistics:collection:order:successful:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function statisticsOrderSuccessfulNumberOfWeek(int $userId): array
+    {
+        // 计算近7天的日期范围，每天的成功订单数量
+        $parallel = new Parallel(7);
+        $user = Context::get('user');
+        for ($i = 6; $i >= 0; $i--) {
+            $parallel->add(function () use ($i, $user) {
+                Context::set('user', $user);
+                $query = $this->repository->getQuery();
+                $date = date('Y-m-d', strtotime('-' . $i . ' day'));
+                $date_range[$date] = $this->repository->getModel()->scopeWithTenantPermission($query)
+                    ->where('status', CollectionOrder::STATUS_SUCCESS)
+                    ->where('pay_time', '>=', $date)
+                    ->where('pay_time', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))
+                    ->count();
+                return $date_range;
+            });
+        }
+        $results = $parallel->wait();
+        // order_num_range 合并 $results 的值
+        $order_num_range = array_merge(...$results);
+        // $order_num_range 数组排序
+        ksort($order_num_range);
+        $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $endDate = date('Y-m-d', strtotime('+1 day'));
+        $startDate = date('Y-m-d', strtotime('-6 days'));
+        return [
+            'count'     => $order_num_range[$today],
+            'yesterday' => $order_num_range[$yesterday],
+            'growth'    => (int)bcsub($order_num_range[$today], $order_num_range[$yesterday], 0),
+            'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate),
+        ];
+    }
+
+    #[Cacheable(
+        prefix: 'statistics:collection:order:amount:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function statisticsOrderSuccessfulAmountOfWeek(int $userId): array
+    {
+        // 计算近7天的日期范围，每天的成功订单数量
+        $parallel = new Parallel(7);
+        $user = Context::get('user');
+        for ($i = 6; $i >= 0; $i--) {
+            $parallel->add(function () use ($i, $user) {
+                Context::set('user', $user);
+                $query = $this->repository->getQuery();
+                $date = date('Y-m-d', strtotime('-' . $i . ' day'));
+                $total = $this->repository->getModel()->scopeWithTenantPermission($query)
+                    ->where('status', CollectionOrder::STATUS_SUCCESS)
+                    ->where('pay_time', '>=', $date)
+                    ->where('pay_time', '<', date('Y-m-d', strtotime('+1 day', strtotime($date))))
+                    ->sum('amount');
+                $date_range[$date] = number_format($total, 2, '.', ',');
+                return $date_range;
+            });
+        }
+        $results = $parallel->wait();
+        // order_num_range 合并 $results 的值
+        $order_num_range = array_merge(...$results);
+        // $order_num_range 数组排序
+        ksort($order_num_range);
+        $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $endDate = date('Y-m-d', strtotime('+1 day'));
+        $startDate = date('Y-m-d', strtotime('-6 days'));
+        return [
+            'count'     => $order_num_range[$today],
+            'yesterday' => $order_num_range[$yesterday],
+            'growth'    => bcsub($order_num_range[$today], $order_num_range[$yesterday], 0),
+            'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate,'₹'),
         ];
     }
 }

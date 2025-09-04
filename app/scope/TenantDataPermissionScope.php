@@ -20,7 +20,7 @@ use support\Redis;
 class TenantDataPermissionScope implements Scope
 {
     // 缓存过期时间（秒）
-    private const CACHE_TTL = 60;
+    private const CACHE_TTL = 600;
 
     public function apply(Builder $builder, Model $model): Builder
     {
