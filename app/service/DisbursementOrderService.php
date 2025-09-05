@@ -643,7 +643,7 @@ final class DisbursementOrderService extends BaseService
 
     // 分析统计最近一周的订单
     #[Cacheable(
-        prefix: 'disbursement:collection:order:number:value',
+        prefix: 'disbursement:collection:order:number:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -680,7 +680,7 @@ final class DisbursementOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:disbursement:order:successful:value',
+        prefix: 'statistics:disbursement:order:successful:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -721,7 +721,7 @@ final class DisbursementOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:disbursement:order:amount:value',
+        prefix: 'statistics:disbursement:order:amount:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -764,7 +764,7 @@ final class DisbursementOrderService extends BaseService
 
 
     #[Cacheable(
-        prefix: 'statistics:disbursement-success-order:hour-today:value',
+        prefix: 'statistics:disbursement-success-order:hour-today:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -776,7 +776,7 @@ final class DisbursementOrderService extends BaseService
 
 
     #[Cacheable(
-        prefix: 'statistics:disbursement-success-order:hour-yesterday:value',
+        prefix: 'statistics:disbursement-success-order:hour-yesterday:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -787,7 +787,7 @@ final class DisbursementOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:disbursement-success-order:hour-week:value',
+        prefix: 'statistics:disbursement-success-order:hour-week:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'

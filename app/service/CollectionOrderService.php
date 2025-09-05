@@ -664,7 +664,7 @@ final class CollectionOrderService extends BaseService
 
     // 分析统计最近一周的订单
     #[Cacheable(
-        prefix: 'statistics:collection:order:number:value',
+        prefix: 'statistics:collection:order:number:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -701,7 +701,7 @@ final class CollectionOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:collection:order:successful:value',
+        prefix: 'statistics:collection:order:successful:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -742,7 +742,7 @@ final class CollectionOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:collection:order:amount:value',
+        prefix: 'statistics:collection:order:amount:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -785,7 +785,7 @@ final class CollectionOrderService extends BaseService
 
     // getSuccessOrderCountByHourToday
     #[Cacheable(
-        prefix: 'statistics:collection-success-order:hour-today:value',
+        prefix: 'statistics:collection-success-order:hour-today:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -796,7 +796,7 @@ final class CollectionOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:collection-success-order:hour-yesterday:value',
+        prefix: 'statistics:collection-success-order:hour-yesterday:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
@@ -807,7 +807,7 @@ final class CollectionOrderService extends BaseService
     }
 
     #[Cacheable(
-        prefix: 'statistics:collection-success-order:hour-week:value',
+        prefix: 'statistics:collection-success-order:hour-week:userId',
         value: '_#{userId}}',
         ttl: 60,
         group: 'redis'
