@@ -769,9 +769,9 @@ final class DisbursementOrderService extends BaseService
         ttl: 60,
         group: 'redis'
     )]
-    protected function getSuccessOrderCountByHourToday(int $user_id): array
+    protected function getSuccessOrderCountByHourToday(int $userId): array
     {
-        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d'), date('Y-m-d'));
+        return $this->getSuccessOrderCountByHour($userId, date('Y-m-d'), date('Y-m-d'));
     }
 
 
@@ -781,9 +781,9 @@ final class DisbursementOrderService extends BaseService
         ttl: 60,
         group: 'redis'
     )]
-    protected function getSuccessOrderCountByHourYesterday(int $user_id): array
+    protected function getSuccessOrderCountByHourYesterday(int $userId): array
     {
-        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d', strtotime('-1 day')), date('Y-m-d', strtotime('-1 day')));
+        return $this->getSuccessOrderCountByHour($userId, date('Y-m-d', strtotime('-1 day')), date('Y-m-d', strtotime('-1 day')));
     }
 
     #[Cacheable(
@@ -792,9 +792,9 @@ final class DisbursementOrderService extends BaseService
         ttl: 60,
         group: 'redis'
     )]
-    protected function getSuccessOrderCountByHourWeek(int $user_id): array
+    protected function getSuccessOrderCountByHourWeek(int $userId): array
     {
-        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d', strtotime('-7 day')), date('Y-m-d'));
+        return $this->getSuccessOrderCountByHour($userId, date('Y-m-d', strtotime('-7 day')), date('Y-m-d'));
     }
 
     public function getSuccessOrderCountByHour(int $user_id, string $startDate, string $endDate): array
