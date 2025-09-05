@@ -37,7 +37,7 @@ use Webman\Http\Request;
 use Webman\RedisQueue\Redis;
 use Workerman\Coroutine\Parallel;
 
-final class DisbursementOrderService extends BaseService
+class DisbursementOrderService extends BaseService
 {
     #[Inject]
     public DisbursementOrderRepository $repository;
@@ -807,6 +807,28 @@ final class DisbursementOrderService extends BaseService
                 'pay_time_hour',
                 DB::raw('COUNT(*) as order_count')
             ])
+            ->whereNotNull('pay_time')
+            ->where('status', CollectionOrder::STATUS_SUCCESS)
+            ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
+            ->where('pay_time_hour', '<=', date('Ymd', strtotime($endDate)) . '23')  // 今日23点结束
+            ->groupBy('pay_time_hour')
+            ->orderBy('pay_time_hour')
+            ->get();
+
+        return $order_num_range->toArray();
+    }
+
+
+    public function tenantGetSuccessOrderCountByHour(string $tenantId, string $startDate, string $endDate): array
+    {
+        $query = $this->repository->getQuery();
+        // 按小时分组获取今天的成功支付订单数量
+        $order_num_range = $this->repository->getQuery()
+            ->select([
+                'pay_time_hour',
+                DB::raw('COUNT(*) as order_count')
+            ])
+            ->where('tenant_id', $tenantId)
             ->whereNotNull('pay_time')
             ->where('status', CollectionOrder::STATUS_SUCCESS)
             ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始

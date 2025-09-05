@@ -13,7 +13,7 @@ use app\router\Annotations\GetMapping;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
-use app\service\DisbursementOrderService;
+use http\tenant\Service\DisbursementOrderService;
 use app\service\TenantService;
 use DI\Attribute\Inject;
 use support\Request;
