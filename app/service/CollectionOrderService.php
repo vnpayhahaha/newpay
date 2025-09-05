@@ -38,7 +38,7 @@ use Webman\Event\Event;
 use Webman\Http\Request;
 use Workerman\Coroutine\Parallel;
 
-final class CollectionOrderService extends BaseService
+class CollectionOrderService extends BaseService
 {
     #[Inject]
     public CollectionOrderRepository $repository;
@@ -779,7 +779,7 @@ final class CollectionOrderService extends BaseService
             'count'     => $order_num_range[$today],
             'yesterday' => $order_num_range[$yesterday],
             'growth'    => bcsub($order_num_range[$today], $order_num_range[$yesterday], 0),
-            'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate,'₹'),
+            'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate, '₹'),
         ];
     }
 
@@ -827,6 +827,27 @@ final class CollectionOrderService extends BaseService
                 'pay_time_hour',
                 DB::raw('COUNT(*) as order_count')
             ])
+            ->whereNotNull('pay_time')
+            ->where('status', CollectionOrder::STATUS_SUCCESS)
+            ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
+            ->where('pay_time_hour', '<=', date('Ymd', strtotime($endDate)) . '23')  // 今日23点结束
+            ->groupBy('pay_time_hour')
+            ->orderBy('pay_time_hour')
+            ->get();
+
+        return $order_num_range->toArray();
+    }
+
+    public function tenantGetSuccessOrderCountByHour(string $tenantId, string $startDate, string $endDate): array
+    {
+        $query = $this->repository->getQuery();
+        // 按小时分组获取今天的成功支付订单数量
+        $order_num_range = $this->repository->getQuery()
+            ->select([
+                'pay_time_hour',
+                DB::raw('COUNT(*) as order_count')
+            ])
+            ->where('tenant_id', $tenantId)
             ->whereNotNull('pay_time')
             ->where('status', CollectionOrder::STATUS_SUCCESS)
             ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
