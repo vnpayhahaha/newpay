@@ -423,3 +423,27 @@ if (!function_exists('format_chart_data_x_y_date_count')) {
         return $formattedChartData;
     }
 }
+
+// 按小时补充contentPeriod
+function fillHourlyFormatContentPeriod(array $queryHourData,string $name, string $startDate, string $endDate)
+{
+    // {
+    //			"pay_time_hour": "2025083013",
+    //			"order_count": 1
+    //		},
+    $queryHourList = array_column($queryHourData, 'order_count', 'pay_time_hour');
+   // 计算取$startDate 和 $endDate 之间的所有小时数 YmdH （2025083013）
+    $hourCount = (strtotime($endDate) - strtotime($startDate)) / 3600;
+    $hourList = [];
+    for ($i = 0; $i < $hourCount; $i++) {
+        $hour = date('YmdH', strtotime($startDate) + $i * 3600);
+        $hourList[$hour] = $queryHourList[$hour] ?? 0;
+    }
+
+    // $xAxis 取$hourList所有key最后两位（小时数）
+    $xAxis = array_map(static function ($item) {
+        return substr($item, -2).':00';
+    }, array_keys($hourList));
+
+    return $hourList;
+}

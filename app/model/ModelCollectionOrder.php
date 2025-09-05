@@ -141,6 +141,7 @@ final class ModelCollectionOrder extends BasicModel
         'cancelled_by',
         'customer_cancelled_by',
         'customer_created_by',
+        'pay_time_hour',
     ];
 
     protected $casts = [

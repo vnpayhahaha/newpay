@@ -137,4 +137,123 @@ class AnalysisController extends BasicController
         return $this->success($disbursementOrderSuccessfulRate);
     }
 
+
+    // 按小时统计支付成功订单数量
+    #[GetMapping('/successOrder/hourToday')]
+    public function getSuccessOrderCountByHourToday(Request $request): Response
+    {
+        $user = $request->user;
+        $collectionOrder = $this->collectionOrderService->getSuccessOrderCountByHourToday($user->id);
+        $disbursementOrder = $this->disbursementOrderService->getSuccessOrderCountByHourToday($user->id);
+        $queryCollectionHourList = array_column($collectionOrder, 'order_count', 'pay_time_hour');
+        $queryDisbursementHourList = array_column($disbursementOrder, 'order_count', 'pay_time_hour');
+        // 计算取$startDate 和 $endDate 之间的所有小时数 YmdH （2025083013） date('Y-m-d', strtotime('-7 day')), date('Y-m-d')
+        $startDate = date('Y-m-d');
+        $endDate = date('Y-m-d', strtotime('+1 day'));
+        $hourCount = (strtotime($endDate) - strtotime($startDate)) / 3600;
+        $hourCollectionList = [];
+        $hourDisbursementList = [];
+        for ($i = 0; $i <= $hourCount; $i++) {
+            $hour = date('YmdH', strtotime($startDate) + $i * 3600);
+            $hourCollectionList[$hour] = $queryCollectionHourList[$hour] ?? 0;
+            $hourDisbursementList[$hour] = $queryDisbursementHourList[$hour] ?? 0;
+        }
+
+        // $xAxis 取$hourList所有key最后两位（小时数）
+        $xAxis = array_map(static function ($item) {
+            return substr($item, -2) . ':00';
+        }, array_keys($hourCollectionList));
+        return $this->success([
+            'xAxis' => $xAxis,
+            'data'  => [
+                [
+                    'name'  => 'collection',
+                    'value' => array_values($hourCollectionList)
+                ],
+                [
+                    'name'  => 'disbursement',
+                    'value' => array_values($hourDisbursementList)
+                ]
+            ]
+        ]);
+    }
+
+    #[GetMapping('/successOrder/hourYesterday')]
+    public function getSuccessOrderCountByHourYesterday(Request $request): Response
+    {
+        $user = $request->user;
+        $collectionOrder = $this->collectionOrderService->getSuccessOrderCountByHourYesterday($user->id);
+        $disbursementOrder = $this->disbursementOrderService->getSuccessOrderCountByHourYesterday($user->id);
+        $queryCollectionHourList = array_column($collectionOrder, 'order_count', 'pay_time_hour');
+        $queryDisbursementHourList = array_column($disbursementOrder, 'order_count', 'pay_time_hour');
+        // 计算取$startDate 和 $endDate 之间的所有小时数 YmdH （2025083013） date('Y-m-d', strtotime('-7 day')), date('Y-m-d')
+        $startDate = date('Y-m-d', strtotime('-1 day'));
+        $endDate = date('Y-m-d');
+        $hourCount = (strtotime($endDate) - strtotime($startDate)) / 3600;
+        $hourCollectionList = [];
+        $hourDisbursementList = [];
+        for ($i = 0; $i <= $hourCount; $i++) {
+            $hour = date('YmdH', strtotime($startDate) + $i * 3600);
+            $hourCollectionList[$hour] = $queryCollectionHourList[$hour] ?? 0;
+            $hourDisbursementList[$hour] = $queryDisbursementHourList[$hour] ?? 0;
+        }
+
+        // $xAxis 取$hourList所有key最后两位（小时数）
+        $xAxis = array_map(static function ($item) {
+            return substr($item, -2) . ':00';
+        }, array_keys($hourCollectionList));
+        return $this->success([
+            'xAxis' => $xAxis,
+            'data'  => [
+                [
+                    'name'  => 'collection',
+                    'value' => array_values($hourCollectionList)
+                ],
+                [
+                    'name'  => 'disbursement',
+                    'value' => array_values($hourDisbursementList)
+                ]
+            ]
+        ]);
+    }
+
+    #[GetMapping('/successOrder/hourWeek')]
+    public function getSuccessOrderCountByHourWeek(Request $request): Response
+    {
+        $user = $request->user;
+        $collectionOrder = $this->collectionOrderService->getSuccessOrderCountByHourWeek($user->id);
+        $disbursementOrder = $this->disbursementOrderService->getSuccessOrderCountByHourWeek($user->id);
+        $queryCollectionHourList = array_column($collectionOrder, 'order_count', 'pay_time_hour');
+        $queryDisbursementHourList = array_column($disbursementOrder, 'order_count', 'pay_time_hour');
+        // 计算取$startDate 和 $endDate 之间的所有小时数 YmdH （2025083013） date('Y-m-d', strtotime('-7 day')), date('Y-m-d')
+        $startDate = date('Y-m-d', strtotime('-7 day'));
+        $endDate = date('Y-m-d', strtotime('+1 day'));
+        $hourCount = (strtotime($endDate) - strtotime($startDate)) / 3600;
+        $hourCollectionList = [];
+        $hourDisbursementList = [];
+        for ($i = 0; $i <= $hourCount; $i++) {
+            $hour = date('YmdH', strtotime($startDate) + $i * 3600);
+            $hourCollectionList[$hour] = $queryCollectionHourList[$hour] ?? 0;
+            $hourDisbursementList[$hour] = $queryDisbursementHourList[$hour] ?? 0;
+        }
+
+        // $xAxis 取$hourList所有key最后两位（小时数）
+        $xAxis = array_map(static function ($item) {
+            return substr($item, -2) . ':00';
+        }, array_keys($hourCollectionList));
+        return $this->success([
+            'xAxis' => $xAxis,
+            'data'  => [
+                [
+                    'name'  => 'collection',
+                    'value' => array_values($hourCollectionList)
+                ],
+                [
+                    'name'  => 'disbursement',
+                    'value' => array_values($hourDisbursementList)
+                ]
+            ]
+        ]);
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace app\service;
 
+use app\constants\CollectionOrder;
 use app\constants\DisbursementOrder;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
@@ -759,5 +760,61 @@ final class DisbursementOrderService extends BaseService
             'growth'    => bcsub($order_num_range[$today], $order_num_range[$yesterday], 0),
             'chartData' => format_chart_data_x_y_date_count($order_num_range, $startDate, $endDate, '₹'),
         ];
+    }
+
+
+    #[Cacheable(
+        prefix: 'statistics:disbursement-success-order:hour-today:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function getSuccessOrderCountByHourToday(int $user_id): array
+    {
+        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d'), date('Y-m-d'));
+    }
+
+
+    #[Cacheable(
+        prefix: 'statistics:disbursement-success-order:hour-yesterday:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function getSuccessOrderCountByHourYesterday(int $user_id): array
+    {
+        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d', strtotime('-1 day')), date('Y-m-d', strtotime('-1 day')));
+    }
+
+    #[Cacheable(
+        prefix: 'statistics:disbursement-success-order:hour-week:value',
+        value: '_#{userId}}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    protected function getSuccessOrderCountByHourWeek(int $user_id): array
+    {
+        return $this->getSuccessOrderCountByHour($user_id, date('Y-m-d', strtotime('-7 day')), date('Y-m-d'));
+    }
+
+    public function getSuccessOrderCountByHour(int $user_id, string $startDate, string $endDate): array
+    {
+        $query = $this->repository->getQuery();
+        // 按小时分组获取今天的成功支付订单数量
+        $order_num_range = $this->repository->getModel()
+            ->scopeWithTenantPermission($query)
+            ->select([
+                'pay_time_hour',
+                DB::raw('COUNT(*) as order_count')
+            ])
+            ->whereNotNull('pay_time')
+            ->where('status', CollectionOrder::STATUS_SUCCESS)
+            ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
+            ->where('pay_time_hour', '<=', date('Ymd', strtotime($endDate)) . '23')  // 今日23点结束
+            ->groupBy('pay_time_hour')
+            ->orderBy('pay_time_hour')
+            ->get();
+
+        return $order_num_range->toArray();
     }
 }
