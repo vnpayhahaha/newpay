@@ -282,7 +282,7 @@ class CollectionOrderService extends BaseService
     {
         $platform_order_no = $collectionOrder->platform_order_no;
         $tenant_order_no = $collectionOrder->tenant_order_no;
-        $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . "/{$cashier_template}/" . $collectionOrder->platform_order_no;
+        $pay_url = $collectionOrder->pay_url ?? config('app.cash_desk_url') . "/payment/{$cashier_template}/" . $collectionOrder->platform_order_no;
 
         $order_id_code = Base62Converter::decToBase62($collectionOrder->id, 5);
 
