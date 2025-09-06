@@ -59,6 +59,11 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         array (
             'http\\' => 5,
         ),
+        'c' => 
+        array (
+            'chillerlan\\Settings\\' => 20,
+            'chillerlan\\QRCode\\' => 18,
+        ),
         'a' => 
         array (
             'app\\View\\Components\\' => 20,
@@ -142,6 +147,7 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
             'Psr\\Container\\' => 14,
             'Psr\\Clock\\' => 10,
             'Psr\\Cache\\' => 10,
+            'PragmaRX\\Google2FA\\' => 19,
             'PhpParser\\' => 10,
             'PhpOption\\' => 10,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
@@ -226,6 +232,7 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         'B' => 
         array (
             'Brick\\Math\\' => 11,
+            'Base32\\' => 7,
         ),
         'A' => 
         array (
@@ -249,6 +256,14 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         'http\\' => 
         array (
             0 => __DIR__ . '/../..' . '/http',
+        ),
+        'chillerlan\\Settings\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/chillerlan/php-settings-container/src',
+        ),
+        'chillerlan\\QRCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/chillerlan/php-qrcode/src',
         ),
         'app\\View\\Components\\' => 
         array (
@@ -504,6 +519,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
         ),
+        'PragmaRX\\Google2FA\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/pragmarx/google2fa/src',
+        ),
         'PhpParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
@@ -711,6 +730,10 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
         ),
+        'Base32\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/christian-riesen/base32/src',
+        ),
         'Aws\\' => 
         array (
             0 => __DIR__ . '/..' . '/aws/aws-sdk-php/src',
@@ -723,6 +746,23 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
 
     public static $fallbackDirsPsr4 = array (
         0 => __DIR__ . '/../..' . '/',
+    );
+
+    public static $prefixesPsr0 = array (
+        'S' => 
+        array (
+            'SimpleSoftwareIO\\QrCode\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/simplesoftwareio/simple-qrcode/src',
+            ),
+        ),
+        'B' => 
+        array (
+            'BaconQrCode' => 
+            array (
+                0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -2068,6 +2108,7 @@ class ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98
             $loader->prefixLengthsPsr4 = ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98::$prefixDirsPsr4;
             $loader->fallbackDirsPsr4 = ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitae90a1f34d9232b3e62b4e4ba9ff3f98::$classMap;
 
         }, null, ClassLoader::class);

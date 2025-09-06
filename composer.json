@@ -58,7 +58,8 @@
     "webman/rate-limiter": "^1.1",
     "phpoffice/phpspreadsheet": "^5.0",
     "eleirbag89/telegrambotphp": "dev-master as 1.4.999-dev",
-    "pragmarx/google2fa": "^0.7.1"
+    "pragmarx/google2fa": "^0.7.1",
+    "chillerlan/php-qrcode": "^5.0"
   },
   "repositories": [
     {
