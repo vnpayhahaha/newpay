@@ -209,7 +209,7 @@ class CollectionOrderService extends BaseService
             'settlement_delay_mode' => $findTenant->settlement_delay_mode,
             'settlement_delay_days' => $findTenant->settlement_delay_days,
         ]);
-        $collectionOrder->pay_url = config('app.cash_desk_url') . "/{$cashier_template}/" . $collectionOrder->platform_order_no;
+        $collectionOrder->pay_url = config('app.cash_desk_url') . "/payment/{$cashier_template}/" . $collectionOrder->platform_order_no;
         $collectionOrder->save();
         if (!filled($collectionOrder)) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
@@ -293,8 +293,8 @@ class CollectionOrderService extends BaseService
             return [
                 'platform_order_no' => $platform_order_no,
                 'tenant_order_no'   => $tenant_order_no,
-                'amount'            => $collectionOrder->amount,
-                'payable_amount'    => $collectionOrder->payable_amount,
+                'amount'            => number_format($collectionOrder->amount, 2,'.', ''),
+                'payable_amount'    => number_format($collectionOrder->payable_amount, 2,'.', ''),
                 'status'            => $collectionOrder->status,
                 'payer_upi'         => $collectionOrder->payer_upi,
                 'pay_time'          => $collectionOrder->pay_time,
