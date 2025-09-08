@@ -86,6 +86,9 @@ enum ResultCode: int
     // TENANT_ACCOUNT_NOT_EXIST
     #[Message('result.tenant_account_not_exist')]
     case TENANT_ACCOUNT_NOT_EXIST = 201005;
+    // USER_GOOGLE_2FA_VERIFY_FAILED
+    #[Message('result.user_google_2fa_verify_failed')]
+    case USER_GOOGLE_2FA_VERIFY_FAILED = 201006;
 
     // openApi
     // sign is required

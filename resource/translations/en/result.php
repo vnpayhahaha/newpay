@@ -36,6 +36,7 @@ return [
     'role_not_exist'                                     => 'Role not exist',
     'user_num_limit_exceeded'                            => 'User number limit exceeded',
     'tenant_account_not_exist'                           => 'Tenant account not exist',
+    'user_google_2fa_verify_failed'                      => 'Two-factor verification code verification failed',
 
     // openapi
     'openapi.system_error'                               => 'System error',

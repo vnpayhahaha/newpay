@@ -36,6 +36,7 @@ return [
     'role_not_exist'                                     => '角色不存在',
     'user_num_limit_exceeded'                            => '用户数量超出限制',
     'tenant_account_not_exist'                           => '租户账号不存在',
+    'user_google_2fa_verify_failed'                      => '双因素验证码验证失败',
 
     // openapi
     'openapi.system_error'                               => '系统错误',

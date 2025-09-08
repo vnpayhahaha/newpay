@@ -19,6 +19,7 @@ use app\service\UserService;
 use DI\Attribute\Inject;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use PragmaRX\Google2FA\Google2FA;
 use support\Request;
 use support\Response;
 
@@ -31,6 +32,9 @@ class UserController extends BasicController
 
     #[Inject]
     protected RoleService $roleService;
+
+    #[Inject]
+    protected Google2FA $google2FA;
 
     #[GetMapping('/user/list')]
     #[Permission(code: 'permission:user:index')]
@@ -135,13 +139,18 @@ class UserController extends BasicController
         $validator = validate($request->all(), [
             'google_secret'  => 'required|string',
             'is_bind_google' => 'required|boolean',
+            'code'           => 'required|string'
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-        $this->userService->updateById($request->user->id, $validatedData);
-        return $this->success();
+        $is_pass = $this->google2FA->verifyKey($validatedData['google_secret'], $validatedData['code']);
+        if ($is_pass) {
+            return $this->userService->updateById($request->user->id, $validatedData) ? $this->success() :
+                $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+        }
+        return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
     }
 
     // create
