@@ -36,6 +36,9 @@ use Illuminate\Support\Collection;
  * @property Collection|ModelDepartment[] $department 部门
  * @property Collection|ModelDepartment[] $dept_leader 部门领导
  * @property Collection|ModelPosition[] $position 岗位
+ * @property int $is_enabled_google google验证(0停用 1正常)
+ * @property int $is_bind_google 是否已绑定Google验证(0否 1是)
+ * @property string $google_secret Google验证密钥
  */
 final class ModelUser extends BasicModel implements AuthorizationUserInterface
 {
@@ -83,18 +86,23 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
         'created_at',
         'updated_at',
         'remark',
-        'password'
+        'password',
+        'is_enabled_google',
+        'is_bind_google',
+        'google_secret',
     ];
 
     protected $casts = [
-        'id'              => 'integer',
-        'status'          => UserStatus::class,
-        'user_type'       => UserType::class,
-        'created_by'      => 'integer',
-        'updated_by'      => 'integer',
-        'created_at'      => 'datetime',
-        'updated_at'      => 'datetime',
-        'backend_setting' => 'json',
+        'id'                => 'integer',
+        'status'            => UserStatus::class,
+        'user_type'         => UserType::class,
+        'created_by'        => 'integer',
+        'updated_by'        => 'integer',
+        'created_at'        => 'datetime',
+        'updated_at'        => 'datetime',
+        'backend_setting'   => 'json',
+        'is_enabled_google' => 'boolean',
+        'is_bind_google'    => 'boolean',
     ];
 
     public function getUserById($id): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|array|ModelUser|null

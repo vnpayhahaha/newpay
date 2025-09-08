@@ -55,7 +55,12 @@ class UserController extends BasicController
         $validator = validate($request->post(), [
             'username'           => 'required|string|max:20',
             'user_type'          => 'required|integer',
-            'nickname'           => ['required', 'string', 'max:60', 'regex:/^[^\s]+$/'],
+            'nickname'           => [
+                'required',
+                'string',
+                'max:60',
+                'regex:/^[^\s]+$/'
+            ],
             'phone'              => 'sometimes|string|max:12',
             'email'              => 'sometimes|string|max:60|email:rfc,dns',
             'avatar'             => 'sometimes|string|max:255|url',
@@ -123,6 +128,22 @@ class UserController extends BasicController
             : $this->error();
     }
 
+    // 重置google密钥
+    #[PutMapping('/resetGoogleSecretKey')]
+    public function resetGoogleSecretKey(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'google_secret'  => 'required|string',
+            'is_bind_google' => 'required|boolean',
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $this->userService->updateById($request->user->id, $validatedData);
+        return $this->success();
+    }
+
     // create
     #[PostMapping('/user')]
     #[Permission(code: 'permission:user:save')]
@@ -132,7 +153,12 @@ class UserController extends BasicController
         $validator = validate($request->all(), [
             'username'              => 'required|string|max:20',
             'user_type'             => 'required|integer',
-            'nickname'              => ['required', 'string', 'max:60', 'regex:/^[^\s]+$/'],
+            'nickname'              => [
+                'required',
+                'string',
+                'max:60',
+                'regex:/^[^\s]+$/'
+            ],
             'password'              => 'required|confirmed',
             'password_confirmation' => 'required| min:6 | max:20',
             'phone'                 => 'sometimes|string|max:12',
@@ -161,7 +187,12 @@ class UserController extends BasicController
         $validator = validate($request->all(), [
             'username'  => 'required|string|max:20',
             'user_type' => 'required|integer',
-            'nickname'  => ['required', 'string', 'max:60', 'regex:/^[^\s]+$/'],
+            'nickname'  => [
+                'required',
+                'string',
+                'max:60',
+                'regex:/^[^\s]+$/'
+            ],
             'phone'     => 'sometimes|string|max:12',
             'email'     => 'sometimes|string|max:60|email:rfc,dns',
             'avatar'    => 'sometimes|string|max:255|url',

@@ -73,7 +73,17 @@ class PassportController extends BasicController
         $user = $request->user;
         return $this->success(Arr::only(
             $user?->toArray() ?: [],
-            ['username', 'nickname', 'avatar', 'signed', 'backend_setting', 'phone', 'email']
+            [
+                'username',
+                'nickname',
+                'avatar',
+                'signed',
+                'backend_setting',
+                'phone',
+                'email',
+                'is_enabled_google',
+                'is_bind_google'
+            ]
         ));
     }
 
