@@ -16,6 +16,7 @@ use app\router\Annotations\RestController;
 use http\tenant\Service\DisbursementOrderService;
 use app\service\TenantService;
 use DI\Attribute\Inject;
+use PragmaRX\Google2FA\Google2FA;
 use support\Request;
 use support\Response;
 use Webman\RateLimiter\Annotation\RateLimiter;
@@ -27,7 +28,9 @@ class DisbursementOrderController extends BasicController
     #[Inject]
     protected DisbursementOrderService $service;
     #[Inject]
-    protected TenantService $tenantService;
+    protected TenantService            $tenantService;
+    #[Inject]
+    protected Google2FA                $google2FA;
 
     #[GetMapping('/disbursement_order/list')]
     #[Permission(code: 'transaction:disbursement_order:list')]
@@ -113,11 +116,20 @@ class DisbursementOrderController extends BasicController
                 'max:100',
                 'email',
             ],
+            'google2f_code'      => 'string|nullable|max:6'
         ]);
         if ($validator->fails()) {
             throw new OpenApiException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
+        // 验证 google2f_code
+        if (isset($validatedData['google2f_code']) && filled($validatedData['google2f_code'])) {
+            $user = $request->user;
+            $is_pass = $this->google2FA->verifyKey($user->google_secret, $validatedData['google2f_code']);
+            if (!$is_pass) {
+                return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+            }
+        }
         $successData = $this->service->createOrder($validatedData, 'client end');
         return $this->success($successData);
     }

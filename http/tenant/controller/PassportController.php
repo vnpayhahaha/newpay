@@ -29,8 +29,8 @@ class PassportController extends BasicController
     public function login(Request $request): Response
     {
         $validator = validate($request->post(), [
-            'username'  => 'required|string|max:20',
-            'tenant_id' => [
+            'username'        => 'required|string|max:20',
+            'tenant_id'       => [
                 'required',
                 'string',
                 'max:20',
@@ -41,7 +41,7 @@ class PassportController extends BasicController
                     }
                 },
             ],
-            'password'  => 'required|string|max:50',
+            'password'        => 'required|string|max:50',
             'google_2fa_code' => 'string|max:6'
         ]);
         if ($validator->fails()) {
@@ -87,7 +87,16 @@ class PassportController extends BasicController
         $user = $request->user;
         return $this->success(Arr::only(
             $user?->toArray() ?: [],
-            ['tenant_id', 'username', 'nickname', 'avatar', 'backend_setting', 'phone']
+            [
+                'tenant_id',
+                'username',
+                'nickname',
+                'avatar',
+                'backend_setting',
+                'phone',
+                'is_enabled_google',
+                'is_bind_google'
+            ]
         ));
     }
 
