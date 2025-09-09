@@ -41,8 +41,10 @@ class Google2FController extends BasicController
     {
         $user = $request->user;
         $userSecretKey = $user->google_secret ?? '';
+        var_dump('verify===',$userSecretKey);
         $googleSecretKey = $request->input('secret_key', $userSecretKey);
-        $is_pass = $this->google2FA->verifyKey($googleSecretKey, $code);
+        var_dump('$googleSecretKey===',filled($googleSecretKey) ?: $userSecretKey);
+        $is_pass = $this->google2FA->verifyKey(filled($googleSecretKey) ?: $userSecretKey, $code);
         return $this->success([
             'is_pass' => $is_pass,
         ]);

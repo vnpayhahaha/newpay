@@ -133,8 +133,8 @@ class UserController extends BasicController
     }
 
     // 重置google密钥
-    #[PutMapping('/resetGoogleSecretKey')]
-    public function resetGoogleSecretKey(Request $request): Response
+    #[PutMapping('/bindGoogleSecretKey')]
+    public function bindGoogleSecretKey(Request $request): Response
     {
         $validator = validate($request->all(), [
             'google_secret'  => 'required|string',
@@ -147,10 +147,30 @@ class UserController extends BasicController
         $validatedData = $validator->validate();
         $is_pass = $this->google2FA->verifyKey($validatedData['google_secret'], $validatedData['code']);
         if ($is_pass) {
-            return $this->userService->updateById($request->user->id, $validatedData) ? $this->success() :
+            unset($validatedData['code']);
+            return $this->userService->repository->getQuery()->where('id', $request->user->id)->update($validatedData) > 0 ? $this->success() :
                 $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
         }
         return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+    }
+
+    // 更新google验证状态
+    #[PutMapping('/user/google_2fa_status')]
+    public function updateGoogle2FAStatus(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'is_enabled_google' => 'required|boolean',
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        $res= $this->userService->repository->getQuery()
+            ->where('id', $request->user->id)
+            ->where('is_enabled_google', !$validatedData['is_enabled_google'])
+            ->update($validatedData);
+        var_dump('===$res=google_2fa_status=',$res);
+        return $res > 0 ? $this->success() : $this->error();
     }
 
     // create

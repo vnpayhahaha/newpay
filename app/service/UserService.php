@@ -22,7 +22,7 @@ use support\Db;
 final class UserService extends IService
 {
     #[Inject]
-    protected UserRepository $repository;
+    public UserRepository $repository;
 
     #[Inject]
     protected RoleRepository $roleRepository;
