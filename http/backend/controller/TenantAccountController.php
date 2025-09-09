@@ -12,6 +12,7 @@ use app\router\Annotations\PutMapping;
 use app\router\Annotations\RestController;
 use app\service\TenantAccountService;
 use DI\Attribute\Inject;
+use PragmaRX\Google2FA\Google2FA;
 use support\Request;
 use support\Response;
 use Webman\RateLimiter\Annotation\RateLimiter;
@@ -21,6 +22,9 @@ class TenantAccountController extends BasicController
 {
     #[Inject]
     protected TenantAccountService $service;
+
+    #[Inject]
+    protected Google2FA $google2FA;
 
     #[GetMapping('/tenant_account/list')]
     #[Permission(code: 'tenant:tenant_account:list')]
@@ -63,12 +67,20 @@ class TenantAccountController extends BasicController
                     }
                 },
             ],
+            'google2f_code' => 'string|nullable'
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-
+        // 验证 google2f_code
+        if(isset($validatedData['google2f_code']) && filled($validatedData['google2f_code'])){
+            $user = $request->user;
+            $is_pass = $this->google2FA->verifyKey($user->google_secret, $validatedData['google2f_code']);
+            if(!$is_pass){
+                return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+            }
+        }
         return $this->service->changeBalanceAvailable($validatedData['id'], $validatedData['change_amount']) ? $this->success() : $this->error();
     }
 
@@ -99,12 +111,20 @@ class TenantAccountController extends BasicController
                     }
                 },
             ],
+            'google2f_code' => 'string|nullable'
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-
+        // 验证 google2f_code
+        if(isset($validatedData['google2f_code']) && filled($validatedData['google2f_code'])){
+            $user = $request->user;
+            $is_pass = $this->google2FA->verifyKey($user->google_secret, $validatedData['google2f_code']);
+            if(!$is_pass){
+                return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+            }
+        }
         return $this->service->changeBalanceFrozen($validatedData['id'], $validatedData['change_amount']) ? $this->success() : $this->error();
     }
 
