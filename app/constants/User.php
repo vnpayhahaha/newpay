@@ -23,4 +23,21 @@ class User
         self::TYPE_SYSTEM => 'user.enums.type.100',
         self::TYPE_GUEST  => 'user.enums.type.200',
     ];
+
+
+    // google验证(1正常 2停用)
+    public const GOOGLE_STATUS_NORMAL  = 0;
+    public const GOOGLE_STATUS_DISABLE = 1;
+    public static array $google_status_list = [
+        self::GOOGLE_STATUS_NORMAL  => 'tenant_user.enums.is_enabled_google.1',
+        self::GOOGLE_STATUS_DISABLE => 'tenant_user.enums.is_enabled_google.2',
+    ];
+
+    // 是否已绑定Google验证(1yes 2no)
+    public const GOOGLE_BIND_YES = 0;
+    public const GOOGLE_BIND_NO  = 1;
+    public static array $google_bind_list = [
+        self::GOOGLE_BIND_YES => 'tenant_user.enums.is_bind_google.1',
+        self::GOOGLE_BIND_NO  => 'tenant_user.enums.is_bind_google.2',
+    ];
 }

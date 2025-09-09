@@ -65,6 +65,9 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
 
     protected $hidden = ['password'];
 
+    // 追加字段
+    protected $appends = ['is_super_admin'];
+
     /**
      * The attributes that are mass assignable.
      */
@@ -136,6 +139,12 @@ final class ModelUser extends BasicModel implements AuthorizationUserInterface
     {
         var_dump('---setPasswordAttribute--');
         $this->password = '123456';
+    }
+
+    public function getIsSuperAdminAttribute(): bool
+    {
+        // 仅当主键ID为1时返回true
+        return $this->getKey() === 1;
     }
 
     public function isSuperAdmin(): bool

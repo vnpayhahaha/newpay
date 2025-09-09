@@ -2,6 +2,7 @@
 
 namespace http\backend\controller;
 
+use app\constants\User;
 use app\controller\BasicController;
 use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
@@ -132,7 +133,7 @@ class UserController extends BasicController
             : $this->error();
     }
 
-    // 重置google密钥
+    // 绑定google密钥
     #[PutMapping('/bindGoogleSecretKey')]
     public function bindGoogleSecretKey(Request $request): Response
     {
@@ -148,10 +149,22 @@ class UserController extends BasicController
         $is_pass = $this->google2FA->verifyKey($validatedData['google_secret'], $validatedData['code']);
         if ($is_pass) {
             unset($validatedData['code']);
-            return $this->userService->repository->getQuery()->where('id', $request->user->id)->update($validatedData) > 0 ? $this->success() :
+            return $this->userService->repository->getQuery()->where('id', $request->user->id)->update($validatedData) > 0 ?
+                $this->success() :
                 $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
         }
         return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
+    }
+
+    // 重置google密钥
+    #[PutMapping('/user/resetGoogle2FaSecret/{id}')]
+    public function resetGoogle2FaSecret(Request $request, int $id): Response
+    {
+        return $this->userService->repository->getQuery()->where('id', $id)->update([
+            'is_enabled_google' => User::GOOGLE_STATUS_DISABLE,
+            'is_bind_google'    => User::GOOGLE_BIND_NO,
+            'google_2fa_secret' => '',
+        ]) > 0 ? $this->success() : $this->error();
     }
 
     // 更新google验证状态
@@ -165,7 +178,7 @@ class UserController extends BasicController
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
-        $res= $this->userService->repository->getQuery()
+        $res = $this->userService->repository->getQuery()
             ->where('id', $request->user->id)
             ->where('is_enabled_google', !$validatedData['is_enabled_google'])
             ->update($validatedData);

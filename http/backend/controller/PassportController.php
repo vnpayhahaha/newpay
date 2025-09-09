@@ -77,6 +77,7 @@ class PassportController extends BasicController
         return $this->success(Arr::only(
             $user?->toArray() ?: [],
             [
+                'is_super_admin',
                 'username',
                 'nickname',
                 'avatar',
