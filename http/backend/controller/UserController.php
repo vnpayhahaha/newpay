@@ -169,7 +169,7 @@ class UserController extends BasicController
             ->where('id', $request->user->id)
             ->where('is_enabled_google', !$validatedData['is_enabled_google'])
             ->update($validatedData);
-        var_dump('===$res=google_2fa_status=',$res);
+
         return $res > 0 ? $this->success() : $this->error();
     }
 

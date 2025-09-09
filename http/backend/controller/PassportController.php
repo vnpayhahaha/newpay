@@ -29,8 +29,9 @@ class PassportController extends BasicController
     public function login(Request $request): Response
     {
         $validator = validate($request->post(), [
-            'username' => 'required|string|max:20',
-            'password' => 'required|string|max:50',
+            'username'        => 'required|string|max:20',
+            'password'        => 'required|string|max:50',
+            'google_2fa_code' => 'string|max:6'
         ]);
         if ($validator->fails()) {
             return $this->error(ResultCode::FAIL, $validator->errors()->first());
@@ -38,6 +39,7 @@ class PassportController extends BasicController
         $validatedData = $validator->validate();
         $username = (string)$validatedData['username'];
         $password = (string)$validatedData['password'];
+        $google_2fa_code = $validatedData['google_2fa_code'] ?? '';
         $browser = $request->header('User-Agent') ?: 'unknown';
         $os = $request->os();
         $result = $this->passportService->login(
@@ -46,7 +48,8 @@ class PassportController extends BasicController
             UserType::SYSTEM,
             $request->getRealIp(false),
             $browser,
-            $os
+            $os,
+            $google_2fa_code
         );
 
         return $this->success($result);

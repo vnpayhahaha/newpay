@@ -36,8 +36,8 @@ use Illuminate\Support\Collection;
  * @property Collection|ModelDepartment[] $department 部门
  * @property Collection|ModelDepartment[] $dept_leader 部门领导
  * @property Collection|ModelPosition[] $position 岗位
- * @property int $is_enabled_google google验证(0停用 1正常)
- * @property int $is_bind_google 是否已绑定Google验证(0否 1是)
+ * @property bool $is_enabled_google google验证(0停用 1正常)
+ * @property bool $is_bind_google 是否已绑定Google验证(0否 1是)
  * @property string $google_secret Google验证密钥
  */
 final class ModelUser extends BasicModel implements AuthorizationUserInterface

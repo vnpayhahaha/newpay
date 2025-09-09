@@ -12,6 +12,7 @@ use app\repository\UserRepository;
 use app\service\IService;
 use DI\Attribute\Inject;
 use http\backend\Event\Dto\UserLoginEventDto;
+use PragmaRX\Google2FA\Google2FA;
 use Webman\Event\Event;
 use Workerman\Coroutine;
 
@@ -22,7 +23,8 @@ class PassportService extends IService
 
     #[Inject]
     protected UserLoginLogRepository $userLoginLogRepository;
-
+    #[Inject]
+    protected Google2FA $google2FA;
     /**
      * @var string jwt场景
      */
@@ -38,12 +40,24 @@ class PassportService extends IService
      * @return array
      */
 
-    public function login(string $username, string $password, UserType $userType = UserType::SYSTEM, string $ip = '0.0.0.0', string $browser = 'unknown', string $os = 'unknown'): array
+    public function login(string $username, string $password, UserType $userType = UserType::SYSTEM, string $ip = '0.0.0.0', string $browser = 'unknown', string $os = 'unknown', string $google_2fa_code = ''): array
     {
         $user = $this->repository->findByUnameType($username, $userType);
-        if (!filled($user)) {
+        if (!$user || !filled($user)) {
             throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('password_error', [], 'auth'));
         }
+        // 验证$google_2fa_code
+        if(filled($user->google_secret) && $user->is_bind_google && $user->is_enabled_google){
+            if(!filled($google_2fa_code)){
+                throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('user_google_2fa_verify_failed', [], 'result'));
+            }
+            $is_pass = $this->google2FA->verifyKey($user->google_secret, $google_2fa_code);
+            if(!$is_pass){
+                throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('user_google_2fa_verify_failed', [], 'result'));
+            }
+        }
+
+        // 验证密码
         if (!$user->verifyPassword($password)) {
             var_dump('密码错误');
             Event::dispatch('backend.user.login', new UserLoginEventDto($user, $ip, $os, $browser, false));
