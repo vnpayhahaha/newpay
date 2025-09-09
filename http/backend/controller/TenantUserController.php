@@ -2,6 +2,7 @@
 
 namespace http\backend\controller;
 
+use app\constants\TenantUser;
 use app\controller\BasicController;
 use app\exception\UnprocessableEntityException;
 use app\lib\annotation\OperationLog;
@@ -99,7 +100,16 @@ class TenantUserController extends BasicController
             ? $this->success()
             : $this->error();
     }
-
+    // 重置google密钥
+    #[PutMapping('/tenant_user/resetGoogle2FaSecret/{id}')]
+    public function resetGoogle2FaSecret(Request $request, int $id): Response
+    {
+        return $this->service->repository->getQuery()->where('id', $id)->update([
+            'is_enabled_google' => TenantUser::GOOGLE_STATUS_DISABLE,
+            'is_bind_google'    => TenantUser::GOOGLE_BIND_NO,
+            'google_secret'     => '',
+        ]) > 0 ? $this->success() : $this->error();
+    }
     #[PutMapping('/tenant_user/{id}')]
     #[Permission(code: 'tenant:tenantUser:update')]
     #[OperationLog('编辑租户成员')]
