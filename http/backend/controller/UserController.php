@@ -163,7 +163,7 @@ class UserController extends BasicController
         return $this->userService->repository->getQuery()->where('id', $id)->update([
             'is_enabled_google' => User::GOOGLE_STATUS_DISABLE,
             'is_bind_google'    => User::GOOGLE_BIND_NO,
-            'google_2fa_secret' => '',
+            'google_secret'     => '',
         ]) > 0 ? $this->success() : $this->error();
     }
 
