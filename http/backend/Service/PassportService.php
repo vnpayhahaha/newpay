@@ -63,7 +63,7 @@ class PassportService extends IService
             Event::dispatch('backend.user.login', new UserLoginEventDto($user, $ip, $os, $browser, false));
             throw new UnprocessableEntityException(ResultCode::USER_LOGIN_FAILED, trans('password_error', [], 'auth'));
         }
-        var_dump('密码正确');
+
         if ($user->status->isDisable()) {
             var_dump('用户被禁用');
             throw new BusinessException(ResultCode::DISABLED);
