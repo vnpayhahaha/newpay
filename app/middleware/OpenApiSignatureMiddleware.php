@@ -51,12 +51,14 @@ class OpenApiSignatureMiddleware implements MiddlewareInterface
             return $this->errorHandler(ResultCode::OPENAPI_APP_KEY_IS_INVALID, 'app_key is invalid');
         }
         // 判断$app 状态
-        if ($app->status == TenantApp::STATUS_DISABLE) {
+        var_dump('判断$app 状态:',$app->status);
+        if ($app->status === TenantApp::STATUS_DISABLE) {
             return $this->errorHandler(ResultCode::OPENAPI_APP_IS_DISABLED, 'app is disabled');
         }
         unset($params['sign']);
         $md5_sign = md5_signature($params, $app->app_secret);
-        if ($sign != $md5_sign) {
+        var_dump('正确的sign:',$md5_sign);
+        if ($sign !== $md5_sign) {
             return $this->errorHandler(ResultCode::OPENAPI_SIGN_IS_INVALID, 'sign is invalid');
         }
         Context::set(ModelTenantApp::class, $app);
