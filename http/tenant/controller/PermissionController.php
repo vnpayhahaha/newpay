@@ -1459,7 +1459,370 @@ class PermissionController extends BasicController
         ]
       }
     ]
-  }]
+  },
+  {
+  "id": 61,
+  "parent_id": 0,
+  "name": "tenant",
+  "meta": {
+    "i18n": "tenant.index",
+    "icon": "mdi:store-outline",
+    "type": "M",
+    "affix": false,
+    "cache": true,
+    "title": "租户管理",
+    "hidden": false,
+    "copyright": true,
+    "componentPath": "modules/",
+    "componentSuffix": ".vue",
+    "breadcrumbEnable": true
+  },
+  "path": "/tenantManage",
+  "component": "tenant/views/Tenant/index",
+  "redirect": "",
+  "status": 1,
+  "sort": 0,
+  "created_by": 0,
+  "updated_by": 1,
+  "created_at": "2025-06-19 18:21:40",
+  "updated_at": "2025-07-23 05:43:05",
+  "remark": "",
+  "children": [
+    {
+      "id": 69,
+      "parent_id": 61,
+      "name": "tenant:tenantApp",
+      "meta": {
+        "i18n": "tenantApp.index",
+        "icon": "ri:apps-line",
+        "type": "M",
+        "affix": false,
+        "cache": true,
+        "title": "租户应用",
+        "hidden": false,
+        "copyright": true,
+        "componentPath": "modules/",
+        "componentSuffix": ".vue",
+        "breadcrumbEnable": true
+      },
+      "path": "/tenantapp",
+      "component": "tenant/views/TenantApp/Index",
+      "redirect": "",
+      "status": 1,
+      "sort": 0,
+      "created_by": 0,
+      "updated_by": 1,
+      "created_at": "2025-06-19 22:38:31",
+      "updated_at": "2025-06-22 04:34:07",
+      "remark": "",
+      "children": [
+        {
+          "id": 70,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:list",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.list",
+            "type": "B",
+            "title": "租户应用列表"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 22:38:31",
+          "updated_at": "2025-06-22 04:34:07",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 71,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:create",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.create",
+            "type": "B",
+            "title": "租户应用新增"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 22:38:31",
+          "updated_at": "2025-06-22 04:34:07",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 72,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:update",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.update",
+            "type": "B",
+            "title": "租户应用编辑"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 22:38:31",
+          "updated_at": "2025-06-22 04:34:07",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 73,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:delete",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.delete",
+            "type": "B",
+            "title": "租户应用删除"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 22:38:31",
+          "updated_at": "2025-06-22 04:34:07",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 74,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:recovery",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.recovery",
+            "type": "B",
+            "title": "租户应用回收站恢复"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 18:21:40",
+          "updated_at": "2025-06-22 04:33:29",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 75,
+          "parent_id": 69,
+          "name": "tenant:tenantApp:realDelete",
+          "meta": {
+            "i18n": "tenantMenu.tenantApp.realDelete",
+            "type": "B",
+            "title": "清空回收站"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 18:21:40",
+          "updated_at": "2025-06-22 04:33:29",
+          "remark": "",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "parent_id": 61,
+      "name": "TenantUser",
+      "meta": {
+        "i18n": "tenantUser.index",
+        "icon": "heroicons:user-group",
+        "type": "M",
+        "affix": false,
+        "cache": true,
+        "title": "租户成员",
+        "hidden": false,
+        "copyright": true,
+        "componentPath": "modules/",
+        "componentSuffix": ".vue",
+        "breadcrumbEnable": true
+      },
+      "path": "/tenant/TenantUser",
+      "component": "tenant/views/TenantUser/Index",
+      "redirect": "",
+      "status": 1,
+      "sort": 0,
+      "created_by": 0,
+      "updated_by": 1,
+      "created_at": "2025-06-22 16:14:06",
+      "updated_at": "2025-06-23 01:08:39",
+      "remark": "",
+      "children": [
+        {
+          "id": 77,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:list",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.list",
+            "type": "B",
+            "title": "租户成员列表"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-22 16:14:06",
+          "updated_at": "2025-06-23 01:08:39",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 78,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:create",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.create",
+            "type": "B",
+            "title": "租户成员新增"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-22 16:14:06",
+          "updated_at": "2025-06-23 01:08:39",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 79,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:update",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.update",
+            "type": "B",
+            "title": "租户成员编辑"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-22 16:14:06",
+          "updated_at": "2025-06-23 01:08:39",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 80,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:delete",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.delete",
+            "type": "B",
+            "title": "租户成员删除"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-22 16:14:06",
+          "updated_at": "2025-06-23 01:08:40",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 81,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:recovery",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.recovery",
+            "type": "B",
+            "title": "租户用户回收站恢复"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 18:21:40",
+          "updated_at": "2025-06-22 04:33:29",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 82,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:realDelete",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.realDelete",
+            "type": "B",
+            "title": "清空回收站"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 18:21:40",
+          "updated_at": "2025-06-22 04:33:29",
+          "remark": "",
+          "children": []
+        },
+        {
+          "id": 83,
+          "parent_id": 76,
+          "name": "tenant:tenantUser:password",
+          "meta": {
+            "i18n": "tenantMenu.tenantUser.password",
+            "type": "B",
+            "title": "密码重置"
+          },
+          "path": "",
+          "component": "",
+          "redirect": "",
+          "status": 1,
+          "sort": 0,
+          "created_by": 0,
+          "updated_by": 0,
+          "created_at": "2025-06-19 18:21:40",
+          "updated_at": "2025-06-22 04:33:29",
+          "remark": "",
+          "children": []
+        }
+      ]
+    }
+  ]
+}]
 JSON;
 
         return $this->success(json_decode($jsonData, true));

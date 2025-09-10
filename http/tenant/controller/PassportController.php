@@ -95,7 +95,8 @@ class PassportController extends BasicController
                 'backend_setting',
                 'phone',
                 'is_enabled_google',
-                'is_bind_google'
+                'is_bind_google',
+                'tenant_account'
             ]
         ));
     }

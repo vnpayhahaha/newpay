@@ -92,7 +92,7 @@ final class ModelTenantUser extends BasicModel implements AuthorizationUserInter
 
     public function getUserById($id)
     {
-        return $this->where('id', $id)->first();
+        return $this->with('tenant_account:id,tenant_id,balance_available,balance_frozen,account_type')->where('id', $id)->first();
     }
 
     public function setPasswordAttribute($value): void
@@ -115,5 +115,11 @@ final class ModelTenantUser extends BasicModel implements AuthorizationUserInter
     public function tenant()
     {
         return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
+    }
+
+    // tenant_accounts
+    public function tenant_account(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelTenantAccount::class, 'tenant_id', 'tenant_id');
     }
 }

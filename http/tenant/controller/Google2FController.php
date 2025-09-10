@@ -11,7 +11,7 @@ use PragmaRX\Google2FA\Google2FA;
 use support\Request;
 use support\Response;
 
-#[RestController("/admin/google2f")]
+#[RestController("/tenant/google2f")]
 class Google2FController extends BasicController
 {
 

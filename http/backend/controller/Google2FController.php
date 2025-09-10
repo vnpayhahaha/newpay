@@ -25,7 +25,7 @@ class Google2FController extends BasicController
         $companyName = env('APP_NAME', 'LangDaLang');
         $username = $request->user->username;
         $googleQRCodeUrl = $this->google2FA->getQRCodeUrl(
-            $companyName,
+            $companyName.' Management',
             $username,
             $secretKey
         );
