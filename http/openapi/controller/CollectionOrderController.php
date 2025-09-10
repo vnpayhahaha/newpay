@@ -4,6 +4,7 @@ namespace http\openapi\controller;
 
 use app\controller\BasicController;
 use app\exception\OpenApiException;
+use app\exception\UnprocessableEntityException;
 use app\lib\enum\ResultCode;
 use app\router\Annotations\PostMapping;
 use app\router\Annotations\RestController;
@@ -20,9 +21,9 @@ use Webman\RateLimiter\Limiter;
 class CollectionOrderController extends BasicController
 {
     #[Inject]
-    protected CollectionOrderService $service;
+    protected CollectionOrderService    $service;
     #[Inject]
-    protected TenantService $tenantService;
+    protected TenantService             $tenantService;
     #[Inject]
     protected TenantApiInterfaceService $tenantApiInterfaceService;
 
@@ -138,7 +139,6 @@ class CollectionOrderController extends BasicController
                 'pay_time',
                 'expire_time',
                 'notify_url',
-                'notify_count',
                 'notify_status',
                 'created_at',
             ])
@@ -156,5 +156,30 @@ class CollectionOrderController extends BasicController
             return $this->error(ResultCode::ORDER_NOT_FOUND);
         }
         return $this->success($orderFind->makeHidden(['id'])->toArray());
+    }
+
+    // submitted_utr
+    #[PostMapping('/submitted_utr')]
+    public function submittedUtr(Request $request): Response
+    {
+        $validator = validate($request->all(), [
+            'tenant_id'              => [
+                'required',
+                'string',
+                'max:20',
+            ],
+            'platform_order_no'      => 'required|string|max:30',
+            'customer_submitted_utr' => 'required|string|max:20',
+        ]);
+        if ($validator->fails()) {
+            throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
+        }
+        $validatedData = $validator->validate();
+        return $this->service->repository->getQuery()
+            ->where('tenant_id', $validatedData['tenant_id'])
+            ->where('platform_order_no', $validatedData['platform_order_no'])
+            ->update([
+                'customer_submitted_utr' => $validatedData['customer_submitted_utr'],
+            ]) > 0 ? $this->success() : $this->error();
     }
 }

@@ -178,7 +178,6 @@ class DisbursementOrderController extends BasicController
                 'status',
                 'pay_time',
                 'notify_url',
-                'notify_count',
                 'notify_status',
                 'created_at',
             ])
