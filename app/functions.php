@@ -154,7 +154,7 @@ if (!function_exists('ascii_params')) {
 }
 // md5 加密签名 最后连接符
 if (!function_exists('md5_signature')) {
-    function md5_signature(array $params, string $key, string $key_name = 'key', string $connect = '&'): string
+    function md5_signature(array $params, string $secret_value, string $secret_name = 'secret', string $connect = '&'): string
     {
         // 第一步：过滤空值和空字符串,保留数字0
         $params = array_filter($params, function ($val) {
@@ -162,10 +162,10 @@ if (!function_exists('md5_signature')) {
         });
         // 第二步：拼接签名密钥
         $str = ascii_params($params);
-        if ($key_name === null) {
-            $str .= $connect . $key;
+        if ($secret_name === null) {
+            $str .= $connect . $secret_value;
         } else {
-            $str .= $connect . $key_name . '=' . $key;
+            $str .= $connect . $secret_name . '=' . $secret_value;
         }
         var_dump('===签名前字符==', $str);
         return md5($str);
