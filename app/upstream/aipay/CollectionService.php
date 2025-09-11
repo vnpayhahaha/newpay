@@ -15,16 +15,19 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
 
     #[ArrayShape([
         'ok'     => 'bool',
+        'msg'    => 'string',
         'origin' => 'string',
         'data'   => [
             '_upstream_order_no' => 'string',
             '_order_amount'      => 'string',
+            '_pay_upi'           => 'string',
             '_pay_url'           => 'string',
             '_utr'               => 'string'
         ]
-    ])] public function createOrder(string $tenant_order_no, float $amount): array
+    ])]
+    public function createOrder(string $tenant_order_no, float $amount): array
     {
-        throw new \Exception('未实现');
+        throw new \RuntimeException('未实现');
         // TODO: Implement createOrder() method.
     }
 

@@ -10,6 +10,7 @@ interface TransactionCollectionOrderInterface
 
     // 初始化配置
     public function init(ModelChannelAccount $channel_account): self;
+
     /**
      * 创建订单
      * @param string $tenant_order_no
@@ -24,13 +25,15 @@ interface TransactionCollectionOrderInterface
      *      -- string _utr
      */
     #[ArrayShape([
-        'ok' => 'bool',
+        'ok'     => 'bool',
+        'msg'    => 'string',
         'origin' => 'string',
-        'data' => [
+        'data'   => [
             '_upstream_order_no' => 'string',
-            '_order_amount' => 'string',
-            '_pay_url' => 'string',
-            '_utr' => 'string'
+            '_order_amount'      => 'string',
+            '_pay_upi'           => 'string',
+            '_pay_url'           => 'string',
+            '_utr'               => 'string'
         ]
     ])]
     public function createOrder(string $tenant_order_no, float $amount): array;

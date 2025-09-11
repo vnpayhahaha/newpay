@@ -293,8 +293,8 @@ class CollectionOrderService extends BaseService
             return [
                 'platform_order_no' => $platform_order_no,
                 'tenant_order_no'   => $tenant_order_no,
-                'amount'            => number_format($collectionOrder->amount, 2,'.', ''),
-                'payable_amount'    => number_format($collectionOrder->payable_amount, 2,'.', ''),
+                'amount'            => number_format($collectionOrder->amount, 2, '.', ''),
+                'payable_amount'    => number_format($collectionOrder->payable_amount, 2, '.', ''),
                 'status'            => $collectionOrder->status,
                 'payer_upi'         => $collectionOrder->payer_upi,
                 'pay_time'          => $collectionOrder->pay_time,
@@ -338,42 +338,97 @@ class CollectionOrderService extends BaseService
     {
         $createOrderResult = [];
         $fail_message = '';
+        $channel_account = null;
         foreach ($findTenant->upstream_items as $channelAccountId) {
             // 查询 渠道状态 且 满足限额
             $channel_account = $this->channelAccountRepository
                 ->getChannelAccountOfCollectionQuery($channelAccountId, $data['amount'])
                 ->first();
-
             if ($channel_account && isset($channel_account['channel']['channel_code'])) {
                 $className = Tenant::$upstream_options[$channel_account['channel']['channel_code']] ?? '';
                 var_dump('$className ', $className);
                 if (filled($className)) {
+                    // 错误前缀
+                    $error_prefix = $channel_account['channel']['channel_code'] . ' createOrder fail:';
                     try {
                         $service = TransactionCollectionOrderFactory::getInstance($className)->init($channel_account);
                         $createOrderResult = $service->createOrder($data['tenant_order_no'], $data['amount']);
                     } catch (\Throwable $e) {
-                        $fail_message = $e->getMessage();
+                        $fail_message = $error_prefix . $e->getMessage();
                         Log::warning($className . ' 创建订单失败' . $e->getMessage());
                         continue;
                     }
-                    if (filled($createOrderResult)) {
-                        // todo 创建订单 [
+                    if (filled($createOrderResult) && isset($createOrderResult['ok'])) {
+                        //   [
                         //        'ok'     => 'bool',
+                        //        'msg'    => 'string',
                         //        'origin' => 'string',
                         //        'data'   => [
                         //            '_upstream_order_no' => 'string',
                         //            '_order_amount'      => 'string',
+                        //            '_pay_upi'           => 'string',
                         //            '_pay_url'           => 'string',
                         //            '_utr'               => 'string'
-                        //        ]
+                        // ]
+                        if ($createOrderResult['ok'] === true) {
+                            break;
+                        }
+                        $fail_message = $error_prefix . ($createOrderResult['msg'] ?? 'nil');
+                        Log::warning($fail_message);
+                        continue;
                     }
                 }
             }
         }
-        if (filled($fail_message) && filled($createOrderResult) === false) {
+        if (!$channel_account || filled($fail_message) || filled($createOrderResult) === false) {
             throw new \RuntimeException($fail_message);
         }
-        return $createOrderResult;
+        // 计算收款费率
+        $calculate = [
+            'fixed_fee'       => 0.00,
+            'rate_fee'        => 0.00,
+            'rate_fee_amount' => 0.00,
+        ];
+        $rate_fee = bcdiv($findTenant->receipt_fee_rate, '100', 4);
+        if (in_array(Tenant::RECEIPT_FEE_TYPE_FIXED, $findTenant->receipt_fee_type, true)) {
+            $calculate['fixed_fee'] = $findTenant->receipt_fixed_fee;
+        }
+        if (in_array(Tenant::RECEIPT_FEE_TYPE_RATE, $findTenant->receipt_fee_type, true)) {
+            $calculate['rate_fee'] = $findTenant->receipt_fee_rate;
+            $calculate['rate_fee_amount'] = bcmul($data['amount'], $rate_fee, 4);
+        }
+        $calculate['total_fee'] = bcadd($calculate['fixed_fee'], $calculate['rate_fee_amount'], 4);
+        $request = Context::get(Request::class);
+        $collectionOrder = $this->repository->create([
+            'tenant_id'             => $data['tenant_id'],
+            'tenant_order_no'       => $data['tenant_order_no'],
+            'amount'                => $data['amount'],
+            'payable_amount'        => $createOrderResult['data']['_order_amount'] ?? $data['amount'],
+            'fixed_fee'             => $calculate['fixed_fee'],
+            'rate_fee'              => $calculate['rate_fee'],
+            'rate_fee_amount'       => $calculate['rate_fee_amount'],
+            'total_fee'             => $calculate['total_fee'],
+            'settlement_amount'     => bcsub($data['amount'], $calculate['total_fee'], 4),
+            'settlement_type'       => $findTenant->receipt_settlement_type,
+            //            'settlement_type'       => CollectionOrder::SETTLEMENT_TYPE_NOT_SETTLED,
+            'collection_type'       => CollectionOrder::COLLECTION_TYPE_UPSTREAM,
+            'collection_channel_id' => $channel_account->channel_id,
+            'channel_account_id'    => $channel_account->id,
+            'expire_time'           => date('Y-m-d H:i:s', strtotime('+' . $findTenant->receipt_expire_minutes . ' minutes')),
+            'order_source'          => $source,
+            'notify_remark'         => $data['notify_remark'] ?? '',
+            'return_url'            => $data['return_url'] ?? '',
+            'notify_url'            => $data['notify_url'] ?? '',
+            'app_id'                => $app->id ?? 0,
+            'payer_upi'             => $createOrderResult['data']['_pay_upi'] ?? '',
+            'status'                => CollectionOrder::STATUS_PROCESSING,
+            'request_id'            => $request->requestId,
+            'customer_created_by'   => $user->id ?? 0,
+            'settlement_delay_mode' => $findTenant->settlement_delay_mode,
+            'settlement_delay_days' => $findTenant->settlement_delay_days,
+            'pay_url'               => $createOrderResult['data']['_pay_url'] ?? '',
+        ]);
+        return $this->formatCreatOrderResult($collectionOrder);
     }
 
     // 定时任务监听订单失效
