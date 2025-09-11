@@ -5,6 +5,7 @@ namespace app\upstream\aipay;
 use app\model\ModelChannelAccount;
 use app\upstream\Handle\TransactionCollectionOrderInterface;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Response;
 
 class CollectionService extends Base implements TransactionCollectionOrderInterface
 {
@@ -46,9 +47,9 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
         // TODO: Implement notify() method.
     }
 
-    public function notifyReturn(bool $success): mixed
+    public function notifyReturn(bool $success): Response
     {
-        // TODO: Implement notifyReturn() method.
+        return $success ? response('success') : response('fail');
     }
 
 }

@@ -15,8 +15,8 @@ use Carbon\Carbon;
  * @property Carbon $collection_time 收款时间
  * @property int $collection_status 状态(1等待核销 2已经核销 3核销失败)
  * @property int $collection_source 转账凭证来源:0未定义1人工创建2平台内部接口(sms)3平台开放下游接口(openApp)4上游回调接口
- * @property string $transaction_voucher 转账的凭证UTR/order_no/金额
- * @property int $transaction_voucher_type 转账凭证类型：1订单号 2utr 3金额
+ * @property string $transaction_voucher 转账的凭证UTR/order_no/金额/上游回调原始数据
+ * @property int $transaction_voucher_type 转账凭证类型：1utr 2订单id 3平台订单号 platform_order_no 4金额 5上游订单号 upstream_order_no
  * @property string $order_no 匹配的订单编号
  * @property string $content 原始内容
  * @property int $operation_admin_id 操作管理员

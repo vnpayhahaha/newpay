@@ -53,7 +53,7 @@ class CollectionOrderWriteOffConsumer implements Consumer
                     ->where('status', CollectionOrder::STATUS_PROCESSING)
                     ->first();
                 break;
-            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO:
+            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO:
                 $order = $this->collectionOrderService->repository->getQuery()
                     ->where('platform_order_no', $transaction_voucher)
                     ->where('status', CollectionOrder::STATUS_PROCESSING)
@@ -64,6 +64,12 @@ class CollectionOrderWriteOffConsumer implements Consumer
                     ->where('collection_channel_id', $channel_id)
                     ->where('channel_account_id', $bank_account_id)
                     ->where('amount', $transaction_voucher)
+                    ->where('status', CollectionOrder::STATUS_PROCESSING)
+                    ->first();
+                break;
+            case TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UPSTREAM_ORDER_NO:
+                $order = $this->collectionOrderService->repository->getQuery()
+                    ->where('upstream_order_no', $transaction_voucher)
                     ->where('status', CollectionOrder::STATUS_PROCESSING)
                     ->first();
                 break;

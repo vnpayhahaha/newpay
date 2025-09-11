@@ -2,7 +2,6 @@
 
 namespace app\repository;
 
-use app\constants\TransactionRecord;
 use app\constants\TransactionVoucher;
 use app\model\ModelTransactionVoucher;
 use DI\Attribute\Inject;

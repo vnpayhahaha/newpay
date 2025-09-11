@@ -55,6 +55,9 @@ enum ResultCode: int
     // Business Logic Validation Errors
     #[Message('result.disabled')]
     case DISABLED = 101001;
+    // Invalid channel
+    #[Message('result.invalid_channel')]
+    case INVALID_CHANNEL = 101002;
 
     // 字段枚举获取失败
     #[Message('result.enum_not_found')]

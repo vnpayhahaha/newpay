@@ -51,7 +51,7 @@ class DisbursementOrderWriteOffConsumer implements Consumer
         if ($order->status !== DisbursementOrder::STATUS_WAIT_FILL) {
             // 或失效, 记录凭证管理
             if ($data['payment_status'] === DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS) {
-                $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO;
+                $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
                 $transaction_voucher = $data['platform_order_no'];
                 if (filled($data['utr'])) {
                     $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR;
@@ -77,7 +77,7 @@ class DisbursementOrderWriteOffConsumer implements Consumer
         }
         // 支付成功
         if ($data['payment_status'] === DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS) {
-            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO;
+            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
             $transaction_voucher = $data['platform_order_no'];
             if (filled($data['utr'])) {
                 $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR;

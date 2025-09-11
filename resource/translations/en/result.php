@@ -29,6 +29,7 @@ return [
     'upload_failed'                                      => 'Upload failed',
     'upload_chunk_failed'                                => 'Failed to upload shards',
     'excel_parse_failed'                                 => 'Excel parsing failed',
+    'invalid_channel'                                    => 'Invalid channel',
 
     // 用户模块
     'user_login_failed'                                  => 'User login failed',

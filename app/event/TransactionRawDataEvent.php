@@ -46,7 +46,7 @@ class TransactionRawDataEvent
             $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_ID;
             $transaction_voucher = $parseResult['id_code'];
         } elseif (in_array('order_no', $parseResultKey)) {
-            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_ORDER_NO;
+            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
             $transaction_voucher = $parseResult['order_no'];
         } elseif (in_array('amount', $parseResultKey)) {
             $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_AMOUNT;

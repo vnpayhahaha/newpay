@@ -18,10 +18,11 @@ return [
             'bank_receipt' => 'bank_receipt',
         ],
         'transaction_voucher_type' => [
-            'order_id' => 'Order Id',
-            'order_no' => 'Order No',
-            'utr'      => 'UTR',
-            'amount'   => 'Amount',
+            'order_id'          => 'Order Id',
+            'platform_order_no' => 'Platform Order No',
+            'utr'               => 'UTR',
+            'amount'            => 'Amount',
+            'upstream_order_no' => 'Upstream Order No',
         ],
         'transaction_type'         => [
             'collection' => '代收',

@@ -442,6 +442,7 @@ class CollectionOrderService extends BaseService
             ]);
     }
 
+    // 核销
     public function writeOff(int $collectionOrderId, int $transactionVoucherId): bool
     {
         /** @var ModelCollectionOrder $order */

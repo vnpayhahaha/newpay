@@ -29,6 +29,7 @@ return [
     'upload_failed'                                      => '上传失败',
     'upload_chunk_failed'                                => '分片上传失败',
     'excel_parse_failed'                                 => 'Excel解析失败',
+    'invalid_channel'                                    => '无效的渠道',
 
     // 用户模块
     'user_login_failed'                                  => '用户登录失败',

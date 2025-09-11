@@ -38,16 +38,18 @@ class TransactionVoucher
         self::COLLECTION_SOURCE_BANK_RECEIPT => 'transaction_voucher.enums.collection_source.bank_receipt',
     ];
 
-    // transaction_voucher_type 转账凭证类型：1utr 2订单id 3订单号 4金额
+    // transaction_voucher_type 转账凭证类型：1utr 2订单id 3平台订单号 platform_order_no 4金额 5上游订单号 upstream_order_no
     public const TRANSACTION_VOUCHER_TYPE_UTR = 1;
     public const TRANSACTION_VOUCHER_TYPE_ORDER_ID = 2;
-    public const TRANSACTION_VOUCHER_TYPE_ORDER_NO = 3;
+    public const TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO = 3;
     public const TRANSACTION_VOUCHER_TYPE_AMOUNT = 4;
+    public const TRANSACTION_VOUCHER_TYPE_UPSTREAM_ORDER_NO = 5;
     public static array $transaction_voucher_type_list = [
-        self::TRANSACTION_VOUCHER_TYPE_ORDER_ID => 'transaction_voucher.enums.transaction_voucher_type.order_id',
-        self::TRANSACTION_VOUCHER_TYPE_ORDER_NO => 'transaction_voucher.enums.transaction_voucher_type.order_no',
-        self::TRANSACTION_VOUCHER_TYPE_UTR      => 'transaction_voucher.enums.transaction_voucher_type.utr',
-        self::TRANSACTION_VOUCHER_TYPE_AMOUNT   => 'transaction_voucher.enums.transaction_voucher_type.amount',
+        self::TRANSACTION_VOUCHER_TYPE_ORDER_ID          => 'transaction_voucher.enums.transaction_voucher_type.order_id',
+        self::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO => 'transaction_voucher.enums.transaction_voucher_type.platform_order_no',
+        self::TRANSACTION_VOUCHER_TYPE_UTR               => 'transaction_voucher.enums.transaction_voucher_type.utr',
+        self::TRANSACTION_VOUCHER_TYPE_AMOUNT            => 'transaction_voucher.enums.transaction_voucher_type.amount',
+        self::TRANSACTION_VOUCHER_TYPE_UPSTREAM_ORDER_NO => 'transaction_voucher.enums.transaction_voucher_type.upstream_order_no',
     ];
 
     // transaction_type 交易类型：1代收 2代付

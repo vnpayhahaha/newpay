@@ -4,6 +4,7 @@ namespace app\upstream\Handle;
 
 use app\model\ModelChannelAccount;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Response;
 
 interface TransactionCollectionOrderInterface
 {
@@ -51,13 +52,13 @@ interface TransactionCollectionOrderInterface
      *   -- bool ok
      *   -- string origin (json原始返回数据)
      *   -- array data
-     *      -- string _third_order_no
-     *      -- string _order_out_no
-     *      -- float _order_amount
-     *      -- string _order_pay_time
+     *      -- string _upstream_order_no
+     *      -- string _platform_order_no
+     *      -- float _amount
+     *      -- string _pay_time
      *      -- string _utr
      */
     public function notify(array $params): array;
 
-    public function notifyReturn(bool $success): mixed;
+    public function notifyReturn(bool $success): Response;
 }
