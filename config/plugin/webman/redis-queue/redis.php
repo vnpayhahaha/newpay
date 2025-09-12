@@ -23,7 +23,7 @@ return [
         'options' => [
             'auth'          => env('REDIS_AUTH', null),
             'db'            => env('REDIS_QUEUE_DB_SYNC', 2),
-            'prefix'        => env('APP_NAME', ''),
+            'prefix'        => '',
             'max_attempts'  => env('REDIS_QUEUE_MAX_ATTEMPTS', 5),
             'retry_seconds' => env('REDIS_QUEUE_RETRY_SECONDS', 10),
         ],

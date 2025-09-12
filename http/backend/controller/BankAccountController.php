@@ -81,6 +81,7 @@ class BankAccountController extends BasicController
             'support_disbursement'    => ['required', 'boolean'],
             'down_bill_template_id'   => ['array'],
             'down_bill_template_id.*' => ['string', 'max:20'],
+            'account_config'          => ['array'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
@@ -124,6 +125,7 @@ class BankAccountController extends BasicController
             'support_disbursement'    => ['required', 'boolean'],
             'down_bill_template_id'   => ['array'],
             'down_bill_template_id.*' => ['string', 'max:20'],
+            'account_config'          => ['array'],
         ]);
         if ($validator->fails()) {
             throw new UnprocessableEntityException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());

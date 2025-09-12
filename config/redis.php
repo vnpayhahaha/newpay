@@ -13,7 +13,7 @@
  */
 
 return [
-    'default' => [
+    'default'     => [
         'host'     => env('REDIS_HOST', 'localhost'),
         'password' => env('REDIS_AUTH', null),
         'port'     => (int)env('REDIS_PORT', 6379),
@@ -31,18 +31,25 @@ return [
                         // 心跳检测间隔，不要大于60秒
         ],
     ],
-    'cache'   => [ // <==== 新增
-                   'host'     => env('REDIS_HOST', 'localhost'),
-                   'password' => env('REDIS_AUTH', null),
-                   'port'     => (int)env('REDIS_PORT', 6379),
-                   'database' => 2,
-                   'prefix'   => 'webman_cache-',
+    'cache'       => [ // <==== 新增
+                       'host'     => env('REDIS_HOST', 'localhost'),
+                       'password' => env('REDIS_AUTH', null),
+                       'port'     => (int)env('REDIS_PORT', 6379),
+                       'database' => 2,
+                       'prefix'   => 'webman_cache-',
     ],
-    'queue'   => [ // <==== 新增
-                   'host'     => env('REDIS_HOST', 'localhost'),
-                   'password' => env('REDIS_AUTH', null),
-                   'port'     => (int)env('REDIS_PORT', 6379),
-                   'database' => env('REDIS_QUEUE_DB', 1),
-                   'prefix'   => env('APP_NAME', ''),
-    ]
+    'queue'       => [ // <==== 新增
+                       'host'     => env('REDIS_HOST', 'localhost'),
+                       'password' => env('REDIS_AUTH', null),
+                       'port'     => (int)env('REDIS_PORT', 6379),
+                       'database' => env('REDIS_QUEUE_DB', 1),
+                       'prefix'   => env('APP_NAME', ''),
+    ],
+    'synchronize' => [
+        'host'     => env('REDIS_HOST', 'localhost'),
+        'password' => env('REDIS_AUTH', null),
+        'port'     => (int)env('REDIS_PORT', 6379),
+        'database' => env('REDIS_QUEUE_DB_SYNC', 2),
+        'prefix'   => '',
+    ],
 ];

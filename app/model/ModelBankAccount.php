@@ -4,6 +4,7 @@ namespace app\model;
 
 use app\model\lib\CustomSoftDeletes;
 use Carbon\Carbon;
+use support\Redis;
 
 /**
  * @property int $id 主键
@@ -39,6 +40,7 @@ use Carbon\Carbon;
  * @property int $support_collection 支持代收
  * @property int $support_disbursement 支持代付
  * @property array $down_bill_template_id 付款账单模板ID项
+ * @property array $account_config 帐户配置项
  */
 final class ModelBankAccount extends BasicModel
 {
@@ -93,6 +95,7 @@ final class ModelBankAccount extends BasicModel
         'support_collection',
         'support_disbursement',
         'down_bill_template_id',
+        'account_config',
     ];
 
     protected $casts = [
@@ -129,12 +132,25 @@ final class ModelBankAccount extends BasicModel
         'support_collection'      => 'boolean',
         'support_disbursement'    => 'boolean',
         'down_bill_template_id'   => 'array',
+        'account_config'          => 'array',
     ];
 
     // belongsTo channel
     public function channel()
     {
-        return $this->belongsTo(ModelChannel::class, 'channel_id','id');
+        return $this->belongsTo(ModelChannel::class, 'channel_id', 'id');
     }
 
+    public static function boot(): void
+    {
+        parent::boot();
+        self::created(static function (ModelBankAccount $model) {
+            var_dump('ModelBankAccount created=======');
+            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($model->toArray(), JSON_THROW_ON_ERROR));
+        });
+        self::updated(static function (ModelBankAccount $model) {
+            var_dump('ModelBankAccount updated=======');
+            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($model->toArray(), JSON_THROW_ON_ERROR));
+        });
+    }
 }
