@@ -2,9 +2,7 @@
 
 namespace app\queue\redis\Synchronize;
 
-use app\constants\TenantAccount;
-use app\exception\UnprocessableEntityException;
-use app\lib\enum\ResultCode;
+use app\constants\TransactionRawData;
 use app\service\TransactionRawDataService;
 use DI\Attribute\Inject;
 use support\Log;
@@ -13,7 +11,7 @@ use Webman\RedisQueue\Consumer;
 class TransactionRawDataConsumer implements Consumer
 {
     // 要消费的队列名
-    public string $queue = TenantAccount::TRANSACTION_CONSUMER_QUEUE_NAME;
+    public string $queue = TransactionRawData::TRANSACTION_RAW_DATA_QUEUE_NAME;
 
     // 连接名，对应 plugin/webman/redis-queue/redis.php 里的连接`
     public string $connection = 'synchronize';

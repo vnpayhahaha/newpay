@@ -22,7 +22,7 @@ return [
         'host'    => 'redis://' . env('REDIS_HOST', 'localhost') . ':' . env('REDIS_PORT', 6379),
         'options' => [
             'auth'          => env('REDIS_AUTH', null),
-            'db'            => env('REDIS_QUEUE_DB_SYNC', 1),
+            'db'            => env('REDIS_QUEUE_DB_SYNC', 2),
             'prefix'        => env('APP_NAME', ''),
             'max_attempts'  => env('REDIS_QUEUE_MAX_ATTEMPTS', 5),
             'retry_seconds' => env('REDIS_QUEUE_RETRY_SECONDS', 10),
