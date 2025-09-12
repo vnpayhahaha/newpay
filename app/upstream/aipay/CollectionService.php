@@ -11,6 +11,22 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
 {
     public function init(ModelChannelAccount $channel_account): TransactionCollectionOrderInterface
     {
+        $this->channel_account = $channel_account;
+        $api_config_array = $this->channel_account->api_config;
+        if (!filled($api_config_array)) {
+            throw new \RuntimeException('Interface parameters not configured');
+        }
+        foreach ($api_config_array as $item) {
+            if ($item['label'] === 'secret_key') {
+                $this->secret_key = $item['value'];
+            } elseif ($item['label'] === 'url') {
+                $this->url = $item['value'];
+            } elseif ($item['label'] === 'merchant_id') {
+                $this->merchant_id = (int)$item['value'];
+            } elseif ($item['label'] === 'return_url') {
+                $this->return_url = $item['value'];
+            }
+        }
         return $this;
     }
 
@@ -28,8 +44,23 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
     ])]
     public function createOrder(string $tenant_order_no, float $amount): array
     {
-        throw new \RuntimeException('未实现');
-        // TODO: Implement createOrder() method.
+       try{
+           $result = $this->post('/api/v1/payments', []);
+       }catch (\Throwable $e){
+           return ['ok' => false, 'msg' => $e->getMessage()];
+       }
+       return [
+           'ok'     => true,
+           'msg'    => 'success',
+           'origin' => $result,
+           'data'   => [
+               '_upstream_order_no' => $result['data']['order_id'],
+               '_order_amount'      => $result['data']['amount'],
+               '_pay_upi'           => $result['data']['upi'],
+               '_pay_url'           => $result['data']['pay_url'],
+               '_utr'               => $result['data']['utr']
+           ]
+       ];
     }
 
     public function queryOrder(string $tenant_order_no, string $upstream_order_no): array
