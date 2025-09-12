@@ -17,4 +17,6 @@ class TransactionRawData
         self::STATUS_PARSED_SUCCESS => 'transaction_raw_data.enums.status.parsed_success',
         self::STATUS_PARSED_FAIL    => 'transaction_raw_data.enums.status.parsed_fail',
     ];
+
+    public const TRANSACTION_RAW_DATA_QUEUE_NAME = 'transaction-raw-data-queue';
 }
