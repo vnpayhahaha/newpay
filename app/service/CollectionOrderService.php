@@ -218,6 +218,14 @@ class CollectionOrderService extends BaseService
         if (!filled($collectionOrder)) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
         }
+        $this->collectionOrderStatusRecordsRepository->create([
+            'order_id'   => $collectionOrder->id,
+            'status'     => CollectionOrder::STATUS_PROCESSING,
+            'desc_cn'    => $source . '[' . $card->account_number . '] 订单创建成功,支付中...',
+            'desc_en'    => $source . '[' . $card->account_number . '] The order was created successfully, and the payment was underway...',
+            'created_at' => date('Y-m-d H:i:s'),
+            'remark'     => json_encode($data, JSON_UNESCAPED_UNICODE),
+        ]);
         return $this->formatCreatOrderResult($collectionOrder, $cashier_template);
 
     }
@@ -438,6 +446,14 @@ class CollectionOrderService extends BaseService
             'settlement_delay_mode' => $findTenant->settlement_delay_mode,
             'settlement_delay_days' => $findTenant->settlement_delay_days,
             'pay_url'               => $createOrderResult['data']['_pay_url'] ?? '',
+        ]);
+        $this->collectionOrderStatusRecordsRepository->create([
+            'order_id'   => $collectionOrder->id,
+            'status'     => CollectionOrder::STATUS_PROCESSING,
+            'desc_cn'    => $source . '[' . $success_created_service . '] 订单创建成功,支付中...',
+            'desc_en'    => $source . '[' . $success_created_service . '] The order was created successfully, and the payment was underway...',
+            'created_at' => date('Y-m-d H:i:s'),
+            'remark'     => $createOrderResult['origin'],
         ]);
         return $this->formatCreatOrderResult($collectionOrder);
     }

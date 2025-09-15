@@ -11,6 +11,7 @@ use Carbon\Carbon;
 * @property string $desc_cn 中文信息
 * @property string $desc_en 英文信息
 * @property Carbon $created_at 创建时间
+* @property string $remark 备注
 */
 final class ModelDisbursementOrderStatusRecords extends BasicModel
 {
@@ -42,6 +43,7 @@ final class ModelDisbursementOrderStatusRecords extends BasicModel
         'status',
         'desc_cn',
         'desc_en',
-        'created_at'
+        'created_at',
+        'remark'
     ];
 }
