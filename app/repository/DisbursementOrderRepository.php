@@ -131,6 +131,11 @@ final class DisbursementOrderRepository extends IRepository
             ->with('cancel_customer:id,username,avatar')
             ->with('created_customer:id,username,avatar')
             ->with('transaction_record:id,transaction_no,transaction_status')
+            ->with([
+                'status_records', function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ])
             ->paginate(
                 perPage: $pageSize,
                 pageName: static::PER_PAGE_PARAM_NAME,
@@ -144,7 +149,7 @@ final class DisbursementOrderRepository extends IRepository
     {
         $file_path = public_path() . '/transaction/payment_order';
         // $file_name = $paymentOrder->platform_order_no . '_' . 状态 . '.png';
-        $file_name = $paymentOrder->platform_order_no . '_' .$paymentOrder->status .'.png';
+        $file_name = $paymentOrder->platform_order_no . '_' . $paymentOrder->status . '.png';
         $save_path = $file_path . '/' . $file_name;
 
         // 如果文件已经存在，则直接返回文件路径

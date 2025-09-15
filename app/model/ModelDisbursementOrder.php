@@ -225,4 +225,10 @@ final class ModelDisbursementOrder extends BasicModel
     {
         return (new TenantDataPermissionScope())->apply($query, $this);
     }
+
+    // hasMany status_records
+    public function status_records(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelDisbursementOrderStatusRecords::class, 'order_id', 'id');
+    }
 }

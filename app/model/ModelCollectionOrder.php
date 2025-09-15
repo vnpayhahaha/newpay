@@ -228,4 +228,10 @@ final class ModelCollectionOrder extends BasicModel
     {
         return (new TenantDataPermissionScope())->apply($query, $this);
     }
+
+    // hasMany status_records
+    public function status_records(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ModelCollectionOrderStatusRecords::class, 'order_id', 'id');
+    }
 }

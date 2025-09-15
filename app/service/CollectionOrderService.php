@@ -17,6 +17,7 @@ use app\model\ModelTenantApp;
 use app\repository\BankAccountRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\CollectionOrderRepository;
+use app\repository\CollectionOrderStatusRecordsRepository;
 use app\repository\TenantAccountRepository;
 use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
@@ -42,6 +43,9 @@ class CollectionOrderService extends BaseService
 {
     #[Inject]
     public CollectionOrderRepository $repository;
+    // CollectionOrderStatusRecordsRepository
+    #[Inject]
+    protected CollectionOrderStatusRecordsRepository $collectionOrderStatusRecordsRepository;
     #[Inject]
     protected TenantRepository $tenantRepository;
     #[Inject]
@@ -339,6 +343,11 @@ class CollectionOrderService extends BaseService
         $createOrderResult = [];
         $fail_message = '';
         $channel_account = null;
+        $success_created_service = '';
+        if (!filled($findTenant->upstream_items)) {
+            $fail_message = 'No upstream items';
+            throw new \RuntimeException($fail_message);
+        }
         foreach ($findTenant->upstream_items as $channelAccountId) {
             // 查询 渠道状态 且 满足限额
             $channel_account = $this->channelAccountRepository
@@ -371,6 +380,7 @@ class CollectionOrderService extends BaseService
                         //            '_utr'               => 'string'
                         // ]
                         if ($createOrderResult['ok'] === true) {
+                            $success_created_service = $channel_account['channel']['channel_code'];
                             break;
                         }
                         $fail_message = $error_prefix . ($createOrderResult['msg'] ?? 'nil');
@@ -402,6 +412,7 @@ class CollectionOrderService extends BaseService
         $collectionOrder = $this->repository->create([
             'tenant_id'             => $data['tenant_id'],
             'tenant_order_no'       => $data['tenant_order_no'],
+            'upstream_order_no'     => $createOrderResult['data']['_upstream_order_no'],
             'amount'                => $data['amount'],
             'payable_amount'        => $createOrderResult['data']['_order_amount'] ?? $data['amount'],
             'fixed_fee'             => $calculate['fixed_fee'],
