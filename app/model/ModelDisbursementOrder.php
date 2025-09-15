@@ -229,6 +229,6 @@ final class ModelDisbursementOrder extends BasicModel
     // hasMany status_records
     public function status_records(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ModelDisbursementOrderStatusRecords::class, 'order_id', 'id');
+        return $this->hasMany(ModelDisbursementOrderStatusRecords::class, 'order_id', 'id')->orderBy('id', 'desc');
     }
 }

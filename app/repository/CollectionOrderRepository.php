@@ -137,11 +137,7 @@ final class CollectionOrderRepository extends IRepository
             ->with('cancel_operator:id,username,nickname,avatar')
             ->with('cancel_customer:id,username,avatar')
             ->with('created_customer:id,username,avatar')
-            ->with([
-                'status_records', function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
+            ->with('status_records')
             ->paginate(
                 perPage: $pageSize,
                 pageName: self::PER_PAGE_PARAM_NAME,

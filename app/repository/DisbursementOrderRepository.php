@@ -131,11 +131,7 @@ final class DisbursementOrderRepository extends IRepository
             ->with('cancel_customer:id,username,avatar')
             ->with('created_customer:id,username,avatar')
             ->with('transaction_record:id,transaction_no,transaction_status')
-            ->with([
-                'status_records', function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
+            ->with('status_records')
             ->paginate(
                 perPage: $pageSize,
                 pageName: static::PER_PAGE_PARAM_NAME,
