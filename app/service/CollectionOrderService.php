@@ -612,14 +612,14 @@ class CollectionOrderService extends BaseService
         return $isOk;
     }
 
-    public function cancelById(mixed $id, int $operatorId, string $username): int
+    public function cancelById(mixed $id, int $operatorId, string $username, string $requestId): int
     {
         if (is_array($id)) {
             foreach ($id as $item) {
-                return $this->cancelById($item, $operatorId, $username);
+                return $this->cancelById($item, $operatorId, $username, $requestId);
             }
         }
-        return Db::transaction(function () use ($id, $operatorId, $username) {
+        return Db::transaction(function () use ($id, $operatorId, $username, $requestId) {
             $updateId = $this->repository->getModel()
                 ->where('id', $id)
                 ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
@@ -636,7 +636,7 @@ class CollectionOrderService extends BaseService
                     'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 取消订单',
                     'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] cancel order',
                     'remark'   => json_encode([
-                        'request_id' => \request()->request_id,
+                        'request_id' => $requestId,
                     ], JSON_UNESCAPED_UNICODE),
                 ]);
             }
@@ -644,14 +644,14 @@ class CollectionOrderService extends BaseService
         });
     }
 
-    public function cancelByCustomerId(mixed $id, string $tenantId, int $customerId, string $username): int
+    public function cancelByCustomerId(mixed $id, string $tenantId, int $customerId, string $username, string $requestId): int
     {
         if (is_array($id)) {
             foreach ($id as $item) {
-                return $this->cancelByCustomerId($item, $tenantId, $customerId, $username);
+                return $this->cancelByCustomerId($item, $tenantId, $customerId, $username, $requestId);
             }
         }
-        return Db::transaction(function () use ($id, $tenantId, $customerId, $username) {
+        return Db::transaction(function () use ($id, $tenantId, $customerId, $username, $requestId) {
             $updateId = $this->repository->getModel()
                 ->where('id', $id)
                 ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
@@ -668,7 +668,7 @@ class CollectionOrderService extends BaseService
                     'desc_cn'  => "商户用户{$username}[" . $customerId . '] 取消订单',
                     'desc_en'  => "Merchant user {$username}[" . $customerId . '] cancel order',
                     'remark'   => json_encode([
-                        'request_id' => \request()->request_id,
+                        'request_id' => $requestId,
                     ], JSON_UNESCAPED_UNICODE),
                 ]);
             }

@@ -41,6 +41,7 @@ class CollectionOrderController extends BasicController
             )
         );
     }
+
     #[PostMapping('/collection_order')]
     #[RateLimiter(limit: 100, ttl: 60, key: RateLimiter::UID)]
     public function create_order(Request $request): Response
@@ -91,7 +92,7 @@ class CollectionOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $successData = $this->service->createOrder($validatedData, 'client end:'.$user->username."[{$user->id}]");
+        $successData = $this->service->createOrder($validatedData, 'client end:' . $user->username . "[{$user->id}]");
         var_dump('订单创建结果：', $successData);
         if (filled($successData)) {
             return $this->success($successData);
@@ -113,7 +114,7 @@ class CollectionOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $this->service->cancelByCustomerId($validatedData['data'], $user['tenant_id'], $user['id'], $user['username']);
+        $this->service->cancelByCustomerId($validatedData['data'], $user['tenant_id'], $user['id'], $user['username'], $request->requestId);
         return $this->success();
     }
 
