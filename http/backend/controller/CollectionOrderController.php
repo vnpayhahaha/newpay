@@ -72,7 +72,7 @@ class CollectionOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $this->service->cancelById($validatedData['data'], $user['id']);
+        $this->service->cancelById($validatedData['data'], $user['id'], $user['username']);
         return $this->success();
     }
 

@@ -218,7 +218,7 @@ class CollectionOrderService extends BaseService
         if (!filled($collectionOrder)) {
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
         }
-        $this->collectionOrderStatusRecordsRepository->create([
+        Event::dispatch('collection-order-status-records', [
             'order_id'   => $collectionOrder->id,
             'status'     => CollectionOrder::STATUS_PROCESSING,
             'desc_cn'    => $source . '[' . $card->account_number . '] 订单创建成功,支付中...',
@@ -447,7 +447,7 @@ class CollectionOrderService extends BaseService
             'settlement_delay_days' => $findTenant->settlement_delay_days,
             'pay_url'               => $createOrderResult['data']['_pay_url'] ?? '',
         ]);
-        $this->collectionOrderStatusRecordsRepository->create([
+        Event::dispatch('collection-order-status-records', [
             'order_id'   => $collectionOrder->id,
             'status'     => CollectionOrder::STATUS_PROCESSING,
             'desc_cn'    => $source . '[' . $success_created_service . '] 订单创建成功,支付中...',
@@ -461,12 +461,27 @@ class CollectionOrderService extends BaseService
     // 定时任务监听订单失效
     public function orderExpire(): void
     {
-        $this->repository->getQuery()
+        $needUpdate = $this->repository->getQuery()
             ->where('status', CollectionOrder::STATUS_PROCESSING)
             ->where('expire_time', '<', Carbon::now())
-            ->update([
+            ->get();
+        foreach ($needUpdate as $item) {
+            $isUpdate = $this->repository->updateById($item->id, [
                 'status' => CollectionOrder::STATUS_INVALID,
             ]);
+            if ($isUpdate) {
+                Event::dispatch('collection-order-status-records', [
+                    'order_id' => $item->id,
+                    'status'   => CollectionOrder::STATUS_INVALID,
+                    'desc_cn'  => '订单已失效',
+                    'desc_en'  => 'Order has expired',
+                    'remark'   => json_encode([
+                        'created_at'  => $item->created_at,
+                        'expire_time' => $item->expire_time,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
+            }
+        }
     }
 
     // 核销
@@ -590,21 +605,15 @@ class CollectionOrderService extends BaseService
         return $isOk;
     }
 
-    public function cancelById(mixed $id, int $operatorId): int
+    public function cancelById(mixed $id, int $operatorId, string $username): int
     {
-        return Db::transaction(function () use ($id, $operatorId) {
-            if (is_array($id)) {
-                return $this->repository->getModel()
-                    ->whereIn('id', $id)
-                    ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
-                    ->update([
-                        'status'       => CollectionOrder::STATUS_CANCEL,
-                        'cancelled_by' => $operatorId,
-                        'cancelled_at' => date('Y-m-d H:i:s'),
-                    ]);
+        if (is_array($id)) {
+            foreach ($id as $item) {
+                return $this->cancelById($item, $operatorId, $username);
             }
-
-            return $this->repository->getModel()
+        }
+        return Db::transaction(function () use ($id, $operatorId, $username) {
+            $updateId = $this->repository->getModel()
                 ->where('id', $id)
                 ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
                 ->update([
@@ -612,24 +621,31 @@ class CollectionOrderService extends BaseService
                     'cancelled_by' => $operatorId,
                     'cancelled_at' => date('Y-m-d H:i:s'),
                 ]);
+            if ($updateId) {
+                // 记录状态
+                Event::dispatch('collection-order-status-records', [
+                    'order_id' => $id,
+                    'status'   => CollectionOrder::STATUS_CANCEL,
+                    'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 取消订单',
+                    'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] cancel order',
+                    'remark'   => json_encode([
+                        'request_id' => \request()->request_id,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
+            }
+            return $updateId;
         });
     }
 
-    public function cancelByCustomerId(mixed $id, int $customerId): int
+    public function cancelByCustomerId(mixed $id, string $tenantId, int $customerId, string $username): int
     {
-        return Db::transaction(function () use ($id, $customerId) {
-            if (is_array($id)) {
-                return $this->repository->getModel()
-                    ->whereIn('id', $id)
-                    ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
-                    ->update([
-                        'status'                => CollectionOrder::STATUS_CANCEL,
-                        'customer_cancelled_by' => $customerId,
-                        'cancelled_at'          => date('Y-m-d H:i:s'),
-                    ]);
+        if (is_array($id)) {
+            foreach ($id as $item) {
+                return $this->cancelByCustomerId($item, $tenantId, $customerId, $username);
             }
-
-            return $this->repository->getModel()
+        }
+        return Db::transaction(function () use ($id, $tenantId, $customerId, $username) {
+            $updateId = $this->repository->getModel()
                 ->where('id', $id)
                 ->where('status', '<=', CollectionOrder::STATUS_PROCESSING)
                 ->update([
@@ -637,13 +653,26 @@ class CollectionOrderService extends BaseService
                     'customer_cancelled_by' => $customerId,
                     'cancelled_at'          => date('Y-m-d H:i:s'),
                 ]);
+            if ($updateId) {
+                // 记录状态
+                Event::dispatch('collection-order-status-records', [
+                    'order_id' => $id,
+                    'status'   => CollectionOrder::STATUS_CANCEL,
+                    'desc_cn'  => "商户用户{$username}[" . $customerId . '] 取消订单',
+                    'desc_en'  => "Merchant user {$username}[" . $customerId . '] cancel order',
+                    'remark'   => json_encode([
+                        'request_id' => \request()->request_id,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
+            }
+            return $updateId;
         });
     }
 
     // 回调通知
     public function notify(ModelCollectionOrder $collectionOrder, array $data, int $max_retry_count = 1): bool
     {
-        if (!$collectionOrder || !filled($collectionOrder->notify_url)) {
+        if (!filled($collectionOrder->notify_url)) {
             return false;
         }
         $insertOk = $this->tenantNotificationQueueRepository->create([
