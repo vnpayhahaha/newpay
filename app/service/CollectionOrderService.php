@@ -583,6 +583,13 @@ class CollectionOrderService extends BaseService
         // 执行成功，添加队列
         // 交易队列
         Event::dispatch('app.transaction.created', $modelTransactionRecord);
+        Event::dispatch('collection-order-status-records', [
+            'order_id' => $collectionOrderId,
+            'status'   => CollectionOrder::STATUS_SUCCESS,
+            'desc_cn'  => '订单支付成功',
+            'desc_en'  => 'Order has been paid',
+            'remark'   => $transactionVoucher->content,
+        ]);
         dump('回调通知队列=======');
         // 回调通知队列
         $collectionOrder = $this->repository->findById($collectionOrderId);
