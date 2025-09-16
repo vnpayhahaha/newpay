@@ -8,7 +8,7 @@ class DisbursementOrder
 {
     use ConstantsOptionTrait;
 
-    // 订单状态:\r\n    0-创建中 1-已创建 10-待支付 11-待回填 20-成功 30-挂起 \r\n    40-失败 41-已取消 43-已失效 44-已退款
+    // 订单状态:  0-创建中 1-已创建 10-待支付 11-待对账 20-成功 30-挂起   40-失败 41-已取消 43-已失效 44-已退款
     public const STATUS_CREATING = 0;
     public const STATUS_CREATED = 1;
     public const STATUS_WAIT_PAY = 10;
