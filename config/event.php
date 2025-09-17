@@ -10,6 +10,9 @@ return [
     'collection-order-status-records'          => [
         [\app\event\CollectionOrderStatusRecordsEvent::class, 'process'],
     ],
+    'disbursement-order-status-records'          => [
+        [\app\event\DisbursementOrderStatusRecordsEvent::class, 'process'],
+    ],
     'app.tenant.created'                       => [
         [\app\event\TenantEvent::class, 'Created'],
     ],

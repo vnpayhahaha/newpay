@@ -223,7 +223,6 @@ class CollectionOrderService extends BaseService
             'status'     => CollectionOrder::STATUS_PROCESSING,
             'desc_cn'    => $source . '[' . $card->account_number . '] 订单创建成功,支付中...',
             'desc_en'    => $source . '[' . $card->account_number . '] The order was created successfully, and the payment was underway...',
-            'created_at' => date('Y-m-d H:i:s'),
             'remark'     => json_encode($data, JSON_UNESCAPED_UNICODE),
         ]);
         return $this->formatCreatOrderResult($collectionOrder, $cashier_template);

@@ -66,8 +66,8 @@ class DisbursementOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $updateNum = $this->service->cancelById($validatedData['data'], $user['id']);
-        return $updateNum > 0 ? $this->success() : $this->error();
+        $updateNum = $this->service->cancelById($validatedData['data'], $user['id'], $user['username'], $request->requestId);
+        return $updateNum ? $this->success() : $this->error();
     }
 
     // distribute
@@ -100,17 +100,16 @@ class DisbursementOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $updateNum = $this->service->distribute($validatedData, $user['id']);
+        $updateNum = $this->service->distribute($validatedData, $user['id'], $user['username'], $request->requestId);
         return $updateNum > 0 ? $this->success() : $this->error();
     }
 
     // 下载银行账单
     #[PostMapping('/disbursement_order/download_bank_bill')]
-    #[Permission(code: 'transaction:disbursement_order:update')]
-    #[NoNeedLogin]
     public function downloadBankBill(Request $request): Response
     {
-        return $this->service->downloadBankBill($request->all());
+        $user = $request->user;
+        return $this->service->downloadBankBill($request->all(), $user['id'], $user['username'], $request->requestId);
     }
 
 

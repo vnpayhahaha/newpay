@@ -2,7 +2,6 @@
 
 namespace app\service;
 
-use app\constants\CollectionOrder;
 use app\constants\DisbursementOrder;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
@@ -25,6 +24,7 @@ use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
+use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
 use http\Exception\RuntimeException;
@@ -121,6 +121,13 @@ class DisbursementOrderService extends BaseService
             if (!filled($disbursementOrder)) {
                 throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
             }
+            Event::dispatch('disbursement-order-status-records', [
+                'order_id' => $disbursementOrder->id,
+                'status'   => DisbursementOrder::STATUS_CREATING,
+                'desc_cn'  => $source . ' 创建订单成功',
+                'desc_en'  => $source . ' Order creation succeeded',
+                'remark'   => json_encode($data, JSON_UNESCAPED_UNICODE),
+            ]);
             // 扣款
             $modelTransactionRecord = $this->transactionRecordRepository->orderTransaction(
                 $disbursementOrder->id,
@@ -202,6 +209,13 @@ class DisbursementOrderService extends BaseService
             Db::rollBack();
             throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
         }
+        Event::dispatch('disbursement-order-status-records', [
+            'order_id' => $disbursementOrderId,
+            'status'   => DisbursementOrder::STATUS_SUCCESS,
+            'desc_cn'  => '订单支付成功',
+            'desc_en'  => 'Order has been paid',
+            'remark'   => $transactionVoucher->content,
+        ]);
         // 回调通知队列
         $disbursementOrder = $this->repository->findById($disbursementOrderId);
         $this->notify($disbursementOrder, [
@@ -229,29 +243,15 @@ class DisbursementOrderService extends BaseService
     }
 
     // 管理员取消订单
-    public function cancelById(mixed $id, int $operatorId): int
+    public function cancelById(mixed $id, int $operatorId, string $username, string $requestId): bool
     {
-        return Db::transaction(function () use ($id, $operatorId) {
-            $cancelOkNum = false;
-            if (is_array($id)) {
-                $cancelOkNum = $this->repository->getModel()
-                    ->whereIn('id', $id)
-//                    ->where('status', '<=', DisbursementOrder::STATUS_WAIT_PAY)
-                    ->whereIn('status', [
-                        DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
-                        DisbursementOrder::STATUS_SUSPEND,
-                    ])
-                    ->update([
-                        'status'       => DisbursementOrder::STATUS_CANCEL,
-                        'cancelled_by' => $operatorId,
-                        'cancelled_at' => date('Y-m-d H:i:s'),
-                    ]);
-                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
-                    'ids'           => $id,
-                    'refund_reason' => 'Order canceled by platform administrator'
-                ]);
+        if (is_array($id)) {
+            foreach ($id as $item) {
+                return $this->cancelById($item, $operatorId, $username, $requestId);
             }
+        }
+        return Db::transaction(function () use ($id, $operatorId, $username, $requestId) {
+            $cancelOkNum = false;
             // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
             if (is_numeric($id) || is_string($id)) {
                 $cancelOkNum = $this->repository->getModel()
@@ -266,42 +266,37 @@ class DisbursementOrderService extends BaseService
                         'cancelled_by' => $operatorId,
                         'cancelled_at' => date('Y-m-d H:i:s'),
                     ]);
+                if (!$cancelOkNum) {
+                    return false;
+                }
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $id,
+                    'status'   => DisbursementOrder::STATUS_CANCEL,
+                    'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 取消订单',
+                    'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] cancel order',
+                    'remark'   => json_encode([
+                        'request_id' => $requestId,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
                 Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
                     'ids'           => [$id],
                     'refund_reason' => 'Order canceled by platform administrator'
                 ]);
-            }
-            if (!$cancelOkNum) {
-                return 0;
             }
             return $cancelOkNum;
         });
     }
 
     // 客户取消订单
-    public function cancelByCustomerId(mixed $id, int $customerId): int
+    public function cancelByCustomerId(mixed $id, string $tenantId, int $customerId, string $username, string $requestId): bool
     {
-        return Db::transaction(function () use ($id, $customerId) {
-            $cancelOkNum = false;
-            if (is_array($id)) {
-                $cancelOkNum = $this->repository->getModel()
-                    ->whereIn('id', $id)
-                    ->whereIn('status', [
-                        DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
-                        DisbursementOrder::STATUS_SUSPEND,
-                    ])
-                    ->update([
-                        'status'                => DisbursementOrder::STATUS_CANCEL,
-                        'customer_cancelled_by' => $customerId,
-                        'cancelled_at'          => date('Y-m-d H:i:s'),
-                    ]);
-                Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
-                    'ids'           => $id,
-                    'refund_reason' => 'Order canceled by the customer'
-                ]);
+        if (is_array($id)) {
+            foreach ($id as $item) {
+                return $this->cancelByCustomerId($item, $tenantId, $customerId, $username, $requestId);
             }
-
+        }
+        return Db::transaction(function () use ($id, $tenantId, $customerId, $username, $requestId) {
+            $cancelOkNum = false;
             // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
             if (is_numeric($id) || is_string($id)) {
                 $cancelOkNum = $this->repository->getModel()
@@ -316,24 +311,32 @@ class DisbursementOrderService extends BaseService
                         'customer_cancelled_by' => $customerId,
                         'cancelled_at'          => date('Y-m-d H:i:s'),
                     ]);
+                if (!$cancelOkNum) {
+                    return false;
+                }
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $id,
+                    'status'   => DisbursementOrder::STATUS_CANCEL,
+                    'desc_cn'  => "商户用户{$username}[" . $customerId . '] 取消订单',
+                    'desc_en'  => "Merchant user {$username}[" . $customerId . '] cancel order',
+                    'remark'   => json_encode([
+                        'request_id' => $requestId,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
                 Redis::send(DisbursementOrder::DISBURSEMENT_ORDER_REFUND_QUEUE_NAME, [
                     'ids'           => [$id],
                     'refund_reason' => 'Order canceled by the customer'
                 ]);
-            }
-
-            if (!$cancelOkNum) {
-                return 0;
             }
             return $cancelOkNum;
         });
     }
 
     // 分配
-    public function distribute(array $params, int $operatorId): int
+    public function distribute(array $params, int $operatorId, string $username, string $requestId): int
     {
-        return Db::transaction(function () use ($params, $operatorId) {
-            return $this->repository->getModel()
+        return Db::transaction(function () use ($params, $operatorId, $username, $requestId) {
+            $updateId = $this->repository->getQuery()
                 ->whereIn('id', $params['ids'])
                 ->where('status', '=', DisbursementOrder::STATUS_CREATED)
                 ->update([
@@ -346,10 +349,24 @@ class DisbursementOrderService extends BaseService
                         $params['channel_account_id'] : 0,
                     'updated_at'              => date('Y-m-d H:i:s'),
                 ]);
+            if ($updateId) {
+                $channel_type_id = $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_BANK ? $params['bank_account_id'] : $params['channel_account_id'];
+                $channel_type_msg = DisbursementOrder::getHumanizeValueDouble(DisbursementOrder::$channel_type_list, $params['channel_type']);
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $params['ids'],
+                    'status'   => DisbursementOrder::STATUS_CREATED,
+                    'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 分配订单（类型:' . $channel_type_msg['zh'] . ' ID:' . $channel_type_id . '）',
+                    'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] allocate orders (Type:' . $channel_type_msg['en'] . ' ID:' . $channel_type_id . '）',
+                    'remark'   => json_encode([
+                        'request_id'     => $requestId,
+                        'request_params' => $params,
+                    ], JSON_UNESCAPED_UNICODE),
+                ]);
+            }
         });
     }
 
-    public function downloadBankBill(array $params): Response
+    public function downloadBankBill(array $params, int $operatorId, string $username, string $requestId): Response
     {
         $down_bill_template_id = $params['down_bill_template_id'] ?? 'icici';
         $ids = $params['ids'] ?? [];
@@ -431,13 +448,25 @@ class DisbursementOrderService extends BaseService
         $downloadFile = $this->downloadFileRepository->create($downloadData);
 
         // 更新订单状态
-        $this->repository->getModel()->whereIn('id', $ids)
+        $isUpdate = $this->repository->getModel()->whereIn('id', $ids)
             ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
             ->update([
                 'status'                        => DisbursementOrder::STATUS_WAIT_FILL,
                 'down_bill_template_id'         => $down_bill_template_id,
                 'bank_disbursement_download_id' => $downloadFile->id,
             ]);
+        if ($isUpdate) {
+            Event::dispatch('disbursement-order-status-records', [
+                'order_id' => $ids,
+                'status'   => DisbursementOrder::STATUS_WAIT_FILL,
+                'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 导出订单（模版ID:' . $down_bill_template_id . ' 文件哈希:' . $hash . '）',
+                'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] export orders (Template ID:' . $down_bill_template_id . ' File Hash:' . $hash . '）',
+                'remark'   => json_encode([
+                    'request_id'     => $requestId,
+                    'request_params' => $params,
+                ], JSON_UNESCAPED_UNICODE),
+            ]);
+        }
 
         return $result;
 
@@ -552,7 +581,7 @@ class DisbursementOrderService extends BaseService
     }
 
     // 冲正 Adjusted to payment failure
-    public function adjustToFailure(int $orderId): bool
+    public function adjustToFailure(int $orderId, string $source = '', string $param_remark = ''): bool
     {
         $disbursementOrder = $this->repository->findById($orderId);
         if (!$disbursementOrder) {
@@ -572,6 +601,13 @@ class DisbursementOrderService extends BaseService
         if (!$updateOk) {
             return false;
         }
+        Event::dispatch('disbursement-order-status-records', [
+            'order_id' => $orderId,
+            'status'   => DisbursementOrder::AdjustToFailure,
+            'desc_cn'  => $source . ' 调整为付款失败',
+            'desc_en'  => $source . ' adjusted to payment failure',
+            'remark'   => $param_remark,
+        ]);
         return $this->refund($orderId, 'Payment failure');
     }
 
@@ -808,7 +844,7 @@ class DisbursementOrderService extends BaseService
                 DB::raw('COUNT(*) as order_count')
             ])
             ->whereNotNull('pay_time')
-            ->where('status', CollectionOrder::STATUS_SUCCESS)
+            ->where('status', DisbursementOrder::STATUS_SUCCESS)
             ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
             ->where('pay_time_hour', '<=', date('Ymd', strtotime($endDate)) . '23')  // 今日23点结束
             ->groupBy('pay_time_hour')
@@ -830,7 +866,7 @@ class DisbursementOrderService extends BaseService
             ])
             ->where('tenant_id', $tenantId)
             ->whereNotNull('pay_time')
-            ->where('status', CollectionOrder::STATUS_SUCCESS)
+            ->where('status', DisbursementOrder::STATUS_SUCCESS)
             ->where('pay_time_hour', '>=', date('Ymd', strtotime($startDate)) . '00')  // 今日0点开始
             ->where('pay_time_hour', '<=', date('Ymd', strtotime($endDate)) . '23')  // 今日23点结束
             ->groupBy('pay_time_hour')

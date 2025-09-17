@@ -938,7 +938,7 @@ class TelegramCommandService
             ];
         }
         try {
-            $order = $this->disbursementOrderService->createOrder($createParams, 'TgGroupID,' . $this->telegramBot->ChatID() . ',TgUserID,' . $this->telegramBot->UserID() . ',TgUserName,' . $this->telegramBot->UserName());
+            $order = $this->disbursementOrderService->createOrder($createParams, 'Tg群ID,' . $this->telegramBot->ChatID() . ',Tg用户ID,' . $this->telegramBot->UserID() . ',Tg用户名,' . $this->telegramBot->UserName());
         } catch (\Exception $e) {
             Log::error('TelegramCommandService.cnCreatePayOrder error:' . $e->getMessage(), [
                 'file'     => $e->getFile(),

@@ -28,9 +28,9 @@ class DisbursementOrderController extends BasicController
     #[Inject]
     protected DisbursementOrderService $service;
     #[Inject]
-    protected TenantService            $tenantService;
+    protected TenantService $tenantService;
     #[Inject]
-    protected Google2FA                $google2FA;
+    protected Google2FA $google2FA;
 
     #[GetMapping('/disbursement_order/list')]
     #[Permission(code: 'transaction:disbursement_order:list')]
@@ -122,15 +122,15 @@ class DisbursementOrderController extends BasicController
             throw new OpenApiException(ResultCode::UNPROCESSABLE_ENTITY, $validator->errors()->first());
         }
         $validatedData = $validator->validate();
+        $user = $request->user;
         // 验证 google2f_code
         if (isset($validatedData['google2f_code']) && filled($validatedData['google2f_code'])) {
-            $user = $request->user;
             $is_pass = $this->google2FA->verifyKey($user->google_secret, $validatedData['google2f_code']);
             if (!$is_pass) {
                 return $this->error(ResultCode::USER_GOOGLE_2FA_VERIFY_FAILED);
             }
         }
-        $successData = $this->service->createOrder($validatedData, 'client end');
+        $successData = $this->service->createOrder($validatedData, 'merchant end:' . $user->username . "[{$user->id}]");
         return $this->success($successData);
     }
 
@@ -146,7 +146,7 @@ class DisbursementOrderController extends BasicController
         }
         $validatedData = $validator->validate();
         $user = $request->user;
-        $updateNum = $this->service->cancelByCustomerId($validatedData['data'], $user['id']);
-        return $updateNum > 0 ? $this->success() : $this->error();
+        $updateNum = $this->service->cancelByCustomerId($validatedData['data'], $user['tenant_id'], $user['id'], $user['username'], $request->requestId);
+        return $updateNum ? $this->success() : $this->error();
     }
 }
