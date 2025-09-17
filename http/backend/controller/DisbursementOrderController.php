@@ -101,7 +101,7 @@ class DisbursementOrderController extends BasicController
         $validatedData = $validator->validate();
         $user = $request->user;
         $updateNum = $this->service->distribute($validatedData, $user['id'], $user['username'], $request->requestId);
-        return $updateNum > 0 ? $this->success() : $this->error();
+        return $updateNum ? $this->success() : $this->error();
     }
 
     // 下载银行账单

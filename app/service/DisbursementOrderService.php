@@ -209,11 +209,13 @@ class DisbursementOrderService extends BaseService
             Db::rollBack();
             throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
         }
+        $collection_source = TransactionVoucher::getHumanizeValueDouble(TransactionVoucher::$collection_source_list, $transactionVoucher->collection_source);
+        $voucher_type = TransactionVoucher::getHumanizeValueDouble(TransactionVoucher::$transaction_voucher_type_list, $transactionVoucher->transaction_voucher_type);
         Event::dispatch('disbursement-order-status-records', [
             'order_id' => $disbursementOrderId,
             'status'   => DisbursementOrder::STATUS_SUCCESS,
-            'desc_cn'  => '订单支付成功',
-            'desc_en'  => 'Order has been paid',
+            'desc_cn'  => '订单支付成功, 核销凭证(类型：' . $voucher_type['zh'] . " 来源:{$collection_source['zh']}[ID:{$transactionVoucherId}]" . ')',
+            'desc_en'  => 'Order has been paid, write off voucher(Type: ' . $voucher_type['en'] ." Source:{$collection_source['en']}". '[ID:' . $transactionVoucherId . '])',
             'remark'   => $transactionVoucher->content,
         ]);
         // 回调通知队列
@@ -333,7 +335,7 @@ class DisbursementOrderService extends BaseService
     }
 
     // 分配
-    public function distribute(array $params, int $operatorId, string $username, string $requestId): int
+    public function distribute(array $params, int $operatorId, string $username, string $requestId): bool
     {
         return Db::transaction(function () use ($params, $operatorId, $username, $requestId) {
             $updateId = $this->repository->getQuery()
@@ -363,6 +365,7 @@ class DisbursementOrderService extends BaseService
                     ], JSON_UNESCAPED_UNICODE),
                 ]);
             }
+            return $updateId;
         });
     }
 

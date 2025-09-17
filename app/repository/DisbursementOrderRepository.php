@@ -193,7 +193,7 @@ final class DisbursementOrderRepository extends IRepository
             'file_path'              => 'pic/',//图片保存路径
             'title_height'           => 30,//报表名称高度
             'title_font_size'        => 16,//报表名称字体大小
-            'font_ulr'               => 'storage/fonts/Deng.ttf',//字体文件路径
+            'font_ulr'               => 'resource/fonts/Deng.ttf',//字体文件路径
             'text_size'              => 12,//正文字体大小
             'row_hight'              => 40,//每行数据行高
             'filed_id_width'         => 60,//序号列的宽度

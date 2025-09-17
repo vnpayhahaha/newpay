@@ -9,4 +9,5 @@
 /var
 public/upload/*
 public/download/*
+public/transaction/*
 CLAUDE.md
