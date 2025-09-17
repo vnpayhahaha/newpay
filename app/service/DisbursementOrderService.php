@@ -215,7 +215,7 @@ class DisbursementOrderService extends BaseService
             'order_id' => $disbursementOrderId,
             'status'   => DisbursementOrder::STATUS_SUCCESS,
             'desc_cn'  => '订单支付成功, 核销凭证(类型：' . $voucher_type['zh'] . " 来源:{$collection_source['zh']}[ID:{$transactionVoucherId}]" . ')',
-            'desc_en'  => 'Order has been paid, write off voucher(Type: ' . $voucher_type['en'] ." Source:{$collection_source['en']}". '[ID:' . $transactionVoucherId . '])',
+            'desc_en'  => 'Order has been paid, write off voucher(Type: ' . $voucher_type['en'] . " Source:{$collection_source['en']}" . '[ID:' . $transactionVoucherId . '])',
             'remark'   => $transactionVoucher->content,
         ]);
         // 回调通知队列
@@ -239,7 +239,7 @@ class DisbursementOrderService extends BaseService
             ]
         ], 5);
         // 构建交易凭证图片并存储
-        $disbursementOrder->payment_voucher_image = $this->repository->buildOrderPaymentImage($disbursementOrder);
+        $disbursementOrder->payment_voucher_image = env('APP_DOMAIN') . $this->repository->buildOrderPaymentImage($disbursementOrder);
         $disbursementOrder->save();
         return $isOk;
     }
@@ -538,7 +538,7 @@ class DisbursementOrderService extends BaseService
             'created_at'        => $disbursementOrderNotify->created_at,
         ], 5);
         // 构建交易凭证图片并存储
-        $disbursementOrder->payment_voucher_image = $this->repository->buildOrderPaymentImage($disbursementOrder);
+        $disbursementOrder->payment_voucher_image = env('APP_DOMAIN') . $this->repository->buildOrderPaymentImage($disbursementOrder);
         $disbursementOrder->save();
         return true;
     }

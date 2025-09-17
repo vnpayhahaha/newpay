@@ -265,7 +265,7 @@ final class DisbursementOrderRepository extends IRepository
         imagepng($img, $save_path);//输出图片，输出png使用imagepng方法，输出gif使用imagegif方法
         imagedestroy($img);
         // base_path等于 $filePath 去掉前面 public_path()
-        return str_replace(public_path(), '', $file_name);
+        return str_replace(public_path(), '', $save_path);
     }
 
     public function queryCountOrderNum(string $queryWhereSql, string $startTime, string $endTime = null): int

@@ -752,6 +752,8 @@ class TelegramCommandService
             $order->amount,
             'Paid time：',
             $order->pay_time ?: 'N/A',
+            'Transaction vouchers:',
+            $order->payment_voucher_image ?: 'N/A',
         ];
     }
 
@@ -785,6 +787,8 @@ class TelegramCommandService
             $order->amount,
             '付款时间：',
             $order->pay_time ?: 'N/A',
+            '交易凭证：',
+            $order->payment_voucher_image ?: 'N/A',
         ];
     }
 
