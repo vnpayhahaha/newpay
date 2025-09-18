@@ -14,7 +14,7 @@ return [
             'manual'       => 'manual',
             'internal'     => 'internal',
             'open_api'     => 'open_api',
-            'external'     => 'external',
+            'upstream'     => 'external',
             'bank_receipt' => 'bank_receipt',
         ],
         'transaction_voucher_type' => [

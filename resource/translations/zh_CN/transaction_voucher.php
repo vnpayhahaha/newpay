@@ -14,7 +14,7 @@ return [
             'manual'       => '人工创建',
             'internal'     => '平台内部接口',
             'open_api'     => '平台开放下游接口',
-            'external'     => '上游回调接口',
+            'upstream'     => '上游回调接口',
             'bank_receipt' => '银行回单',
         ],
         'transaction_voucher_type' => [
