@@ -85,6 +85,10 @@ final class DisbursementOrderRepository extends IRepository
             $query->where('utr', $params['utr']);
         }
 
+        if (isset($params['platform_transaction_no']) && filled($params['platform_transaction_no'])) {
+            $query->where('platform_transaction_no', $params['platform_transaction_no']);
+        }
+
         if (isset($params['tenant_id']) && filled($params['tenant_id'])) {
             $query->where('tenant_id', $params['tenant_id']);
         }
