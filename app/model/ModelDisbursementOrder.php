@@ -59,6 +59,7 @@ use Carbon\Carbon;
  * @property Carbon $refund_at 退款时间
  * @property string $refund_reason 退款原因
  * @property string $payment_voucher_image 支付凭证图片
+ * @property string $platform_transaction_no 平台交易流水号
  */
 final class ModelDisbursementOrder extends BasicModel
 {
@@ -129,6 +130,7 @@ final class ModelDisbursementOrder extends BasicModel
         'refund_at',
         'refund_reason',
         'payment_voucher_image',
+        'platform_transaction_no',
     ];
 
     protected $casts = [

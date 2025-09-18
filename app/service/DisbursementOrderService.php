@@ -148,8 +148,11 @@ class DisbursementOrderService extends BaseService
             throw $e;
         }
         // 执行成功，添加队列
-        // 交易队列
+        // 交易队列，防止回滚
         Event::dispatch('app.transaction.created', $modelTransactionRecord);
+        $this->repository->updateById($disbursementOrder->id, [
+            'platform_transaction_no' => $modelTransactionRecord->transaction_no,
+        ]);
         return [
             'platform_order_no' => $disbursementOrder->platform_order_no,
             'tenant_order_no'   => $disbursementOrder->tenant_order_no,
@@ -517,7 +520,7 @@ class DisbursementOrderService extends BaseService
             Db::rollBack();
             throw $e;
         }
-        // 交易队列
+        // 交易队列，防止回滚
         Event::dispatch('app.transaction.created', $modelTransactionRecord);
         // 回调通知队列
         $disbursementOrderNotify = $this->repository->findById($orderId);
@@ -539,6 +542,7 @@ class DisbursementOrderService extends BaseService
         ], 5);
         // 构建交易凭证图片并存储
         $disbursementOrder->payment_voucher_image = env('APP_DOMAIN') . $this->repository->buildOrderPaymentImage($disbursementOrder);
+        $disbursementOrder->platform_transaction_no = $modelTransactionRecord->transaction_no;
         $disbursementOrder->save();
         return true;
     }

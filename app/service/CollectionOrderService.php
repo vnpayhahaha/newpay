@@ -219,11 +219,11 @@ class CollectionOrderService extends BaseService
             throw new BusinessException(ResultCode::ORDER_CREATE_FAILED);
         }
         Event::dispatch('collection-order-status-records', [
-            'order_id'   => $collectionOrder->id,
-            'status'     => CollectionOrder::STATUS_PROCESSING,
-            'desc_cn'    => $source . '[' . $card->account_number . '] 订单创建成功,支付中...',
-            'desc_en'    => $source . '[' . $card->account_number . '] The order was created successfully, and the payment was underway...',
-            'remark'     => json_encode($data, JSON_UNESCAPED_UNICODE),
+            'order_id' => $collectionOrder->id,
+            'status'   => CollectionOrder::STATUS_PROCESSING,
+            'desc_cn'  => $source . '[' . $card->account_number . '] 订单创建成功,支付中...',
+            'desc_en'  => $source . '[' . $card->account_number . '] The order was created successfully, and the payment was underway...',
+            'remark'   => json_encode($data, JSON_UNESCAPED_UNICODE),
         ]);
         return $this->formatCreatOrderResult($collectionOrder, $cashier_template);
 
@@ -560,15 +560,16 @@ class CollectionOrderService extends BaseService
                         ->orWhere('status', CollectionOrder::STATUS_INVALID);
                 })
                 ->update([
-                    'status'                 => CollectionOrder::STATUS_SUCCESS,
-                    'transaction_voucher_id' => $transactionVoucherId,
-                    'settlement_type'        => $settlement_type,
-                    'rate_fee_amount'        => $rate_fee_amount,
-                    'total_fee'              => $fee_amount,
-                    'paid_amount'            => $transactionVoucher->collection_amount,
-                    'settlement_amount'      => bcsub((string)$settlement_amount, (string)$fee_amount, 4),
-                    'pay_time'               => date('Y-m-d H:i:s'),
-                    'utr'                    => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ?
+                    'status'                  => CollectionOrder::STATUS_SUCCESS,
+                    'transaction_voucher_id'  => $transactionVoucherId,
+                    'settlement_type'         => $settlement_type,
+                    'rate_fee_amount'         => $rate_fee_amount,
+                    'total_fee'               => $fee_amount,
+                    'platform_transaction_no' => $modelTransactionRecord->transaction_no,
+                    'paid_amount'             => $transactionVoucher->collection_amount,
+                    'settlement_amount'       => bcsub((string)$settlement_amount, (string)$fee_amount, 4),
+                    'pay_time'                => date('Y-m-d H:i:s'),
+                    'utr'                     => $transactionVoucher->transaction_voucher_type === TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR ?
                         $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
@@ -580,7 +581,7 @@ class CollectionOrderService extends BaseService
             throw new BusinessException(ResultCode::ORDER_VERIFY_FAILED, $exception->getMessage());
         }
         // 执行成功，添加队列
-        // 交易队列
+        // 交易队列, 防止回滚
         Event::dispatch('app.transaction.created', $modelTransactionRecord);
         Event::dispatch('collection-order-status-records', [
             'order_id' => $collectionOrderId,
@@ -608,6 +609,8 @@ class CollectionOrderService extends BaseService
                 'created_at'        => $collectionOrder->created_at,
             ]
         ], 5);
+        $collectionOrder->platform_transaction_no = $modelTransactionRecord->transaction_no;
+        $collectionOrder->save();
         return $isOk;
     }
 
