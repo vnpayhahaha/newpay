@@ -138,6 +138,7 @@ final class CollectionOrderRepository extends IRepository
             ->with('cancel_customer:id,username,avatar')
             ->with('created_customer:id,username,avatar')
             ->with('status_records')
+            ->with('settlement_status:id,transaction_no,transaction_status,transaction_type,settlement_delay_mode,settlement_delay_days,expected_settlement_time,failed_msg,remark')
             ->paginate(
                 perPage: $pageSize,
                 pageName: self::PER_PAGE_PARAM_NAME,

@@ -234,4 +234,10 @@ final class ModelCollectionOrder extends BasicModel
     {
         return $this->hasMany(ModelCollectionOrderStatusRecords::class, 'order_id', 'id')->orderBy('id', 'desc');
     }
+
+    // 平台交易状态 belongsTo
+    public function settlement_status(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTransactionRecord::class, 'platform_transaction_no', 'transaction_no');
+    }
 }

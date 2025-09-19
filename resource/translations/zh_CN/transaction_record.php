@@ -14,11 +14,11 @@ return [
             'error_adjust'            => '调整差错',
         ],
         'status'                => [
-            'waiting_settlement' => '等待结算',
-            'processing'         => '处理中',
-            'cancel'             => '撤销',
-            'success'            => '成功',
-            'fail'               => '失败',
+            'waiting_settlement' => '待结算',
+            'processing'         => '结算中',
+            'cancel'             => '撤销结算',
+            'success'            => '已结算',
+            'fail'               => '结算失败',
         ],
         'settlement_delay_mode' => [
             'd0'    => 'D0(立即)',
