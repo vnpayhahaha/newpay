@@ -124,8 +124,8 @@ class DisbursementOrderService extends BaseService
             Event::dispatch('disbursement-order-status-records', [
                 'order_id' => $disbursementOrder->id,
                 'status'   => DisbursementOrder::STATUS_CREATING,
-                'desc_cn'  => $source . ' 创建订单成功',
-                'desc_en'  => $source . ' Order creation succeeded',
+                'desc_cn'  => $source . ' 订单创建中',
+                'desc_en'  => $source . ' Order is being created',
                 'remark'   => json_encode($data, JSON_UNESCAPED_UNICODE),
             ]);
             // 扣款
@@ -359,7 +359,7 @@ class DisbursementOrderService extends BaseService
                 $channel_type_msg = DisbursementOrder::getHumanizeValueDouble(DisbursementOrder::$channel_type_list, $params['channel_type']);
                 Event::dispatch('disbursement-order-status-records', [
                     'order_id' => $params['ids'],
-                    'status'   => DisbursementOrder::STATUS_CREATED,
+                    'status'   => DisbursementOrder::STATUS_WAIT_PAY,
                     'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 分配订单（类型:' . $channel_type_msg['zh'] . ' ID:' . $channel_type_id . '）',
                     'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] allocate orders (Type:' . $channel_type_msg['en'] . ' ID:' . $channel_type_id . '）',
                     'remark'   => json_encode([

@@ -11,6 +11,7 @@ use app\repository\TransactionQueueStatusRepository;
 use app\repository\TransactionRecordRepository;
 use support\Container;
 use support\Log;
+use Webman\Event\Event;
 
 class TransactionRecordEvent
 {
@@ -42,10 +43,20 @@ class TransactionRecordEvent
             // 订单失败
             /** @var DisbursementOrderRepository $disbursementOrderRepository */
             $disbursementOrderRepository = Container::make(DisbursementOrderRepository::class);
-            $disbursementOrderRepository->getModel()->where('id', $model->order_id)->update([
+            $isUpdated = $disbursementOrderRepository->getModel()->where('id', $model->order_id)->update([
                 'status'        => DisbursementOrder::STATUS_FAIL,
                 'error_message' => $model->failed_msg,
             ]);
+            if ($isUpdated) {
+                // 更新订单状态
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $model->order_id,
+                    'status'   => DisbursementOrder::STATUS_FAIL,
+                    'desc_cn'  => '扣款失败，创建订单失败：' . $model->failed_msg,
+                    'desc_en'  => 'Failed to create order: ' . $model->failed_msg,
+                    'remark'   => json_encode($model->toArray(), JSON_UNESCAPED_UNICODE),
+                ]);
+            }
         }
 
     }
@@ -61,9 +72,19 @@ class TransactionRecordEvent
             // 代付订单扣款成功，订单状态改为[已创建]
             /** @var DisbursementOrderRepository $disbursementOrderRepository */
             $disbursementOrderRepository = Container::make(DisbursementOrderRepository::class);
-            $disbursementOrderRepository->getModel()->where('id', $model->order_id)->update([
+            $isUpdated = $disbursementOrderRepository->getModel()->where('id', $model->order_id)->update([
                 'status' => DisbursementOrder::STATUS_CREATED,
             ]);
+            if ($isUpdated) {
+                // 创建代付订单成功
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $model->order_id,
+                    'status'   => DisbursementOrder::STATUS_CREATED,
+                    'desc_cn'  => '扣款成功，创建订单成功',
+                    'desc_en'  => 'Deduction successful, order creation successful',
+                    'remark'   => json_encode($model->toArray(), JSON_UNESCAPED_UNICODE),
+                ]);
+            }
         }
     }
 }
