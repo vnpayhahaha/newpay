@@ -360,8 +360,8 @@ class DisbursementOrderService extends BaseService
                 Event::dispatch('disbursement-order-status-records', [
                     'order_id' => $params['ids'],
                     'status'   => DisbursementOrder::STATUS_WAIT_PAY,
-                    'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 分配订单（类型:' . $channel_type_msg['zh'] . ' ID:' . $channel_type_id . '）',
-                    'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] allocate orders (Type:' . $channel_type_msg['en'] . ' ID:' . $channel_type_id . '）',
+                    'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 分配订单（类型:' . $channel_type_msg['zh'] . ' 渠道ID:' . $channel_type_id . '）',
+                    'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] allocate orders (Type:' . $channel_type_msg['en'] . ' Channel ID:' . $channel_type_id . '）',
                     'remark'   => json_encode([
                         'request_id'     => $requestId,
                         'request_params' => $params,
