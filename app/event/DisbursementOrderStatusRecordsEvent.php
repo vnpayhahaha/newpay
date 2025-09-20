@@ -24,7 +24,7 @@ class DisbursementOrderStatusRecordsEvent
                     'status'   => $data['status'],
                     'desc_cn'  => $data['desc_cn'],
                     'desc_en'  => $data['desc_en'],
-                    'remark'   => $data['remark'],
+                    'remark'   => $data['remark'] ?? '',
                 ]);
             }
         } else {
@@ -33,7 +33,7 @@ class DisbursementOrderStatusRecordsEvent
                 'status'   => $data['status'],
                 'desc_cn'  => $data['desc_cn'],
                 'desc_en'  => $data['desc_en'],
-                'remark'   => $data['remark'],
+                'remark'   => $data['remark'] ?? '',
             ]);
         }
     }

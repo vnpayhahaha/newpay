@@ -50,7 +50,7 @@ use Webman\Event\Event;
  * @property boolean $float_enabled 启用金额浮动(1是 0否)
  * @property array $float_range 金额浮动区间(格式：-5,5)
  * @property array $notify_range 下游通知金额区间(格式：100,1000)
- * @property int $auto_assign_enabled 启用自动分配(1是 0否)
+ * @property boolean $auto_assign_enabled 启用自动分配(1是 0否)
  * @property int $receipt_expire_minutes 收款订单失效时间(分钟)
  * @property int $payment_expire_minutes 付款订单失效时间(分钟)
  * @property int $reconcile_retain_minutes 金额对账保留(分钟)

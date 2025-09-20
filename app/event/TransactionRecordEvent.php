@@ -84,6 +84,11 @@ class TransactionRecordEvent
                     'desc_en'  => 'Deduction successful, order creation successful',
                     'remark'   => json_encode($model->toArray(), JSON_UNESCAPED_UNICODE),
                 ]);
+                // 判断租户账户是否开启自动分配
+                Event::dispatch('app.tenant.auto_assign', [
+                    'tenant_id' => $model->tenant_id,
+                    'order_id'  => $model->order_id,
+                ]);
             }
         }
     }

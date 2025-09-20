@@ -19,7 +19,7 @@ use app\process\Http;
 global $argv;
 
 return [
-    'webman'  => [
+    'webman'                       => [
         'handler'     => Http::class,
         'listen'      => 'http://0.0.0.0:9501',
         'count'       => cpu_count() * 4,
@@ -36,7 +36,7 @@ return [
         ]
     ],
     // File update detection and automatic reload
-    'monitor' => [
+    'monitor'                      => [
         'handler'     => app\process\Monitor::class,
         'reloadable'  => false,
         'constructor' => [
@@ -59,14 +59,17 @@ return [
             ]
         ]
     ],
-    'cache-cleaner' => [
+    'cache-cleaner'                => [
         'handler' => app\process\CacheCleanerProcess::class,
-        'count' => 1, // 只需要一个进程
+        'count'   => 1, // 只需要一个进程
     ],
-    'TransactionCrontab'  => [
-        'handler'  => app\process\task\TransactionCrontab::class
+    'TransactionCrontab'           => [
+        'handler' => app\process\task\TransactionCrontab::class
     ],
-    'CollectionOrderCancelCrontab'  => [
-        'handler'  => app\process\task\CollectionOrderCancelCrontab::class
+    'CollectionOrderCancelCrontab' => [
+        'handler' => app\process\task\CollectionOrderCancelCrontab::class
+    ],
+    'DisbursementOrderCrontab'     => [
+        'handler' => app\process\task\DisbursementOrderCrontab::class
     ],
 ];

@@ -10,11 +10,14 @@ return [
     'collection-order-status-records'          => [
         [\app\event\CollectionOrderStatusRecordsEvent::class, 'process'],
     ],
-    'disbursement-order-status-records'          => [
+    'disbursement-order-status-records'        => [
         [\app\event\DisbursementOrderStatusRecordsEvent::class, 'process'],
     ],
     'app.tenant.created'                       => [
         [\app\event\TenantEvent::class, 'Created'],
+    ],
+    'app.tenant.auto_assign'                   => [
+        [\app\event\TenantEvent::class, 'AutoAssign'],
     ],
     'app.transaction.created'                  => [
         [\app\event\TransactionRecordEvent::class, 'Created'],

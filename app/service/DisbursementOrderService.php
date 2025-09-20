@@ -14,6 +14,7 @@ use app\lib\enum\ResultCode;
 use app\lib\LdlExcel\PhpOffice;
 use app\model\ModelBankDisbursementDownload;
 use app\model\ModelDisbursementOrder;
+use app\model\ModelTenant;
 use app\model\ModelTenantApp;
 use app\repository\AttachmentRepository;
 use app\repository\BankAccountRepository;
@@ -68,6 +69,7 @@ class DisbursementOrderService extends BaseService
     public function createOrder(array $data, string $source = ''): array
     {
         // 查询租户获取配置
+        /** @var ModelTenant $findTenant */
         $findTenant = $this->tenantRepository->getQuery()->where('tenant_id', $data['tenant_id'])->first();
         $request = Context::get(Request::class);
         $user = $request->user ?? null;
@@ -349,7 +351,7 @@ class DisbursementOrderService extends BaseService
                 ->whereIn('id', $params['ids'])
                 ->where('status', '=', DisbursementOrder::STATUS_CREATED)
                 ->update([
-                    'status'                  => DisbursementOrder::STATUS_WAIT_PAY,
+                    'status'                  => DisbursementOrder::STATUS_ALLOCATED,
                     'disbursement_channel_id' => $params['disbursement_channel_id'],
                     'channel_type'            => $params['channel_type'],
                     'bank_account_id'         => $params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_BANK ?
@@ -363,7 +365,7 @@ class DisbursementOrderService extends BaseService
                 $channel_type_msg = DisbursementOrder::getHumanizeValueDouble(DisbursementOrder::$channel_type_list, $params['channel_type']);
                 Event::dispatch('disbursement-order-status-records', [
                     'order_id' => $params['ids'],
-                    'status'   => DisbursementOrder::STATUS_WAIT_PAY,
+                    'status'   => DisbursementOrder::STATUS_ALLOCATED,
                     'desc_cn'  => "平台管理员{$username}[" . $operatorId . '] 分配订单（类型:' . $channel_type_msg['zh'] . ' 渠道ID:' . $channel_type_id . '）',
                     'desc_en'  => "Platform administrator {$username}[" . $operatorId . '] allocate orders (Type:' . $channel_type_msg['en'] . ' Channel ID:' . $channel_type_id . '）',
                     'remark'   => json_encode([
@@ -378,6 +380,54 @@ class DisbursementOrderService extends BaseService
                 }
             }
             return $updateId;
+        });
+    }
+
+    // 自动分配
+    public function autoDistribute(int $disbursement_order_id, int $channel_account_id): bool
+    {
+        return Db::transaction(function () use ($disbursement_order_id, $channel_account_id) {
+            $updateId = $this->repository->getQuery()
+                ->where('id', $disbursement_order_id)
+                ->where('status', '=', DisbursementOrder::STATUS_CREATED)
+                ->update([
+                    'status'                  => DisbursementOrder::STATUS_ALLOCATED,
+                    'disbursement_channel_id' => $channel_account_id,
+                    'channel_type'            => DisbursementOrder::CHANNEL_TYPE_UPSTREAM,
+                ]);
+            if ($updateId) {
+                Event::dispatch('disbursement-order-status-records', [
+                    'order_id' => $disbursement_order_id,
+                    'status'   => DisbursementOrder::STATUS_ALLOCATED,
+                    'desc_cn'  => "系统自动分配订单到 上游渠道（渠道ID:" . $channel_account_id . '）',
+                    'desc_en'  => "System automatically allocates orders to upstream channel (Channel ID:" . $channel_account_id . ')',
+                ]);
+                $this->addToUpstreamCreateQueue([$disbursement_order_id]);
+            }
+            return $updateId;
+        });
+    }
+
+    // 定时每分钟检测自动重新分配
+    public function autoReallocateCrontab(): void
+    {
+        // 查询开启自动分配的租户，获取租户id, 查询订单
+        $tenants = $this->tenantRepository->getQuery()
+            ->where('auto_assign_enabled', '=', 1)
+            ->pluck('tenant_id');
+        if (!$tenants) {
+            return;
+        }
+        var_dump('定时每分钟检测自动重新分配==', $tenants);
+        $disbursementOrders = $this->repository->getQuery()
+            ->whereIn('tenant_id', $tenants)
+            ->where('status', DisbursementOrder::STATUS_CREATED)
+            ->get();
+        $disbursementOrders?->each(function ($disbursementOrder) {
+            Event::dispatch('app.tenant.auto_assign', [
+                'tenant_id' => $disbursementOrder->tenant_id,
+                'order_id'  => $disbursementOrder->id,
+            ]);
         });
     }
 
@@ -898,38 +948,38 @@ class DisbursementOrderService extends BaseService
      * @param array $params 分配参数
      * @return void
      */
-    private function addToUpstreamCreateQueue(array $orderIds, array $params): void
+    private function addToUpstreamCreateQueue(array $orderIds, array $params = []): void
     {
         try {
             // 获取订单详情
             $orders = $this->repository->getQuery()
                 ->whereIn('id', $orderIds)
-                ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+                ->where('status', DisbursementOrder::STATUS_ALLOCATED)
                 ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_UPSTREAM)
                 ->get();
 
             foreach ($orders as $order) {
                 // 创建队列记录
                 $queueItem = $this->upstreamCreateQueueRepository->create([
-                    'platform_order_no' => $order->platform_order_no,
+                    'platform_order_no'     => $order->platform_order_no,
                     'disbursement_order_id' => $order->id,
-                    'tenant_id' => $order->tenant_id,
-                    'app_id' => $order->app_id,
-                    'channel_account_id' => $order->channel_account_id,
-                    'amount' => $order->amount,
-                    'payee_bank_name' => $order->payee_bank_name,
-                    'payee_bank_code' => $order->payee_bank_code,
-                    'payee_account_name' => $order->payee_account_name,
-                    'payee_account_no' => $order->payee_account_no,
-                    'payee_phone' => $order->payee_phone,
-                    'payee_upi' => $order->payee_upi,
-                    'payment_type' => $order->payment_type,
-                    'order_data' => json_encode($order->toArray(), JSON_UNESCAPED_UNICODE),
-                    'process_status' => DisbursementOrderUpstreamCreateQueue::PROCESS_STATUS_WAIT,
-                    'retry_count' => 0,
-                    'max_retry_count' => DisbursementOrderUpstreamCreateQueue::DEFAULT_MAX_RETRY_COUNT,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
+                    'tenant_id'             => $order->tenant_id,
+                    'app_id'                => $order->app_id,
+                    'channel_account_id'    => $order->channel_account_id,
+                    'amount'                => $order->amount,
+                    'payee_bank_name'       => $order->payee_bank_name,
+                    'payee_bank_code'       => $order->payee_bank_code,
+                    'payee_account_name'    => $order->payee_account_name,
+                    'payee_account_no'      => $order->payee_account_no,
+                    'payee_phone'           => $order->payee_phone,
+                    'payee_upi'             => $order->payee_upi,
+                    'payment_type'          => $order->payment_type,
+                    'order_data'            => json_encode($order->toArray(), JSON_UNESCAPED_UNICODE),
+                    'process_status'        => DisbursementOrderUpstreamCreateQueue::PROCESS_STATUS_WAIT,
+                    'retry_count'           => 0,
+                    'max_retry_count'       => DisbursementOrderUpstreamCreateQueue::DEFAULT_MAX_RETRY_COUNT,
+                    'created_at'            => date('Y-m-d H:i:s'),
+                    'updated_at'            => date('Y-m-d H:i:s'),
                 ]);
 
                 if ($queueItem) {

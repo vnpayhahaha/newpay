@@ -12,6 +12,7 @@ use app\upstream\Handle\TransactionPaymentOrderFactory;
 use DI\Attribute\Inject;
 use Exception;
 use support\Log;
+use Webman\Event\Event;
 use Webman\RedisQueue\Consumer;
 
 class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
@@ -106,17 +107,45 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                 }
 
                 // 更新代付订单的上游订单号
-                if (isset($result['upstream_order_no'])) {
-                    $this->disbursementOrderService->repository->updateById(
+                if (isset($result['upstream_order_no']) && filled($result['upstream_order_no'])) {
+                    $isUpdate = $this->disbursementOrderService->repository->updateById(
                         $queueItem->disbursement_order_id,
-                        ['upstream_order_no' => $result['upstream_order_no']]
+                        [
+                            'upstream_order_no' => $result['upstream_order_no'],
+                            'status'            => DisbursementOrder::STATUS_WAIT_FILL,
+                        ]
                     );
+                    if ($isUpdate) {
+                        Event::dispatch('disbursement-order-status-records', [
+                            'order_id' => $queueItem->disbursement_order_id,
+                            'status'   => DisbursementOrder::STATUS_WAIT_FILL,
+                            'desc_cn'  => $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单成功：" . $result['upstream_order_no'],
+                            'desc_en'  => $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order successfully:" . $result['upstream_order_no'],
+                            'remark'   => $result['origin'],
+                        ]);
+                    }
                 }
 
                 Log::info("DisbursementOrderUpstreamCreateQueueConsumer: 处理成功, 队列ID: {$queueId}");
             } else {
                 // 处理失败，进入重试逻辑
-                $this->handleError($queueId, $result['error_code'] ?? 'UNKNOWN_ERROR', $result['error_message'] ?? '未知错误');
+                // $this->handleError($queueId, $result['error_code'] ?? 'UNKNOWN_ERROR', $result['error_message'] ?? '未知错误');
+                // 处理失败，更新订单状态 已创建， 等待重新分配
+                $isUpdate = $this->disbursementOrderService->repository->updateById(
+                    $queueItem->disbursement_order_id,
+                    [
+                        'status' => DisbursementOrder::STATUS_CREATED,
+                    ]
+                );
+                if ($isUpdate) {
+                    Event::dispatch('disbursement-order-status-records', [
+                        'order_id' => $queueItem->disbursement_order_id,
+                        'status'   => DisbursementOrder::STATUS_CREATED,
+                        'desc_cn'  => $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单失败：" . $result['error_message'],
+                        'desc_en'  => $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
+                        'remark'   => $result['response'] ?? '',
+                    ]);
+                }
             }
         } catch (Exception $e) {
             Log::error("DisbursementOrderUpstreamCreateQueueConsumer: 处理异常, 队列ID: {$queueId}", [
@@ -237,6 +266,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     'success'       => false,
                     'error_code'    => 'SERVICE_NOT_FOUND',
                     'error_message' => "未找到渠道 {$channelCode} 对应的服务类",
+                    'channel_code'  => $channelCode,
+                    'merchant_id'   => $channelAccount->merchant_id,
                 ];
             }
             try {
@@ -249,6 +280,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     'success'       => false,
                     'error_code'    => 'SERVICE_ERROR',
                     'error_message' => $e->getMessage(),
+                    'channel_code'  => $channelCode,
+                    'merchant_id'   => $channelAccount->merchant_id,
                 ];
             }
             //     #[ArrayShape([
@@ -265,6 +298,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                         'success'           => true,
                         'upstream_order_no' => $createResult['data']['_upstream_order_no'] ?? 'UP' . time() . rand(1000, 9999), // 实际应从上游接口返回
                         'response'          => $createResult['origin'],
+                        'channel_code'      => $channelCode,
+                        'merchant_id'       => $channelAccount->merchant_id,
                     ];
                 } else {
                     return [
@@ -273,6 +308,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                         'response'          => $createResult['origin'],
                         'error_code'        => 'UPSTREAM_CREATE_FAILED',
                         'error_message'     => $createResult['msg'],
+                        'channel_code'      => $channelCode,
+                        'merchant_id'       => $channelAccount->merchant_id,
                     ];
                 }
 
@@ -281,6 +318,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     'success'       => false,
                     'error_code'    => 'UPSTREAM_CREATE_FAILED',
                     'error_message' => '上游订单创建失败',
+                    'channel_code'  => $channelCode,
+                    'merchant_id'   => $channelAccount->merchant_id,
                 ];
             }
 
