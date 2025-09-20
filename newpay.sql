@@ -888,6 +888,47 @@ CREATE TABLE `disbursement_order_verification_queue` (
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='代付订单核销处理队列';
 
 -- ----------------------------
+-- Table structure for disbursement_order_upstream_create_queue
+-- ----------------------------
+DROP TABLE IF EXISTS `disbursement_order_upstream_create_queue`;
+CREATE TABLE `disbursement_order_upstream_create_queue` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `platform_order_no` varchar(32) NOT NULL COMMENT '平台订单号',
+  `disbursement_order_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '代付订单ID',
+  `tenant_id` varchar(20) NOT NULL COMMENT '租户编号',
+  `app_id` bigint(20) NOT NULL COMMENT '应用ID',
+  `channel_account_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '渠道账号ID',
+  `amount` decimal(12,4) unsigned NOT NULL DEFAULT '0.0000' COMMENT '订单金额',
+  `payee_bank_name` varchar(100) NOT NULL DEFAULT '' COMMENT '收款人银行名称',
+  `payee_bank_code` varchar(20) NOT NULL DEFAULT '' COMMENT '收款人银行编码',
+  `payee_account_name` varchar(100) NOT NULL DEFAULT '' COMMENT '收款人账户姓名',
+  `payee_account_no` varchar(100) NOT NULL DEFAULT '' COMMENT '收款人银行卡号',
+  `payee_phone` varchar(20) NOT NULL DEFAULT '' COMMENT '收款人电话号码',
+  `payee_upi` varchar(100) NOT NULL DEFAULT '' COMMENT '收款人UPI账号',
+  `payment_type` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '付款类型:1-银行卡 2-UPI',
+  `order_data` json NOT NULL COMMENT '订单完整数据',
+  `process_status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '处理状态:0-待处理 1-处理中 2-成功 3-失败',
+  `retry_count` tinyint(4) NOT NULL DEFAULT '0' COMMENT '重试次数',
+  `max_retry_count` tinyint(4) NOT NULL DEFAULT '3' COMMENT '最大重试次数',
+  `next_retry_time` datetime DEFAULT NULL COMMENT '下次重试时间',
+  `upstream_order_no` varchar(64) DEFAULT NULL COMMENT '上游订单号',
+  `upstream_response` text COMMENT '上游返回数据',
+  `error_code` varchar(20) DEFAULT NULL COMMENT '错误代码',
+  `error_message` text COMMENT '错误信息',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `processed_at` datetime DEFAULT NULL COMMENT '处理完成时间',
+  `lock_version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_platform_order_no` (`platform_order_no`),
+  KEY `idx_disbursement_order_id` (`disbursement_order_id`),
+  KEY `idx_tenant_app` (`tenant_id`,`app_id`),
+  KEY `idx_status_retry` (`process_status`,`next_retry_time`),
+  KEY `idx_channel_account` (`channel_account_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代付订单上游创建队列';
+
+-- ----------------------------
 -- Table structure for menu
 -- ----------------------------
 DROP TABLE IF EXISTS `menu`;

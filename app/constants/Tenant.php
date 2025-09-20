@@ -50,6 +50,11 @@ class Tenant
         'caipay' => \app\upstream\caipay\CollectionService::class,
     ];
 
+    public static array $upstream_disbursement_options = [
+        'aipay'  => \app\upstream\aipay\DisbursementService::class,
+        'caipay' => \app\upstream\caipay\DisbursementService::class,
+    ];
+
     // payment_assign_options
     public static array $payment_assign_options = [
 

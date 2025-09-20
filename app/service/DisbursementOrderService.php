@@ -3,6 +3,7 @@
 namespace app\service;
 
 use app\constants\DisbursementOrder;
+use app\constants\DisbursementOrderUpstreamCreateQueue;
 use app\constants\Tenant;
 use app\constants\TenantAccount;
 use app\constants\TenantNotificationQueue;
@@ -19,6 +20,7 @@ use app\repository\BankAccountRepository;
 use app\repository\BankDisbursementDownloadRepository;
 use app\repository\ChannelAccountRepository;
 use app\repository\DisbursementOrderRepository;
+use app\repository\DisbursementOrderUpstreamCreateQueueRepository;
 use app\repository\TenantAccountRepository;
 use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
@@ -51,6 +53,8 @@ class DisbursementOrderService extends BaseService
     protected ChannelAccountRepository $channelAccountRepository;
     #[Inject]
     protected TransactionVoucherRepository $transactionVoucherRepository;
+    #[Inject]
+    protected DisbursementOrderUpstreamCreateQueueRepository $upstreamCreateQueueRepository;
     #[Inject]
     protected TransactionRecordRepository $transactionRecordRepository;
     #[Inject]
@@ -367,6 +371,11 @@ class DisbursementOrderService extends BaseService
                         'request_params' => $params,
                     ], JSON_UNESCAPED_UNICODE),
                 ]);
+
+                // 如果是上游渠道类型，添加到上游创建订单队列
+                if ($params['channel_type'] === DisbursementOrder::CHANNEL_TYPE_UPSTREAM) {
+                    $this->addToUpstreamCreateQueue($params['ids'], $params);
+                }
             }
             return $updateId;
         });
@@ -881,5 +890,60 @@ class DisbursementOrderService extends BaseService
             ->get();
 
         return $order_num_range->toArray();
+    }
+
+    /**
+     * 添加订单到上游创建队列
+     * @param array $orderIds 订单ID数组
+     * @param array $params 分配参数
+     * @return void
+     */
+    private function addToUpstreamCreateQueue(array $orderIds, array $params): void
+    {
+        try {
+            // 获取订单详情
+            $orders = $this->repository->getQuery()
+                ->whereIn('id', $orderIds)
+                ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+                ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_UPSTREAM)
+                ->get();
+
+            foreach ($orders as $order) {
+                // 创建队列记录
+                $queueItem = $this->upstreamCreateQueueRepository->create([
+                    'platform_order_no' => $order->platform_order_no,
+                    'disbursement_order_id' => $order->id,
+                    'tenant_id' => $order->tenant_id,
+                    'app_id' => $order->app_id,
+                    'channel_account_id' => $order->channel_account_id,
+                    'amount' => $order->amount,
+                    'payee_bank_name' => $order->payee_bank_name,
+                    'payee_bank_code' => $order->payee_bank_code,
+                    'payee_account_name' => $order->payee_account_name,
+                    'payee_account_no' => $order->payee_account_no,
+                    'payee_phone' => $order->payee_phone,
+                    'payee_upi' => $order->payee_upi,
+                    'payment_type' => $order->payment_type,
+                    'order_data' => json_encode($order->toArray(), JSON_UNESCAPED_UNICODE),
+                    'process_status' => DisbursementOrderUpstreamCreateQueue::PROCESS_STATUS_WAIT,
+                    'retry_count' => 0,
+                    'max_retry_count' => DisbursementOrderUpstreamCreateQueue::DEFAULT_MAX_RETRY_COUNT,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                if ($queueItem) {
+                    // 发送到队列消费者
+                    Redis::send(DisbursementOrderUpstreamCreateQueue::CONSUMER_QUEUE_NAME, [
+                        'queue_id' => $queueItem->id,
+                    ]);
+                }
+            }
+            return;
+        } catch (Exception $e) {
+            // 记录错误日志
+            error_log("addToUpstreamCreateQueue error: " . $e->getMessage());
+            return;
+        }
     }
 }
