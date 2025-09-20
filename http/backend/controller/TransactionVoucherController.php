@@ -65,7 +65,7 @@ class TransactionVoucherController extends BasicController
             'transaction_voucher_type' => [
                 'required',
                 'integer',
-                'between:1,3',
+                'between:1,5',
             ],
             'transaction_type'         => [
                 'required',
