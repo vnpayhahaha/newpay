@@ -455,7 +455,7 @@ class DisbursementOrderService extends BaseService
         }
         $disbursementOrders = $this->repository->getQuery()
             ->whereIn('id', $ids)
-            ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+            ->where('status', DisbursementOrder::STATUS_ALLOCATED)
             ->where('channel_type', DisbursementOrder::CHANNEL_TYPE_BANK)
             ->with('bank_account:id,branch_name,account_holder,account_number,bank_code')
             ->get();
@@ -525,7 +525,7 @@ class DisbursementOrderService extends BaseService
 
         // 更新订单状态
         $isUpdate = $this->repository->getModel()->whereIn('id', $ids)
-            ->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+            ->where('status', DisbursementOrder::STATUS_ALLOCATED)
             ->update([
                 'status'                        => DisbursementOrder::STATUS_WAIT_FILL,
                 'down_bill_template_id'         => $down_bill_template_id,
