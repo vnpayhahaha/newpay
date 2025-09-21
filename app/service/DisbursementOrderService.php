@@ -13,6 +13,7 @@ use app\lib\annotation\Cacheable;
 use app\lib\enum\ResultCode;
 use app\lib\LdlExcel\PhpOffice;
 use app\model\ModelBankDisbursementDownload;
+use app\model\ModelChannelAccount;
 use app\model\ModelDisbursementOrder;
 use app\model\ModelTenant;
 use app\model\ModelTenantApp;
@@ -386,21 +387,31 @@ class DisbursementOrderService extends BaseService
     // 自动分配
     public function autoDistribute(int $disbursement_order_id, int $channel_account_id): bool
     {
-        return Db::transaction(function () use ($disbursement_order_id, $channel_account_id) {
+        // 查询 $channel_account_id
+        /** @var ModelChannelAccount $account */
+        $account = $this->channelAccountRepository->getQuery()
+            ->with('channel')
+            ->where('id', $channel_account_id)
+            ->first();
+        if (!$account) {
+            return false;
+        }
+        return Db::transaction(function () use ($disbursement_order_id, $account, $channel_account_id) {
             $updateId = $this->repository->getQuery()
                 ->where('id', $disbursement_order_id)
                 ->where('status', '=', DisbursementOrder::STATUS_CREATED)
                 ->update([
                     'status'                  => DisbursementOrder::STATUS_ALLOCATED,
-                    'disbursement_channel_id' => $channel_account_id,
+                    'disbursement_channel_id' => $account->channel_id,
+                    'channel_account_id'      => $channel_account_id,
                     'channel_type'            => DisbursementOrder::CHANNEL_TYPE_UPSTREAM,
                 ]);
             if ($updateId) {
                 Event::dispatch('disbursement-order-status-records', [
                     'order_id' => $disbursement_order_id,
                     'status'   => DisbursementOrder::STATUS_ALLOCATED,
-                    'desc_cn'  => "系统自动分配订单到 上游渠道（渠道ID:" . $channel_account_id . '）',
-                    'desc_en'  => "System automatically allocates orders to upstream channel (Channel ID:" . $channel_account_id . ')',
+                    'desc_cn'  => "系统自动分配订单到 上游渠道 {$account['channel']['channel_code']}（渠道账户ID:" . $account['merchant_id'] . '）',
+                    'desc_en'  => "System automatically allocates orders to upstream channel {$account['channel']['channel_code']} (Channel Account ID:" . $account['merchant_id'] . ')',
                 ]);
                 $this->addToUpstreamCreateQueue([$disbursement_order_id]);
             }
