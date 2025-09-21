@@ -141,8 +141,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     Event::dispatch('disbursement-order-status-records', [
                         'order_id' => $queueItem->disbursement_order_id,
                         'status'   => DisbursementOrder::STATUS_CREATED,
-                        'desc_cn'  => $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单失败：" . $result['error_message'],
-                        'desc_en'  => $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
+                        'desc_cn'  => '待重新分配，' . $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单失败：" . $result['error_message'],
+                        'desc_en'  => 'Waiting to be reallocated, ' . $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
                         'remark'   => $result['response'] ?? '',
                     ]);
                 }
