@@ -35,6 +35,7 @@ use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use support\Context;
 use support\Db;
+use support\Log;
 use support\Response;
 use Webman\Event\Event;
 use Webman\Http\Request;
@@ -413,7 +414,6 @@ class DisbursementOrderService extends BaseService
                     'desc_cn'  => "系统自动分配订单到 上游渠道 {$account['channel']['channel_code']}（渠道账户ID:" . $account['merchant_id'] . '）',
                     'desc_en'  => "System automatically allocates orders to upstream channel {$account['channel']['channel_code']} (Channel Account ID:" . $account['merchant_id'] . ')',
                 ]);
-                $this->addToUpstreamCreateQueue([$disbursement_order_id]);
             }
             return $updateId;
         });
@@ -959,7 +959,7 @@ class DisbursementOrderService extends BaseService
      * @param array $params 分配参数
      * @return void
      */
-    private function addToUpstreamCreateQueue(array $orderIds, array $params = []): void
+    public function addToUpstreamCreateQueue(array $orderIds, array $params = []): void
     {
         try {
             // 获取订单详情
@@ -992,12 +992,15 @@ class DisbursementOrderService extends BaseService
                     'created_at'            => date('Y-m-d H:i:s'),
                     'updated_at'            => date('Y-m-d H:i:s'),
                 ]);
-
+                var_dump('addToUpstreamCreateQueue queueItem:====', $queueItem);
+                Log::info("addToUpstreamCreateQueue queueItem: " . json_encode($queueItem, JSON_UNESCAPED_UNICODE));
                 if ($queueItem) {
                     // 发送到队列消费者
                     Redis::send(DisbursementOrderUpstreamCreateQueue::CONSUMER_QUEUE_NAME, [
                         'queue_id' => $queueItem->id,
                     ]);
+
+                    var_dump('发送到队列消费者==',$queueItem->id);
                 }
             }
             return;

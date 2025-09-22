@@ -9,6 +9,7 @@ use app\model\ModelTenant;
 use app\model\ModelTenantAccount;
 use app\service\DisbursementOrderService;
 use support\Container;
+use support\Log;
 use Webman\Event\Event;
 
 class TenantEvent
@@ -66,16 +67,23 @@ class TenantEvent
                 if ($upstreamCreateQueue) {
                     continue;
                 }
+                var_dump('TenantAutoAssign 9999  event==', $tenant_id, $channel_account_id);
+                Log::info("TenantAutoAssign 999` event==", ['$tenant_id' => $tenant_id, '$channel_account_id' => $channel_account_id]);
                 // 自动分配 DisbursementOrderService
                 /** @var DisbursementOrderService $disbursementOrderService */
                 $disbursementOrderService = Container::make(DisbursementOrderService::class);
                 $isOk = $disbursementOrderService->autoDistribute($disbursement_order_id, $channel_account_id);
+                var_dump('TenantAutoAssign 9999  event==', $tenant_id, $channel_account_id, $isOk);
+                if ($isOk) {
+                    $disbursementOrderService->addToUpstreamCreateQueue([$disbursement_order_id]);
+                }
             }
             if (!$isOk) {
                 // 分配都失败
                 /** @var DisbursementOrderService $disbursementOrderService */
                 $disbursementOrderService = Container::make(DisbursementOrderService::class);
-                $isOk = $disbursementOrderService->repository->getQuery()
+                var_dump('----------自动分配失败-------');
+                $isUpdate = $disbursementOrderService->repository->getQuery()
                     ->where('id', $disbursement_order_id)
                     ->where('status', DisbursementOrder::STATUS_CREATED)
                     ->update([
@@ -83,7 +91,8 @@ class TenantEvent
                         'error_code'    => 'ERROR_CODE_AUTO_ASSIGN_FAIL',
                         'error_message' => 'Automatic allocation failed',
                     ]);
-                if ($isOk) {
+                var_dump('TenantAutoAssign=$disbursementOrderService==event=update=', $tenant_id, $isUpdate);
+                if ($isUpdate) {
                     Event::dispatch('disbursement-order-status-records', [
                         'order_id' => $disbursement_order_id,
                         'status'   => DisbursementOrder::STATUS_FAIL,

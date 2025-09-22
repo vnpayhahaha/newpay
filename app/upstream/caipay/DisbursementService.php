@@ -40,7 +40,9 @@ class DisbursementService  extends Base implements TransactionPaymentOrderInterf
     ])]
     public function createOrder(ModelDisbursementOrder $orderModel): array
     {
+        var_dump('createOrder==caipay=',$orderModel->toArray());
         // TODO: Implement createOrder() method.
+        throw new \Exception('Not implemented');
     }
 
     public function queryOrder(string $tenant_order_no, string $upstream_order_no): void

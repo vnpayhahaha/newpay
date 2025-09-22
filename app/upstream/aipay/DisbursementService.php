@@ -39,7 +39,7 @@ class DisbursementService  extends Base implements TransactionPaymentOrderInterf
     ])]
     public function createOrder(ModelDisbursementOrder $orderModel): array
     {
-        var_dump('createOrder===',$orderModel->toArray());
+        var_dump('createOrder= aipay==',$orderModel->toArray());
         // TODO: Implement createOrder() method.
         throw new \Exception('sdtashadsdfgs===');
         $randOrderNo = 'ee' . time() . rand(1000, 9999);

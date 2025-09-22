@@ -86,10 +86,11 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                 $this->handleError($queueId, 'ORDER_STATUS_INVALID', '订单状态不是待支付状态');
                 return;
             }
-
+            var_dump('调用上游第三方接口创建订单====',$queueItem->channel_account_id);
             // 调用上游第三方接口创建订单
             $result = $this->createUpstreamOrder($queueItem, $disbursementOrder);
-
+            var_dump('上游返回结果==',$result);
+            Log::info("DisbursementOrderUpstreamCreateQueueConsumer: 上游返回结果==",$result);
             if ($result['success']) {
                 // 处理成功，使用乐观锁更新状态
                 $updateResult = $this->queueRepository->updateProcessStatus(
@@ -138,6 +139,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                         'status' => DisbursementOrder::STATUS_CREATED,
                     ]
                 );
+                var_dump('处理失败，更新订单状态 已创建， 等待重新分配====',$isUpdate);
                 if ($isUpdate) {
                     if(isset($result['channel_code'],$result['merchant_id'])){
                         Event::dispatch('disbursement-order-status-records', [
@@ -287,10 +289,17 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                 $service = TransactionPaymentOrderFactory::getInstance($className)->init($channelAccount);
                 // 调用创建订单接口
                 $createResult = $service->createOrder($disbursementOrder);
-            } catch (\RuntimeException $e) {
+            } catch (\Throwable $e) {
+                Log::error("DisbursementOrderUpstreamCreateQueueConsumer: 创建上游订单异常", [
+                    'platform_order_no' => $queueItem->platform_order_no,
+                    'channel_code'      => $channelCode,
+                    'amount'            => $queueItem->amount,
+                    'payee_account_no'  => $queueItem->payee_account_no,
+                    'error'             => $e->getMessage(),
+                ]);
                 return [
                     'success'       => false,
-                    'error_code'    => 'SERVICE_ERROR',
+                    'error_code'    => 'UPSTREAM_API_EXCEPTION_ERROR',
                     'error_message' => $e->getMessage(),
                     'channel_code'  => $channelCode,
                     'merchant_id'   => $channelAccount->merchant_id,
@@ -344,7 +353,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
 
             return [
                 'success'       => false,
-                'error_code'    => 'UPSTREAM_API_EXCEPTION_ERROR',
+                'error_code'    => 'SERVICE_ERROR',
                 'error_message' => $e->getMessage(),
             ];
         }
