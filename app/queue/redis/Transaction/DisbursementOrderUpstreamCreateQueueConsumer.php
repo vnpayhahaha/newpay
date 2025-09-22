@@ -151,8 +151,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                         Event::dispatch('disbursement-order-status-records', [
                             'order_id' => $queueItem->disbursement_order_id,
                             'status'   => DisbursementOrder::STATUS_CREATED,
-                            'desc_cn'  => '待重新分配，创建订单出现异常：' . $result['error_message'],
-                            'desc_en'  => 'Waiting to be reallocated, create order exception:' . $result['error_message'],
+                            'desc_cn'  => '待重新分配，创建上游订单出现异常：' . $result['error_message'],
+                            'desc_en'  => 'Waiting to be reallocated, create upstream order exception:' . $result['error_message'],
                             'remark'   => $result['response'] ?? '',
                         ]);
                     }
