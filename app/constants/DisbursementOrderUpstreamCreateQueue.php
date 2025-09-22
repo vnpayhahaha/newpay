@@ -32,7 +32,7 @@ class DisbursementOrderUpstreamCreateQueue
     ];
 
     // 默认最大重试次数
-    public const DEFAULT_MAX_RETRY_COUNT = 3;
+    public const DEFAULT_MAX_RETRY_COUNT = 1;
 
     // 重试间隔（分钟）
     public const RETRY_INTERVALS = [

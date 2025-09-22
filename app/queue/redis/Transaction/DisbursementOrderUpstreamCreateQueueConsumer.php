@@ -82,7 +82,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
             }
 
             // 检查订单状态
-            if ($disbursementOrder->status !== DisbursementOrder::STATUS_WAIT_PAY) {
+            if ($disbursementOrder->status !== DisbursementOrder::STATUS_ALLOCATED) {
                 $this->handleError($queueId, 'ORDER_STATUS_INVALID', '订单状态不是待支付状态');
                 return;
             }
@@ -115,13 +115,14 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                             'status'            => DisbursementOrder::STATUS_WAIT_FILL,
                         ]
                     );
+                    var_dump('disbursementOrderService==STATUS_WAIT_FILL=$isUpdate===',$isUpdate);
                     if ($isUpdate) {
                         Event::dispatch('disbursement-order-status-records', [
                             'order_id' => $queueItem->disbursement_order_id,
                             'status'   => DisbursementOrder::STATUS_WAIT_FILL,
                             'desc_cn'  => $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单成功：" . $result['upstream_order_no'],
                             'desc_en'  => $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order successfully:" . $result['upstream_order_no'],
-                            'remark'   => $result['origin'],
+                            'remark'   => $result['response'] ?? '',
                         ]);
                     }
                 }
@@ -138,13 +139,24 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     ]
                 );
                 if ($isUpdate) {
-                    Event::dispatch('disbursement-order-status-records', [
-                        'order_id' => $queueItem->disbursement_order_id,
-                        'status'   => DisbursementOrder::STATUS_CREATED,
-                        'desc_cn'  => '待重新分配，' . $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单失败：" . $result['error_message'],
-                        'desc_en'  => 'Waiting to be reallocated, ' . $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
-                        'remark'   => $result['response'] ?? '',
-                    ]);
+                    if(isset($result['channel_code'],$result['merchant_id'])){
+                        Event::dispatch('disbursement-order-status-records', [
+                            'order_id' => $queueItem->disbursement_order_id,
+                            'status'   => DisbursementOrder::STATUS_CREATED,
+                            'desc_cn'  => '待重新分配，' . $result['channel_code'] . " 商户ID[{$result['merchant_id']}]创建订单失败：" . $result['error_message'],
+                            'desc_en'  => 'Waiting to be reallocated, ' . $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
+                            'remark'   => $result['response'] ?? '',
+                        ]);
+                    }else{
+                        Event::dispatch('disbursement-order-status-records', [
+                            'order_id' => $queueItem->disbursement_order_id,
+                            'status'   => DisbursementOrder::STATUS_CREATED,
+                            'desc_cn'  => '待重新分配，创建订单出现异常：' . $result['error_message'],
+                            'desc_en'  => 'Waiting to be reallocated, create order exception:' . $result['error_message'],
+                            'remark'   => $result['response'] ?? '',
+                        ]);
+                    }
+
                 }
             }
         } catch (Exception $e) {
@@ -332,7 +344,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
 
             return [
                 'success'       => false,
-                'error_code'    => 'UPSTREAM_API_ERROR',
+                'error_code'    => 'UPSTREAM_API_EXCEPTION_ERROR',
                 'error_message' => $e->getMessage(),
             ];
         }

@@ -9,6 +9,7 @@ use app\model\ModelTenant;
 use app\model\ModelTenantAccount;
 use app\service\DisbursementOrderService;
 use support\Container;
+use Webman\Event\Event;
 
 class TenantEvent
 {
@@ -74,7 +75,7 @@ class TenantEvent
                 // 分配都失败
                 /** @var DisbursementOrderService $disbursementOrderService */
                 $disbursementOrderService = Container::make(DisbursementOrderService::class);
-                $disbursementOrderService->repository->getQuery()
+                $isOk = $disbursementOrderService->repository->getQuery()
                     ->where('id', $disbursement_order_id)
                     ->where('status', DisbursementOrder::STATUS_CREATED)
                     ->update([
@@ -82,6 +83,15 @@ class TenantEvent
                         'error_code'    => 'ERROR_CODE_AUTO_ASSIGN_FAIL',
                         'error_message' => 'Automatic allocation failed',
                     ]);
+                if ($isOk) {
+                    Event::dispatch('disbursement-order-status-records', [
+                        'order_id' => $disbursement_order_id,
+                        'status'   => DisbursementOrder::STATUS_FAIL,
+                        'desc_cn'  => '自动分配失败',
+                        'desc_en'  => 'Auto-assignment failed',
+                        'remark'   => json_encode($payment_assign_items, JSON_UNESCAPED_UNICODE),
+                    ]);
+                }
             }
         }
         var_dump('TenantAutoAssign  event==', $tenant_id);

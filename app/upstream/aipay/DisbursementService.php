@@ -39,7 +39,18 @@ class DisbursementService  extends Base implements TransactionPaymentOrderInterf
     ])]
     public function createOrder(ModelDisbursementOrder $orderModel): array
     {
+        var_dump('createOrder===',$orderModel->toArray());
         // TODO: Implement createOrder() method.
+        throw new \Exception('sdtashadsdfgs===');
+        $randOrderNo = 'ee' . time() . rand(1000, 9999);
+        return [
+            'ok'     => true,
+            'msg'    => 'ok',
+            'origin' => '{"code":"11","message":"test error","data":{"order_id":"ee33333"}}',
+            'data'   => [
+                '_upstream_order_no' => $randOrderNo,
+            ]
+        ];
     }
 
     public function queryOrder(string $tenant_order_no, string $upstream_order_no): void
