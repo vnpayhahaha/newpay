@@ -28,10 +28,10 @@ use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
+use app\upstream\Handle\TransactionPaymentOrderFactory;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
-use http\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\Builder;
 use support\Context;
 use support\Db;
@@ -145,7 +145,7 @@ class DisbursementOrderService extends BaseService
                 -$disbursementOrder->total_fee
             );
             if (!$modelTransactionRecord) {
-                throw new \RuntimeException('Failed to update the recharge record');
+                throw new Exception('Failed to update the recharge record');
             }
             $this->repository->getModel()->where('id', $disbursementOrder->id)->update([
                 'transaction_record_id' => $modelTransactionRecord->id,
@@ -194,7 +194,7 @@ class DisbursementOrderService extends BaseService
             // 更新凭证表 collection_status order_no
             $isOk = $this->transactionVoucherRepository->writeOff($transactionVoucherId, $order->platform_order_no);
             if (!$isOk) {
-                throw new \RuntimeException('The update of the voucher table failed');
+                throw new Exception('The update of the voucher table failed');
             }
             // 更新订单表 transaction_voucher_id  status
             $isOk = $this->repository->getQuery()
@@ -212,7 +212,7 @@ class DisbursementOrderService extends BaseService
                         $transactionVoucher->transaction_voucher : '',
                 ]);
             if (!$isOk) {
-                throw new \RuntimeException('Failed to update the order');
+                throw new Exception('Failed to update the order');
             }
 
             Db::commit();
@@ -267,6 +267,25 @@ class DisbursementOrderService extends BaseService
             $cancelOkNum = false;
             // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
             if (is_numeric($id) || is_string($id)) {
+                $disbursementOrder = $this->repository->getQuery()
+                    ->with('channel:id,channel_name,channel_code,')
+                    ->where('id', $id)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
+                    ->first();
+                if (!$disbursementOrder) {
+                    return false;
+                }
+                // 判断是上游订单，取消上游订单
+                if ($disbursementOrder->channel_type == DisbursementOrder::CHANNEL_TYPE_UPSTREAM) {
+                    $isCancelByUpstreamOrder = $this->cancelByUpstreamOrderId($disbursementOrder);
+                    if (!$isCancelByUpstreamOrder) {
+                        return false;
+                    }
+                }
                 $cancelOkNum = $this->repository->getModel()
                     ->where('id', $id)
                     ->whereIn('status', [
@@ -300,6 +319,51 @@ class DisbursementOrderService extends BaseService
         });
     }
 
+    // 取消上游订单
+    private function cancelByUpstreamOrderId(ModelDisbursementOrder $disbursementOrder): bool
+    {
+
+        // 判断是上游订单，取消上游订单
+        $channel_code = $disbursementOrder['channel']['channel_code'] ?? '';
+        if (!filled($channel_code)) {
+            return false;
+        }
+        $className = Tenant::$upstream_disbursement_options[$channel_code] ?? '';
+        if (!filled($className)) {
+            return false;
+        }
+        $channelAccount = $this->channelAccountRepository->findById($disbursementOrder->channel_account_id);
+        if (!$channelAccount) {
+            return false;
+        }
+        try {
+            // 使用 TransactionPaymentOrderFactory 调用上游接口
+            $service = TransactionPaymentOrderFactory::getInstance($className)->init($channelAccount);
+            // 调用创建订单接口
+            $cancelOk = $service->cancelOrder($disbursementOrder->platform_order_no, $disbursementOrder->upstream_order_no);
+            if (!$cancelOk) {
+                Log::error("cancelByCustomerId: 上游取消订单失败", [
+                    'channel_code'      => $channel_code,
+                    'merchant_id'       => $channelAccount->merchant_id,
+                    'platform_order_no' => $disbursementOrder->platform_order_no,
+                    'upstream_order_no' => $disbursementOrder->upstream_order_no,
+                ]);
+                return false;
+            }
+        } catch (\Throwable $e) {
+            Log::error("cancelByCustomerId: 取消上游订单异常", [
+                'channel_code'      => $channel_code,
+                'merchant_id'       => $channelAccount->merchant_id,
+                'platform_order_no' => $disbursementOrder->platform_order_no,
+                'upstream_order_no' => $disbursementOrder->upstream_order_no,
+                'message'           => $e->getMessage(),
+                'trace'             => $e->getTraceAsString(),
+            ]);
+            return false;
+        }
+        return true;
+    }
+
     // 客户取消订单
     public function cancelByCustomerId(mixed $id, string $tenantId, int $customerId, string $username, string $requestId): bool
     {
@@ -312,6 +376,26 @@ class DisbursementOrderService extends BaseService
             $cancelOkNum = false;
             // 如果 $id 是数字或字符串，则尝试将 $id 转换为数字
             if (is_numeric($id) || is_string($id)) {
+                $disbursementOrder = $this->repository->getQuery()
+                    ->with('channel:id,channel_name,channel_code,')
+                    ->where('id', $id)
+                    ->where('tenant_id', $tenantId)
+                    ->whereIn('status', [
+                        DisbursementOrder::STATUS_CREATED,
+                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_SUSPEND,
+                    ])
+                    ->first();
+                if (!$disbursementOrder) {
+                    return false;
+                }
+                // 判断是上游订单，取消上游订单
+                if ($disbursementOrder->channel_type == DisbursementOrder::CHANNEL_TYPE_UPSTREAM) {
+                    $isCancelByUpstreamOrder = $this->cancelByUpstreamOrderId($disbursementOrder);
+                    if (!$isCancelByUpstreamOrder) {
+                        return false;
+                    }
+                }
                 $cancelOkNum = $this->repository->getModel()
                     ->where('id', $id)
                     ->whereIn('status', [
@@ -1000,7 +1084,7 @@ class DisbursementOrderService extends BaseService
                         'queue_id' => $queueItem->id,
                     ]);
 
-                    var_dump('发送到队列消费者==',$queueItem->id);
+                    var_dump('发送到队列消费者==', $queueItem->id);
                 }
             }
             return;

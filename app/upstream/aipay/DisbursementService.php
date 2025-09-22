@@ -53,12 +53,12 @@ class DisbursementService  extends Base implements TransactionPaymentOrderInterf
         ];
     }
 
-    public function queryOrder(string $tenant_order_no, string $upstream_order_no): void
+    public function queryOrder(string $platform_order_no, string $upstream_order_no): array
     {
         // TODO: Implement queryOrder() method.
     }
 
-    public function cancelOrder(string $third_order_no): bool
+    public function cancelOrder(string $platform_order_no, string $upstream_order_no): bool
     {
         // TODO: Implement cancelOrder() method.
     }

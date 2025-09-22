@@ -30,9 +30,9 @@ interface TransactionPaymentOrderInterface
     ])]
     public function createOrder(ModelDisbursementOrder $orderModel): array;
     // 查询订单状态
-    public function queryOrder(string $tenant_order_no, string $upstream_order_no): void;
+    public function queryOrder(string $platform_order_no, string $upstream_order_no): array;
     // 取消订单
-    public function cancelOrder(string $third_order_no): bool;
+    public function cancelOrder(string $platform_order_no, string $upstream_order_no): bool;
     // 接收通知
     public function notify(array $params): bool;
 
