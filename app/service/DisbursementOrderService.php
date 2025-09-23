@@ -178,7 +178,7 @@ class DisbursementOrderService extends BaseService
             throw new BusinessException(ResultCode::ORDER_NOT_FOUND);
         }
         if (!in_array($order->status, [
-            DisbursementOrder::STATUS_WAIT_PAY,
+            DisbursementOrder::STATUS_WAIT_FILL,
             DisbursementOrder::STATUS_SUSPEND,
             DisbursementOrder::STATUS_INVALID
         ], true)) {
@@ -200,7 +200,7 @@ class DisbursementOrderService extends BaseService
             $isOk = $this->repository->getQuery()
                 ->where('id', $disbursementOrderId)
                 ->where(function (Builder $query) {
-                    $query->where('status', DisbursementOrder::STATUS_WAIT_PAY)
+                    $query->where('status', DisbursementOrder::STATUS_WAIT_FILL)
                         ->orWhere('status', DisbursementOrder::STATUS_SUSPEND)
                         ->orWhere('status', DisbursementOrder::STATUS_INVALID);
                 })
@@ -272,7 +272,7 @@ class DisbursementOrderService extends BaseService
                     ->where('id', $id)
                     ->whereIn('status', [
                         DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_ALLOCATED,
                         DisbursementOrder::STATUS_SUSPEND,
                     ])
                     ->first();
@@ -290,7 +290,7 @@ class DisbursementOrderService extends BaseService
                     ->where('id', $id)
                     ->whereIn('status', [
                         DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_ALLOCATED,
                         DisbursementOrder::STATUS_SUSPEND,
                     ])
                     ->update([
@@ -382,7 +382,7 @@ class DisbursementOrderService extends BaseService
                     ->where('tenant_id', $tenantId)
                     ->whereIn('status', [
                         DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_ALLOCATED,
                         DisbursementOrder::STATUS_SUSPEND,
                     ])
                     ->first();
@@ -400,7 +400,7 @@ class DisbursementOrderService extends BaseService
                     ->where('id', $id)
                     ->whereIn('status', [
                         DisbursementOrder::STATUS_CREATED,
-                        DisbursementOrder::STATUS_WAIT_PAY,
+                        DisbursementOrder::STATUS_ALLOCATED,
                         DisbursementOrder::STATUS_SUSPEND,
                     ])
                     ->update([
@@ -437,7 +437,6 @@ class DisbursementOrderService extends BaseService
                 ->whereIn('id', $params['ids'])
                 ->whereIn('status', [
                     DisbursementOrder::STATUS_CREATED,
-                    DisbursementOrder::STATUS_WAIT_PAY,
                     DisbursementOrder::STATUS_SUSPEND,
                 ])
                 ->update([
