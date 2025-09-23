@@ -232,22 +232,19 @@ class DisbursementOrderService extends BaseService
         // 回调通知队列
         $disbursementOrder = $this->repository->findById($disbursementOrderId);
         $this->notify($disbursementOrder, [
-            [
-                'tenant_id'         => $disbursementOrder->tenant_id,
-                'app_id'            => $disbursementOrder->app_id,
-                'platform_order_no' => $disbursementOrder->platform_order_no,
-                'tenant_order_no'   => $disbursementOrder->tenant_order_no,
-                'status'            => $disbursementOrder->status,
-                'pay_time'          => $disbursementOrder->pay_time,
-                'refund_at'         => $disbursementOrder->refund_at,
-                'refund_reason'     => $disbursementOrder->refund_reason,
-                'amount'            => $disbursementOrder->amount,
-                'total_fee'         => $disbursementOrder->total_fee,
-                'settlement_amount' => $disbursementOrder->settlement_amount,
-                'utr'               => $disbursementOrder->utr,
-                'notify_remark'     => $disbursementOrder->notify_remark,
-                'created_at'        => $disbursementOrder->created_at,
-            ]
+            'tenant_id'         => $disbursementOrder->tenant_id,
+            'platform_order_no' => $disbursementOrder->platform_order_no,
+            'tenant_order_no'   => $disbursementOrder->tenant_order_no,
+            'status'            => $disbursementOrder->status,
+            'pay_time'          => $disbursementOrder->pay_time,
+            'refund_at'         => $disbursementOrder->refund_at,
+            'refund_reason'     => $disbursementOrder->refund_reason,
+            'amount'            => number_format($disbursementOrder->amount, 2, '.', ''),
+            'total_fee'         => number_format($disbursementOrder->total_fee, 2, '.', ''),
+            'settlement_amount' => number_format($disbursementOrder->settlement_amount, 2, '.', ''),
+            'utr'               => $disbursementOrder->utr,
+            'notify_remark'     => $disbursementOrder->notify_remark,
+            'created_at'        => $disbursementOrder->created_at,
         ], 5);
         // 构建交易凭证图片并存储
         $disbursementOrder->payment_voucher_image = env('APP_DOMAIN') . $this->repository->buildOrderPaymentImage($disbursementOrder);
@@ -683,16 +680,15 @@ class DisbursementOrderService extends BaseService
         $disbursementOrderNotify = $this->repository->findById($orderId);
         $this->notify($disbursementOrderNotify, [
             'tenant_id'         => $disbursementOrderNotify->tenant_id,
-            'app_id'            => $disbursementOrderNotify->app_id,
             'platform_order_no' => $disbursementOrderNotify->platform_order_no,
             'tenant_order_no'   => $disbursementOrderNotify->tenant_order_no,
             'status'            => $disbursementOrderNotify->status,
             'pay_time'          => $disbursementOrder->pay_time,
             'refund_at'         => $refund_at,
             'refund_reason'     => $disbursementOrderNotify->refund_reason,
-            'amount'            => $disbursementOrderNotify->amount,
-            'total_fee'         => $disbursementOrderNotify->total_fee,
-            'settlement_amount' => $disbursementOrderNotify->settlement_amount,
+            'amount'            => number_format($disbursementOrderNotify->amount, 2, '.', ''),
+            'total_fee'         => number_format($disbursementOrderNotify->total_fee, 2, '.', ''),
+            'settlement_amount' => number_format($disbursementOrderNotify->settlement_amount, 2, '.', ''),
             'utr'               => $disbursementOrderNotify->utr,
             'notify_remark'     => $disbursementOrderNotify->notify_remark,
             'created_at'        => $disbursementOrderNotify->created_at,
@@ -785,16 +781,15 @@ class DisbursementOrderService extends BaseService
         }
         return $this->notify($disbursementOrder, [
             'tenant_id'         => $disbursementOrder->tenant_id,
-            'app_id'            => $disbursementOrder->app_id,
             'platform_order_no' => $disbursementOrder->platform_order_no,
             'tenant_order_no'   => $disbursementOrder->tenant_order_no,
             'status'            => $disbursementOrder->status,
             'pay_time'          => $disbursementOrder->pay_time,
             'refund_at'         => $disbursementOrder->refund_at,
             'refund_reason'     => $disbursementOrder->refund_reason,
-            'amount'            => $disbursementOrder->amount,
-            'total_fee'         => $disbursementOrder->total_fee,
-            'settlement_amount' => $disbursementOrder->settlement_amount,
+            'amount'            => number_format($disbursementOrder->amount, 2, '.', ''),
+            'total_fee'         => number_format($disbursementOrder->total_fee, 2, '.', ''),
+            'settlement_amount' => number_format($disbursementOrder->settlement_amount, 2, '.', ''),
             'utr'               => $disbursementOrder->utr,
             'notify_remark'     => $disbursementOrder->notify_remark,
             'created_at'        => $disbursementOrder->created_at,
