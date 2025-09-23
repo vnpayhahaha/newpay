@@ -141,7 +141,7 @@ class TenantNoticeConsumer implements Consumer
 
             // 检查响应是否成功（状态码200且响应内容为'ok'或'success'）
             $responseBody = trim(strtolower($response));
-            if ($responseBody === 'ok' || $responseBody === 'success') {
+            if (strtolower($responseBody) === 'ok' || strtolower($responseBody) === 'success') {
                 // 记录成功日志
                 $this->recordNotificationLog($queueData, 200, $response, TenantNotificationRecord::STATUS_SUCCESS, $currentExecuteNum);
 

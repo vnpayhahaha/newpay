@@ -23,14 +23,12 @@ use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
-use app\scope\TenantDataPermissionScope;
 use app\tools\Base62Converter;
 use app\upstream\Handle\TransactionCollectionOrderFactory;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use JetBrains\PhpStorm\ArrayShape;
 use support\Context;
 use support\Db;
 use support\Log;
@@ -594,20 +592,17 @@ class CollectionOrderService extends BaseService
         // 回调通知队列
         $collectionOrder = $this->repository->findById($collectionOrderId);
         $this->notify($collectionOrder, [
-            [
-                'tenant_id'         => $collectionOrder->tenant_id,
-                'app_id'            => $collectionOrder->app_id,
-                'platform_order_no' => $collectionOrder->platform_order_no,
-                'tenant_order_no'   => $collectionOrder->tenant_order_no,
-                'status'            => $collectionOrder->status,
-                'pay_time'          => $collectionOrder->pay_time,
-                'amount'            => $collectionOrder->amount,
-                'total_fee'         => $collectionOrder->total_fee,
-                'settlement_amount' => $collectionOrder->settlement_amount,
-                'utr'               => $collectionOrder->utr,
-                'notify_remark'     => $collectionOrder->notify_remark,
-                'created_at'        => $collectionOrder->created_at,
-            ]
+            'tenant_id'         => $collectionOrder->tenant_id,
+            'platform_order_no' => $collectionOrder->platform_order_no,
+            'tenant_order_no'   => $collectionOrder->tenant_order_no,
+            'status'            => $collectionOrder->status,
+            'pay_time'          => $collectionOrder->pay_time,
+            'amount'            => $collectionOrder->amount,
+            'total_fee'         => $collectionOrder->total_fee,
+            'settlement_amount' => $collectionOrder->settlement_amount,
+            'utr'               => $collectionOrder->utr,
+            'notify_remark'     => $collectionOrder->notify_remark,
+            'created_at'        => $collectionOrder->created_at,
         ], 5);
         $collectionOrder->platform_transaction_no = $modelTransactionRecord->transaction_no;
         $collectionOrder->save();
@@ -729,7 +724,6 @@ class CollectionOrderService extends BaseService
         }
         return $this->notify($collectionOrder, [
             'tenant_id'         => $collectionOrder->tenant_id,
-            'app_id'            => $collectionOrder->app_id,
             'platform_order_no' => $collectionOrder->platform_order_no,
             'tenant_order_no'   => $collectionOrder->tenant_order_no,
             'status'            => $collectionOrder->status,
