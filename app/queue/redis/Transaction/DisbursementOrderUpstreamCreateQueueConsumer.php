@@ -83,14 +83,14 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
 
             // 检查订单状态
             if ($disbursementOrder->status !== DisbursementOrder::STATUS_ALLOCATED) {
-                $this->handleError($queueId, 'ORDER_STATUS_INVALID', '订单状态不是待支付状态');
+                $this->handleError($queueId, 'ORDER_STATUS_INVALID', '订单状态不是已分配状态');
                 return;
             }
-            var_dump('调用上游第三方接口创建订单====',$queueItem->channel_account_id);
+            var_dump('调用上游第三方接口创建订单====', $queueItem->channel_account_id);
             // 调用上游第三方接口创建订单
             $result = $this->createUpstreamOrder($queueItem, $disbursementOrder);
-            var_dump('上游返回结果==',$result);
-            Log::info("DisbursementOrderUpstreamCreateQueueConsumer: 上游返回结果==",$result);
+            var_dump('上游返回结果==', $result);
+            Log::info("DisbursementOrderUpstreamCreateQueueConsumer: 上游返回结果==", $result);
             if ($result['success']) {
                 // 处理成功，使用乐观锁更新状态
                 $updateResult = $this->queueRepository->updateProcessStatus(
@@ -116,7 +116,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                             'status'            => DisbursementOrder::STATUS_WAIT_FILL,
                         ]
                     );
-                    var_dump('disbursementOrderService==STATUS_WAIT_FILL=$isUpdate===',$isUpdate);
+                    var_dump('disbursementOrderService==STATUS_WAIT_FILL=$isUpdate===', $isUpdate);
                     if ($isUpdate) {
                         Event::dispatch('disbursement-order-status-records', [
                             'order_id' => $queueItem->disbursement_order_id,
@@ -139,9 +139,9 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                         'status' => DisbursementOrder::STATUS_CREATED,
                     ]
                 );
-                var_dump('处理失败，更新订单状态 已创建， 等待重新分配====',$isUpdate);
+                var_dump('处理失败，更新订单状态 已创建， 等待重新分配====', $isUpdate);
                 if ($isUpdate) {
-                    if(isset($result['channel_code'],$result['merchant_id'])){
+                    if (isset($result['channel_code'], $result['merchant_id'])) {
                         Event::dispatch('disbursement-order-status-records', [
                             'order_id' => $queueItem->disbursement_order_id,
                             'status'   => DisbursementOrder::STATUS_CREATED,
@@ -149,7 +149,7 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                             'desc_en'  => 'Waiting to be reallocated, ' . $result['channel_code'] . " Merchant ID[{$result['merchant_id']}] create order failed:" . $result['error_message'],
                             'remark'   => $result['response'] ?? '',
                         ]);
-                    }else{
+                    } else {
                         Event::dispatch('disbursement-order-status-records', [
                             'order_id' => $queueItem->disbursement_order_id,
                             'status'   => DisbursementOrder::STATUS_CREATED,
@@ -284,6 +284,28 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                     'merchant_id'   => $channelAccount->merchant_id,
                 ];
             }
+            $isUpdateStatus = $this->disbursementOrderService->repository->getQuery()
+                ->where('id', $queueItem->disbursement_order_id)
+                ->where('status', DisbursementOrder::STATUS_ALLOCATED)
+                ->update([
+                    'status' => DisbursementOrder::STATUS_WAIT_PAY,
+                ]);
+            if (!$isUpdateStatus) {
+                return [
+                    'success'       => false,
+                    'error_code'    => 'ORDER_STATUS_UPDATE_FAIL',
+                    'error_message' => '更新订单状态为待支付失败，可能已被其他进程修改：' . $queueItem->platform_order_no,
+                    'channel_code'  => $channelCode,
+                    'merchant_id'   => $channelAccount->merchant_id,
+                ];
+            }
+            Event::dispatch('disbursement-order-status-records', [
+                'order_id' => $queueItem->disbursement_order_id,
+                'status'   => DisbursementOrder::STATUS_WAIT_PAY,
+                'desc_cn'  => $channelCode . " 商户ID[{$channelAccount->merchant_id}]正在创建订单",
+                'desc_en'  => $channelCode . " Merchant ID[{$channelAccount->merchant_id}] is creating order",
+                'remark'   => json_encode($channelAccount, JSON_UNESCAPED_UNICODE),
+            ]);
             try {
                 // 使用 TransactionDisbursementOrderFactory 调用上游接口
                 $service = TransactionDisbursementOrderFactory::getInstance($className)->init($channelAccount);

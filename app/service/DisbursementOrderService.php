@@ -435,7 +435,11 @@ class DisbursementOrderService extends BaseService
         return Db::transaction(function () use ($params, $operatorId, $username, $requestId) {
             $updateId = $this->repository->getQuery()
                 ->whereIn('id', $params['ids'])
-                ->where('status', '=', DisbursementOrder::STATUS_CREATED)
+                ->whereIn('status', [
+                    DisbursementOrder::STATUS_CREATED,
+                    DisbursementOrder::STATUS_WAIT_PAY,
+                    DisbursementOrder::STATUS_SUSPEND,
+                ])
                 ->update([
                     'status'                  => DisbursementOrder::STATUS_ALLOCATED,
                     'disbursement_channel_id' => $params['disbursement_channel_id'],
