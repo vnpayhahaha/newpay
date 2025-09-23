@@ -87,7 +87,7 @@ class TenantEvent
                     ->where('id', $disbursement_order_id)
                     ->where('status', DisbursementOrder::STATUS_CREATED)
                     ->update([
-                        'status'        => DisbursementOrder::STATUS_FAIL,
+                        'status'        => DisbursementOrder::STATUS_SUSPEND,
                         'error_code'    => 'ERROR_CODE_AUTO_ASSIGN_FAIL',
                         'error_message' => 'Automatic allocation failed',
                     ]);
@@ -95,7 +95,7 @@ class TenantEvent
                 if ($isUpdate) {
                     Event::dispatch('disbursement-order-status-records', [
                         'order_id' => $disbursement_order_id,
-                        'status'   => DisbursementOrder::STATUS_FAIL,
+                        'status'   => DisbursementOrder::STATUS_SUSPEND,
                         'desc_cn'  => '自动分配失败',
                         'desc_en'  => 'Auto-assignment failed',
                         'remark'   => json_encode($payment_assign_items, JSON_UNESCAPED_UNICODE),
