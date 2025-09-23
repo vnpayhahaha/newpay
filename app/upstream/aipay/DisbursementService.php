@@ -2,14 +2,16 @@
 
 namespace app\upstream\aipay;
 
+use app\model\enums\DisbursementOrderVerificationQueuePayStatus;
 use app\model\ModelChannelAccount;
 use app\model\ModelDisbursementOrder;
-use app\upstream\Handle\TransactionPaymentOrderInterface;
+use app\upstream\Handle\TransactionDisbursementOrderInterface;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Response;
 
-class DisbursementService  extends Base implements TransactionPaymentOrderInterface
+class DisbursementService  extends Base implements TransactionDisbursementOrderInterface
 {
-    public function init(ModelChannelAccount $channel_account): TransactionPaymentOrderInterface
+    public function init(ModelChannelAccount $channel_account): TransactionDisbursementOrderInterface
     {
         $this->channel_account = $channel_account;
         $api_config_array = $this->channel_account->api_config;
@@ -63,12 +65,25 @@ class DisbursementService  extends Base implements TransactionPaymentOrderInterf
         // TODO: Implement cancelOrder() method.
     }
 
-    public function notify(array $params): bool
+    #[ArrayShape([
+        'ok'     => 'bool',
+        'origin' => 'string',
+        'data'   => [
+            '_upstream_order_no' => 'string',
+            '_platform_order_no' => 'string',
+            '_amount'            => 'float',
+            '_pay_time'          => 'string',
+            '_utr'               => 'string',
+            '_payment_status'    => DisbursementOrderVerificationQueuePayStatus::class,
+            '_rejection_reason'  => 'string',
+        ]
+    ])]
+    public function notify(array $params): array
     {
         // TODO: Implement notify() method.
     }
 
-    public function notifyReturn(bool $success): mixed
+    public function notifyReturn(bool $success): Response
     {
         // TODO: Implement notifyReturn() method.
     }

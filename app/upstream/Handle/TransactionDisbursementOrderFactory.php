@@ -2,11 +2,11 @@
 
 namespace app\upstream\Handle;
 
-class TransactionPaymentOrderFactory
+class TransactionDisbursementOrderFactory
 {
     private static $instances = [];
 
-    public static function getInstance(string $className): TransactionPaymentOrderInterface
+    public static function getInstance(string $className): TransactionDisbursementOrderInterface
     {
         // 如果是 /，先转换成 \ ,例如  App/Transaction/Service =》 App\Transaction\Service
         $className = str_replace('/', '\\', $className);

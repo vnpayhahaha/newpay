@@ -9,6 +9,7 @@ use app\service\DisbursementOrderService;
 use app\service\TransactionVoucherService;
 use DI\Attribute\Inject;
 use support\Db;
+use support\Log;
 use Webman\RedisQueue\Consumer;
 
 class DisbursementOrderWriteOffConsumer implements Consumer
@@ -28,6 +29,7 @@ class DisbursementOrderWriteOffConsumer implements Consumer
     /**
      *  [
      * 'platform_order_no' => $model->platform_order_no,
+     * 'upstream_order_no' => $model->upstream_order_no,
      * 'amount'            => $model->amount,
      * 'utr'               => $model->utr,
      * 'rejection_reason'  => $model->rejection_reason,
@@ -37,26 +39,41 @@ class DisbursementOrderWriteOffConsumer implements Consumer
      */
     public function consume($data): void
     {
-        if (!isset($data['platform_order_no'], $data['amount'], $data['utr'], $data['rejection_reason'], $data['payment_status'], $data['order_data'])) {
+        if (!isset($data['platform_order_no']) && !isset($data['upstream_order_no'])) {
+            return;
+        }
+        if (!isset($data['amount'], $data['utr'], $data['rejection_reason'], $data['payment_status'], $data['order_data'])) {
             return;
         }
         var_dump('DisbursementOrderWriteOffConsumer=========================start', $data);
         $order = $this->disbursementOrderService->repository->getQuery()
             ->where('platform_order_no', $data['platform_order_no'])
+            ->orWhere('upstream_order_no', $data['upstream_order_no'])
             ->first();
         if (!$order) {
             // 订单不存在
             return;
         }
+        $transaction_voucher_type = '';
+        $transaction_voucher = '';
+        if (filled($data['utr'])) {
+            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR;
+            $transaction_voucher = $data['utr'];
+        } elseif (isset($data['upstream_order_no']) && filled($data['upstream_order_no'])) {
+            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UPSTREAM_ORDER_NO;
+            $transaction_voucher = $data['upstream_order_no'];
+        } elseif (isset($data['platform_order_no']) && filled($data['platform_order_no'])) {
+            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
+            $transaction_voucher = $data['platform_order_no'];
+        }
+
+        if (!filled($transaction_voucher) || !filled($transaction_voucher_type)) {
+            return;
+        }
+
         if ($order->status !== DisbursementOrder::STATUS_WAIT_FILL) {
             // 或失效, 记录凭证管理
             if ($data['payment_status'] === DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS) {
-                $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
-                $transaction_voucher = $data['platform_order_no'];
-                if (filled($data['utr'])) {
-                    $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR;
-                    $transaction_voucher = $data['utr'];
-                }
                 // 创建凭证管理
                 $this->transactionVoucherService->create([
                     'channel_id'               => $order->disbursement_channel_id,
@@ -77,12 +94,6 @@ class DisbursementOrderWriteOffConsumer implements Consumer
         }
         // 支付成功
         if ($data['payment_status'] === DisbursementOrderVerificationQueue::PAY_STATUS_SUCCESS) {
-            $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_PLATFORM_ORDER_NO;
-            $transaction_voucher = $data['platform_order_no'];
-            if (filled($data['utr'])) {
-                $transaction_voucher_type = TransactionVoucher::TRANSACTION_VOUCHER_TYPE_UTR;
-                $transaction_voucher = $data['utr'];
-            }
             // 创建凭证管理
             $tV = $this->transactionVoucherService->create([
                 'channel_id'               => $order->disbursement_channel_id,
@@ -101,7 +112,16 @@ class DisbursementOrderWriteOffConsumer implements Consumer
             $this->disbursementOrderService->writeOff($order->id, $tV->id);
         } else {
             // 支付失败，退款
-            $this->disbursementOrderService->refund($order->id, $data['rejection_reason']);
+            try {
+                $this->disbursementOrderService->refund($order->id, $data['rejection_reason']);
+            } catch (\Throwable $e) {
+                Log::error('付款核销队列支付失败，退款异常:' . $e->getMessage(), [
+                    'order_id'  => $order->id,
+                    'data'      => $data,
+                    'exception' => $e->getMessage(),
+                    'trace'     => $e->getTraceAsString(),
+                ]);
+            }
         }
     }
 }

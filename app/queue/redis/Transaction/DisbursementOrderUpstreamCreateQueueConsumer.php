@@ -8,7 +8,7 @@ use app\constants\Tenant;
 use app\repository\ChannelAccountRepository;
 use app\repository\DisbursementOrderUpstreamCreateQueueRepository;
 use app\service\DisbursementOrderService;
-use app\upstream\Handle\TransactionPaymentOrderFactory;
+use app\upstream\Handle\TransactionDisbursementOrderFactory;
 use DI\Attribute\Inject;
 use Exception;
 use support\Log;
@@ -285,8 +285,8 @@ class DisbursementOrderUpstreamCreateQueueConsumer implements Consumer
                 ];
             }
             try {
-                // 使用 TransactionPaymentOrderFactory 调用上游接口
-                $service = TransactionPaymentOrderFactory::getInstance($className)->init($channelAccount);
+                // 使用 TransactionDisbursementOrderFactory 调用上游接口
+                $service = TransactionDisbursementOrderFactory::getInstance($className)->init($channelAccount);
                 // 调用创建订单接口
                 $createResult = $service->createOrder($disbursementOrder);
             } catch (\Throwable $e) {

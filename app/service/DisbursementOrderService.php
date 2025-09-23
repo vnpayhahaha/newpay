@@ -28,7 +28,7 @@ use app\repository\TenantNotificationQueueRepository;
 use app\repository\TenantRepository;
 use app\repository\TransactionRecordRepository;
 use app\repository\TransactionVoucherRepository;
-use app\upstream\Handle\TransactionPaymentOrderFactory;
+use app\upstream\Handle\TransactionDisbursementOrderFactory;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
 use Exception;
@@ -337,8 +337,8 @@ class DisbursementOrderService extends BaseService
             return false;
         }
         try {
-            // 使用 TransactionPaymentOrderFactory 调用上游接口
-            $service = TransactionPaymentOrderFactory::getInstance($className)->init($channelAccount);
+            // 使用 TransactionDisbursementOrderFactory 调用上游接口
+            $service = TransactionDisbursementOrderFactory::getInstance($className)->init($channelAccount);
             // 调用创建订单接口
             $cancelOk = $service->cancelOrder($disbursementOrder->platform_order_no, $disbursementOrder->upstream_order_no);
             if (!$cancelOk) {
