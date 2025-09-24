@@ -62,14 +62,14 @@ class CollectionOrderService extends BaseService
     // 创建订单
     public function createOrder(array $data, string $source = ''): array
     {
-        // 查询租户获取配置
+        // 查询租户获取配置 当前租户没有开启收款功能
         $findTenant = $this->tenantRepository->getQuery()
-//            ->select([
-//           'id','collection_use_method','upstream_enabled','safe_level','card_acquire_type'
-//])
             ->where('tenant_id', $data['tenant_id'])->first();
+        if (!$findTenant || !$findTenant->is_receipt) {
+            throw new OpenApiException(ResultCode::ORDER_TENANT_NOT_OPEN_RECEIPT);
+        }
         // 没有可用的收款方式
-        if (!$findTenant || !filled($findTenant->collection_use_method)) {
+        if (!filled($findTenant->collection_use_method)) {
             throw new OpenApiException(ResultCode::ORDER_NO_AVAILABLE_COLLECTION_METHOD);
         }
         // 启用上游第三方收款

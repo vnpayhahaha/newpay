@@ -38,8 +38,8 @@ use Webman\Event\Event;
  * @property array $payment_fee_type 付款手续费类型(1固定 2费率)
  * @property float $payment_fixed_fee 付款固定手续费金额
  * @property float $payment_fee_rate 付款手续费费率(%)
- * @property int $is_receipt 是否收款(1是 0否)
- * @property int $is_payment 是否付款(1是 0否)
+ * @property bool $is_receipt 是否收款(1是 0否)
+ * @property bool $is_payment 是否付款(1是 0否)
  * @property float $receipt_min_amount 单次收款最小金额
  * @property float $receipt_max_amount 单次收款最大金额
  * @property float $payment_min_amount 单次付款最小金额

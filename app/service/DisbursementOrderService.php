@@ -9,6 +9,7 @@ use app\constants\TenantAccount;
 use app\constants\TenantNotificationQueue;
 use app\constants\TransactionVoucher;
 use app\exception\BusinessException;
+use app\exception\OpenApiException;
 use app\lib\annotation\Cacheable;
 use app\lib\enum\ResultCode;
 use app\lib\LdlExcel\PhpOffice;
@@ -73,6 +74,9 @@ class DisbursementOrderService extends BaseService
         // 查询租户获取配置
         /** @var ModelTenant $findTenant */
         $findTenant = $this->tenantRepository->getQuery()->where('tenant_id', $data['tenant_id'])->first();
+        if (!$findTenant || !$findTenant->is_payment) {
+            throw new OpenApiException(ResultCode::ORDER_TENANT_NOT_OPEN_PAYMENT);
+        }
         $request = Context::get(Request::class);
         $user = $request->user ?? null;
         $app = Context::get(ModelTenantApp::class);

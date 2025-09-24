@@ -149,6 +149,12 @@ enum ResultCode: int
     // ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR
     #[Message('result.order.bank_bill_template_runtime_error')]
     case ORDER_BANK_BILL_TEMPLATE_RUNTIME_ERROR = 203010;
+    // TENANT_NOT_OPEN_RECEIPT
+    #[Message('result.order.tenant_not_open_receipt')]
+    case ORDER_TENANT_NOT_OPEN_RECEIPT = 203011;
+    // ORDER_TENANT_NOT_OPEN_PAYMENT
+    #[Message('result.order.tenant_not_open_payment')]
+    case ORDER_TENANT_NOT_OPEN_PAYMENT = 203012;
 
     // 交易凭证
     #[Message('result.transaction.trade_voucher_not_exist')]

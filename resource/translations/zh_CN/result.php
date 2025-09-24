@@ -59,6 +59,8 @@ return [
     'order.verify_failed'                                => '订单核销失败',
     'order.bank_bill_template_not_exist'                 => '银行帐单模板不存在',
     'order.bank_bill_template_runtime_error'             => '银行帐单模板运行时错误',
+    'order.tenant_not_open_receipt'                      => '当前租户没有开启收款功能',
+    'order.tenant_not_open_payment'                      => '当前租户没有开启付款功能',
 
     // 交易凭证
     'transaction.trade_voucher_not_exist'                => '交易凭证不存在',

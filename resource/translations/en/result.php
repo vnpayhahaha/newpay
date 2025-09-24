@@ -59,6 +59,8 @@ return [
     'order.verify_failed'                                => 'The order verification failed',
     'order.bank_bill_template_not_exist'                 => 'The bank statement template does not exist',
     'order.bank_bill_template_runtime_error'             => 'The bank statement template runtime error',
+    'order.tenant_not_open_receipt'                      => 'The current tenant does not enable the collection function',
+    'order.tenant_not_open_payment'                      => 'The current tenant does not enable the payment function',
 
     // 交易凭证
     'transaction.trade_voucher_not_exist'                => 'The transaction voucher does not exist',

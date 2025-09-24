@@ -68,7 +68,7 @@ class DisbursementOrderController extends BasicController
                     if (!$findTenant) {
                         return $fail(trans('exists', [':attribute' => $attribute], 'validation'));
                     }
-                    if ($findTenant->is_enabled === false || $findTenant->is_receipt === false) {
+                    if ($findTenant->is_enabled === false || $findTenant->is_payment === false) {
                         return $fail(trans('discontinued', [':attribute' => $attribute], 'validation'));
                     }
                 }
