@@ -2,7 +2,9 @@
 
 namespace app\upstream\caipay;
 
-class Base
+use app\upstream\Handle\Basic;
+
+class Base  extends Basic
 {
 
 }
