@@ -93,7 +93,7 @@ class CollectionOrderController extends BasicController
         $validatedData = $validator->validate();
         $user = $request->user;
         $successData = $this->service->createOrder($validatedData, 'merchant end:' . $user->username . "[{$user->id}]");
-        var_dump('订单创建结果：', $successData);
+        // var_dump('订单创建结果：', $successData);
         if (filled($successData)) {
             return $this->success($successData);
         }

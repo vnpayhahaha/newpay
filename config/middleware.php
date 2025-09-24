@@ -30,5 +30,6 @@ return [
     'openapi' => [
         app\middleware\OpenApiSignatureMiddleware::class,
         app\middleware\OpenApiLogMiddleware::class,
+        app\middleware\OpenApiRateLimitMiddleware::class,
     ],
 ];

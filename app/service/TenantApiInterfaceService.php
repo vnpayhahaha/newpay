@@ -25,4 +25,15 @@ final class TenantApiInterfaceService extends BaseService
         return (int)$this->repository->getQuery()->where('api_name', $api_name)->value('rate_limit') ?? 0;
     }
 
+    #[Cacheable(
+        prefix: 'openapi:reatlimit',
+        value: '_#{api_uri}',
+        ttl: 60,
+        group: 'redis'
+    )]
+    private function getRateLimitByApiUri(string $api_uri): int
+    {
+        return (int)$this->repository->getQuery()->where('api_uri', $api_uri)->value('rate_limit') ?? 0;
+    }
+
 }
