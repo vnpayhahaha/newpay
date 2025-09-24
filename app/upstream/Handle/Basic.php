@@ -68,7 +68,7 @@ class Basic
             // 记录请求日志
             $this->logRequest($requestId, $path, $requestUrl, 'POST', $data, $headers, $body, $requestTime);
 
-            Log::info("{POST 请求", [
+            Log::info("POST 请求", [
                 'request_id' => $requestId,
                 'url'        => $requestUrl,
                 'method'     => 'POST',
@@ -106,7 +106,7 @@ class Basic
             // 记录错误日志
             $this->logError($requestId, $errorMessage, Carbon::now(), $elapsedTime);
 
-            Log::error("{POST 请求异常", [
+            Log::error("POST 请求异常", [
                 'request_id'   => $requestId,
                 'url'          => $requestUrl,
                 'error'        => $errorMessage,
@@ -130,7 +130,11 @@ class Basic
      * @throws Throwable
      * @throws JsonException
      */
-    protected function _get(string $host, string $path, array $params = [], array $headers = []): mixed
+    #[ArrayShape([
+        'status_code' => 'int',
+        'result'      => 'string',
+    ])]
+    protected function _get(string $host, string $path, array $params = [], array $headers = []): array
     {
         $requestId = $this->generateRequestId();
         $requestUrl = $host . $path . (!empty($params) ? '?' . http_build_query($params) : '');
@@ -175,7 +179,7 @@ class Basic
             // 记录响应日志
             $this->logResponse($requestId, $statusCode, '', $responseHeaders, $responseBody, '', $responseTime, $elapsedTime);
 
-            Log::info("{GET 响应", [
+            Log::info("GET 响应", [
                 'request_id'    => $requestId,
                 'status_code'   => $statusCode,
                 'elapsed_time'  => $elapsedTime . 'ms',
@@ -194,7 +198,7 @@ class Basic
             // 记录错误日志
             $this->logError($requestId, $errorMessage, Carbon::now(), $elapsedTime);
 
-            Log::error("{GET 请求异常", [
+            Log::error("GET 请求异常", [
                 'request_id'   => $requestId,
                 'url'          => $requestUrl,
                 'error'        => $errorMessage,
