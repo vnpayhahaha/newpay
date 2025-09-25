@@ -84,7 +84,10 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
     public function notify(Request $request): array
     {
         // TODO: Implement notify() method.
-        return [];
+        return [
+            'ok'     => false,
+            'msg'    => 'failed',
+        ];
     }
 
     public function notifyReturn(bool $success): Response
