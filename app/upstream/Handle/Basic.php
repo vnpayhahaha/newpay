@@ -16,7 +16,7 @@ use Throwable;
 class Basic
 {
     #[Inject]
-    public ChannelRequestRecordRepository $requestRecordRepository;
+    protected ChannelRequestRecordRepository $requestRecordRepository;
 
     protected ModelChannelAccount $channel_account;
     protected int $timeout = 30;

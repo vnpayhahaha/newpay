@@ -24,7 +24,7 @@ class Base extends Basic
      */
     public function post(string $uri, array $data): mixed
     {
-        var_dump($this->service_name . '===post==', $uri, $data);
+        var_dump($this->service_name . '===post==',$this->url, $uri, $data);
         try {
             $result = $this->_post($this->url, $uri, $data, [
                 'Content-Type' => 'application/json;charset=utf-8',

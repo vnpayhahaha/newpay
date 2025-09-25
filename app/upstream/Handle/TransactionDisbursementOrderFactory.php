@@ -2,6 +2,8 @@
 
 namespace app\upstream\Handle;
 
+use support\Container;
+
 class TransactionDisbursementOrderFactory
 {
     private static $instances = [];
@@ -12,7 +14,8 @@ class TransactionDisbursementOrderFactory
         $className = str_replace('/', '\\', $className);
         // var_dump($className);
         if (!isset(self::$instances[$className])) {
-            self::$instances[$className] = new $className();
+            // 使用容器来创建实例，这样可以启用依赖注入
+            self::$instances[$className] = Container::make($className);
         }
         return self::$instances[$className];
     }

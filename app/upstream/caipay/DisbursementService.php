@@ -10,7 +10,7 @@ use app\upstream\Handle\TransactionDisbursementOrderInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Response;
 
-class DisbursementService  extends Base implements TransactionDisbursementOrderInterface
+class DisbursementService extends Base implements TransactionDisbursementOrderInterface
 {
     public function init(ModelChannelAccount $channel_account): TransactionDisbursementOrderInterface
     {
