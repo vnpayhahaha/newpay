@@ -7,6 +7,7 @@ use app\model\ModelChannelAccount;
 use app\model\ModelDisbursementOrder;
 use app\upstream\Handle\TransactionDisbursementOrderInterface;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Request;
 use support\Response;
 
 class DisbursementService  extends Base implements TransactionDisbursementOrderInterface
@@ -78,7 +79,7 @@ class DisbursementService  extends Base implements TransactionDisbursementOrderI
             '_rejection_reason'  => 'string',
         ]
     ])]
-    public function notify(array $params): array
+    public function notify(Request $request): array
     {
         // TODO: Implement notify() method.
     }

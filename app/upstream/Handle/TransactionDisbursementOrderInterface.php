@@ -6,6 +6,7 @@ use app\model\enums\DisbursementOrderVerificationQueuePayStatus;
 use app\model\ModelChannelAccount;
 use app\model\ModelDisbursementOrder;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Request;
 use support\Response;
 
 interface TransactionDisbursementOrderInterface
@@ -63,7 +64,7 @@ interface TransactionDisbursementOrderInterface
             '_rejection_reason'  => 'string',
         ]
     ])]
-    public function notify(array $params): array;
+    public function notify(Request $request): array;
 
     public function notifyReturn(bool $success): Response;
 }

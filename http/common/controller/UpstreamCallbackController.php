@@ -8,7 +8,9 @@ use app\constants\Tenant;
 use app\constants\TransactionVoucher;
 use app\controller\BasicController;
 use app\lib\enum\ResultCode;
+use app\model\ModelChannel;
 use app\repository\ChannelCallbackRecordRepository;
+use app\router\Annotations\GetMapping;
 use app\router\Annotations\RequestMapping;
 use app\router\Annotations\RestController;
 use app\service\ChannelService;
@@ -22,6 +24,7 @@ use support\Request;
 use support\Response;
 use Webman\RateLimiter\Annotation\RateLimiter;
 use Webman\RedisQueue\Redis;
+use Webman\Route;
 
 #[RestController("/callback")]
 class UpstreamCallbackController extends BasicController
@@ -36,19 +39,25 @@ class UpstreamCallbackController extends BasicController
     #[Inject]
     protected ChannelCallbackRecordRepository $callbackRecordRepository;
 
-    #[RequestMapping(path: '/collection/{channel_code}/{channel_account_id}', methods: 'get,post')]
-    #[RateLimiter(limit: 10)]
+    #[RequestMapping(path: '/collection/{channel_code}/{channel_account_id}', methods: 'GET,POST'), RateLimiter(limit: 10)]
     public function collection_order(Request $request, string $channel_code, int $channel_account_id): Response
     {
         return $this->handleCallback($request, $channel_code, $channel_account_id, 'collection');
     }
 
     // 打款订单回调通知
-    #[RequestMapping(path: '/disbursement/{channel_code}/{channel_account_id}', methods: 'get,post')]
-    #[RateLimiter(limit: 10)]
+    #[RequestMapping(path: '/disbursement/{channel_code}/{channel_account_id}', methods: 'GET,POST'), RateLimiter(limit: 10)]
     public function disbursement_order(Request $request, string $channel_code, int $channel_account_id): Response
     {
         return $this->handleCallback($request, $channel_code, $channel_account_id, 'disbursement');
+    }
+
+    #[GetMapping('/route')]
+    public function routers(Request $request): Response
+    {
+        $routers = Route::getRoutes();
+        var_dump($routers);
+        return $this->success($routers);
     }
 
     /**
@@ -57,14 +66,19 @@ class UpstreamCallbackController extends BasicController
     private function handleCallback(Request $request, string $channel_code, int $channel_account_id, string $callbackType): Response
     {
         $startTime = microtime(true);
+        $params = $request->all();
         $callbackId = $this->generateCallbackId();
 
         Log::info("UpstreamCallbackController {$callbackType}订单回调", [
             'channel_code' => $channel_code,
-            'params'       => $request->all()
+            'params'       => $params
         ]);
-
-        $callbackRecord = $this->recordCallbackStart($request, $callbackId, $channel_code, $callbackType);
+        // 获取通道信息
+        $modelChannel = $this->getChannelByCode($channel_code);
+        if (!$modelChannel) {
+            return $this->error(ResultCode::INVALID_CHANNEL);
+        }
+        $callbackRecord = $this->recordCallbackStart($request, $modelChannel, $callbackId, $callbackType);
 
         try {
             // 获取服务类名
@@ -74,16 +88,13 @@ class UpstreamCallbackController extends BasicController
                 return $this->error(ResultCode::INVALID_CHANNEL);
             }
 
-            // 获取通道信息
-            $modelChannel = $this->getChannelByCode($channel_code);
-            if (!$modelChannel) {
-                $this->updateCallbackRecord($callbackRecord->id, false, '通道不存在', microtime(true) - $startTime);
-                return $this->error(ResultCode::INVALID_CHANNEL);
-            }
-
             // 获取服务实例并处理回调
             $service = $this->getServiceInstance($className);
-            $result = $service->notify($request->all());
+            $result = $service->notify($request);
+            if (!$result) {
+                $this->updateCallbackRecord($callbackRecord->id, false, '无效的回调结果', microtime(true) - $startTime);
+                return $this->error(ResultCode::FAIL);
+            }
 
             // 处理回调结果
             return $this->processCallbackResult($result, $callbackRecord, $modelChannel, $channel_account_id, $callbackType, $service, $startTime);
@@ -105,8 +116,14 @@ class UpstreamCallbackController extends BasicController
                     $service = $this->getServiceInstance($className);
                     return $service->notifyReturn(false);
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // 忽略获取服务实例时的异常
+                Log::error("获取服务实例异常", [
+                    'channel_code'  => $channel_code,
+                    'callback_type' => $callbackType,
+                    'error'         => $e->getMessage(),
+                    'trace'         => $e->getTraceAsString()
+                ]);
             }
 
             return $this->error(ResultCode::FAIL);
@@ -139,7 +156,7 @@ class UpstreamCallbackController extends BasicController
     /**
      * 根据渠道代码获取通道信息
      */
-    private function getChannelByCode(string $channelCode): ?object
+    private function getChannelByCode(string $channelCode): ?ModelChannel
     {
         return $this->channelService->repository->getQuery()
             ->where('channel_code', $channelCode)
@@ -271,6 +288,9 @@ class UpstreamCallbackController extends BasicController
             'content'                  => $result['origin'] ?? '',
             'transaction_type'         => TransactionVoucher::TRANSACTION_TYPE_COLLECTION
         ]);
+        if (!$tv) {
+            return false;
+        }
 
         return Redis::send(CollectionOrder::COLLECTION_ORDER_WRITE_OFF_QUEUE_NAME, [
             'transaction_voucher_id'   => $tv->id,
@@ -300,15 +320,11 @@ class UpstreamCallbackController extends BasicController
     /**
      * 记录回调开始
      */
-    private function recordCallbackStart(Request $request, string $callbackId, string $channelCode, string $callbackType): object
+    private function recordCallbackStart(Request $request, ModelChannel $modelChannel, string $callbackId, string $callbackType): object
     {
-        // 获取通道ID
-        $channel = $this->getChannelByCode($channelCode);
-        $channelId = $channel ? $channel->channel_id : 0;
-
         return $this->callbackRecordRepository->create([
             'callback_id'          => $callbackId,
-            'channel_id'           => $channelId,
+            'channel_id'           => $modelChannel->id,
             'original_request_id'  => '', // 这里可以根据需要关联到原始请求ID
             'callback_type'        => $callbackType,
             'callback_url'         => $request->fullUrl(),

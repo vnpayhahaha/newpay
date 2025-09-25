@@ -5,6 +5,7 @@ namespace app\upstream\caipay;
 use app\model\ModelChannelAccount;
 use app\upstream\Handle\TransactionCollectionOrderInterface;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Request;
 use support\Response;
 
 class CollectionService extends Base implements TransactionCollectionOrderInterface
@@ -37,7 +38,7 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
         // TODO: Implement cancelOrder() method.
     }
 
-    public function notify(array $params): array
+    public function notify(Request $request): array
     {
         // TODO: Implement notify() method.
     }

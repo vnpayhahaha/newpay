@@ -4,6 +4,7 @@ namespace app\upstream\Handle;
 
 use app\model\ModelChannelAccount;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Request;
 use support\Response;
 
 interface TransactionCollectionOrderInterface
@@ -58,7 +59,7 @@ interface TransactionCollectionOrderInterface
      *      -- string _pay_time
      *      -- string _utr
      */
-    public function notify(array $params): array;
+    public function notify(Request $request): array;
 
     public function notifyReturn(bool $success): Response;
 }
