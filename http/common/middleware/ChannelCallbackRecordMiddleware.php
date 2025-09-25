@@ -165,7 +165,7 @@ class ChannelCallbackRecordMiddleware implements MiddlewareInterface
             'callback_body'        => $request->rawBody(),
             'callback_time'        => Carbon::now(),
             'client_ip'            => $request->getRealIp(),
-            'verification_status'  => 0, // 0-未验签
+            'status'               => 0, // 0-未验签
             'response_content'     => '',
             'process_result'       => '处理中...',
             'elapsed_time'         => 0,
@@ -181,10 +181,10 @@ class ChannelCallbackRecordMiddleware implements MiddlewareInterface
             $responseContent = $this->extractResponseContent($response);
 
             $this->callbackRecordRepository->updateById($callbackRecordId, [
-                'verification_status' => $success ? 1 : 2, // 1-验签成功, 2-验签失败
-                'process_result'      => $processResult,
-                'elapsed_time'        => (int)($elapsedTime * 1000), // 转换为毫秒
-                'response_content'    => $responseContent,
+                'status'           => $success ? 1 : 2, // 1-验签成功, 2-验签失败
+                'process_result'   => $processResult,
+                'elapsed_time'     => (int)($elapsedTime * 1000), // 转换为毫秒
+                'response_content' => $responseContent,
             ]);
         } catch (Throwable $e) {
             Log::error('中间件更新回调记录失败', [

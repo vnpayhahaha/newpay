@@ -17,7 +17,7 @@ use Carbon\Carbon;
  * @property string $callback_body 回调体内容
  * @property Carbon $callback_time 回调到达时间
  * @property string $client_ip 回调来源IP
- * @property int $verification_status 验签状态: 0-未验签, 1-验签成功, 2-验签失败
+ * @property int $status 状态: 0-接收中, 1-接收成功, 2-接收失败
  * @property string $response_content 返回给渠道的内容
  * @property string $process_result 处理结果描述
  * @property int $elapsed_time 处理耗时(毫秒)
@@ -53,7 +53,7 @@ final class ModelChannelCallbackRecord extends BasicModel
         'callback_body',
         'callback_time',
         'client_ip',
-        'verification_status',
+        'status',
         'response_content',
         'process_result',
         'elapsed_time',
@@ -62,7 +62,7 @@ final class ModelChannelCallbackRecord extends BasicModel
 
     protected $casts = [
         'channel_id'          => 'integer',
-        'verification_status' => 'integer',
+        'status' => 'integer',
         'elapsed_time'        => 'integer',
         'callback_time'       => 'datetime',
         'created_at'          => 'datetime',

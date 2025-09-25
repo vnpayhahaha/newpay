@@ -38,8 +38,8 @@ final class ChannelCallbackRecordRepository extends IRepository
             $query->where('callback_body', $params['callback_body']);
         }
 
-        if (isset($params['verification_status']) && filled($params['verification_status'])) {
-            $query->where('verification_status', $params['verification_status']);
+        if (isset($params['status']) && filled($params['status'])) {
+            $query->where('status', $params['status']);
         }
 
         return $query;
