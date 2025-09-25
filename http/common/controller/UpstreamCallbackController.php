@@ -20,6 +20,7 @@ use DI\Attribute\Inject;
 use support\Log;
 use support\Request;
 use support\Response;
+use Webman\RateLimiter\Annotation\RateLimiter;
 use Webman\RedisQueue\Redis;
 
 #[RestController("/callback")]
@@ -36,6 +37,7 @@ class UpstreamCallbackController extends BasicController
     protected ChannelCallbackRecordRepository $callbackRecordRepository;
 
     #[RequestMapping(path: '/collection/{channel_code}/{channel_account_id}', methods: 'get,post')]
+    #[RateLimiter(limit: 10)]
     public function collection_order(Request $request, string $channel_code, int $channel_account_id): Response
     {
         return $this->handleCallback($request, $channel_code, $channel_account_id, 'collection');
@@ -43,6 +45,7 @@ class UpstreamCallbackController extends BasicController
 
     // 打款订单回调通知
     #[RequestMapping(path: '/disbursement/{channel_code}/{channel_account_id}', methods: 'get,post')]
+    #[RateLimiter(limit: 10)]
     public function disbursement_order(Request $request, string $channel_code, int $channel_account_id): Response
     {
         return $this->handleCallback($request, $channel_code, $channel_account_id, 'disbursement');
