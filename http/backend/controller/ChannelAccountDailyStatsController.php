@@ -18,7 +18,7 @@ class ChannelAccountDailyStatsController extends BasicController
     #[Inject]
     protected ChannelAccountDailyStatsService $service;
 
-    #[GetMapping('/channel_account/daily_stats')]
+    #[GetMapping('/channel_account_daily_stats/list')]
     #[Permission(code: 'channel:channel_account:daily_stats')]
     #[OperationLog('渠道账户每日统计列表')]
     public function pageList(Request $request): Response
