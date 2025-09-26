@@ -12,6 +12,7 @@ use app\repository\DisbursementOrderRepository;
 use Carbon\Carbon;
 use DI\Attribute\Inject;
 use support\Log;
+use support\Db;
 use Throwable;
 
 final class ChannelAccountDailyStatsService extends IService
@@ -97,105 +98,158 @@ final class ChannelAccountDailyStatsService extends IService
     }
 
     /**
-     * 统计所有账户的每日数据
+     * 统计所有账户的每日数据 - 批量优化版本
      */
     private function processAllAccountStats(string $statDate): void
     {
         // 获取所有活跃的账户ID
         $activeAccounts = $this->getActiveAccounts($statDate);
 
-        foreach ($activeAccounts as $account) {
-            $this->processAccountDailyStats($account, $statDate);
+        if (empty($activeAccounts)) {
+            Log::info("当日无活跃账户", ['stat_date' => $statDate]);
+            return;
+        }
+
+        // 批量预载入账户信息到缓存
+        $this->preloadAccountCache($activeAccounts);
+
+        // 使用批量处理减少数据库压力
+        $batchSize = 50; // 每批处理50个账户
+        $batches = array_chunk($activeAccounts, $batchSize);
+
+        foreach ($batches as $batchIndex => $batch) {
+            Log::debug("处理账户批次", [
+                'stat_date'     => $statDate,
+                'batch_index'   => $batchIndex + 1,
+                'batch_size'    => count($batch),
+                'total_batches' => count($batches)
+            ]);
+
+            foreach ($batch as $account) {
+                try {
+                    $this->processAccountDailyStats($account, $statDate);
+                } catch (Throwable $e) {
+                    Log::error("处理账户统计失败", [
+                        'stat_date' => $statDate,
+                        'account'   => $account,
+                        'error'     => $e->getMessage()
+                    ]);
+                    // 继续处理其他账户，不中断整个批次
+                }
+            }
+
+            // 批次间短暂休息，避免数据库压力过大
+            if ($batchIndex < count($batches) - 1) {
+                usleep(100000); // 休息100ms
+            }
         }
 
         Log::info("账户每日统计数据处理完成", [
             'stat_date'          => $statDate,
-            'processed_accounts' => count($activeAccounts)
+            'processed_accounts' => count($activeAccounts),
+            'processed_batches'  => count($batches)
         ]);
     }
 
     /**
-     * 获取活跃账户（有交易记录的账户）
+     * 批量预载入账户信息到缓存
+     */
+    private function preloadAccountCache(array $activeAccounts): void
+    {
+        // 分组收集账户ID
+        $channelAccountIds = [];
+        $bankAccountIds = [];
+
+        foreach ($activeAccounts as $account) {
+            if ($account['type'] === 'channel') {
+                $channelAccountIds[] = $account['account_id'];
+            } else {
+                $bankAccountIds[] = $account['account_id'];
+            }
+        }
+
+        // 批量查询渠道账户
+        if (!empty($channelAccountIds)) {
+            $channelAccounts = $this->channelAccountRepository->getQuery()
+                ->whereIn('id', array_unique($channelAccountIds))
+                ->get()
+                ->keyBy('id');
+
+            foreach ($channelAccounts as $account) {
+                $this->accountCache['channel_' . $account->id] = $account;
+            }
+        }
+
+        // 批量查询银行账户
+        if (!empty($bankAccountIds)) {
+            $bankAccounts = $this->bankAccountRepository->getQuery()
+                ->whereIn('id', array_unique($bankAccountIds))
+                ->get()
+                ->keyBy('id');
+
+            foreach ($bankAccounts as $account) {
+                $this->accountCache['bank_' . $account->id] = $account;
+            }
+        }
+
+        Log::debug("预载入账户缓存完成", [
+            'channel_accounts' => count($channelAccountIds),
+            'bank_accounts'    => count($bankAccountIds)
+        ]);
+    }
+
+    /**
+     * 获取活跃账户（有交易记录的账户）- 优化版本
      */
     private function getActiveAccounts(string $statDate): array
     {
-        $accounts = [];
+        // 优化的 SQL 查询 - 在数据库层面去重，减少 PHP 处理
+        $unionSql = <<<SQL
+            SELECT DISTINCT
+                account_id,
+                channel_id,
+                type
+            FROM (
+                (SELECT DISTINCT
+                    channel_account_id as account_id,
+                    collection_channel_id as channel_id,
+                    'channel' as type
+                FROM collection_order
+                WHERE DATE(created_at) = ? AND channel_account_id IS NOT NULL)
+                UNION ALL
+                (SELECT DISTINCT
+                    channel_account_id as account_id,
+                    disbursement_channel_id as channel_id,
+                    'channel' as type
+                FROM disbursement_order
+                WHERE DATE(created_at) = ? AND channel_account_id IS NOT NULL)
+                UNION ALL
+                (SELECT DISTINCT
+                    bank_account_id as account_id,
+                    collection_channel_id as channel_id,
+                    'bank' as type
+                FROM collection_order
+                WHERE DATE(created_at) = ? AND bank_account_id IS NOT NULL AND channel_account_id IS NULL)
+                UNION ALL
+                (SELECT DISTINCT
+                    bank_account_id as account_id,
+                    disbursement_channel_id as channel_id,
+                    'bank' as type
+                FROM disbursement_order
+                WHERE DATE(created_at) = ? AND bank_account_id IS NOT NULL AND channel_account_id IS NULL)
+            ) AS combined_accounts
+        SQL;
 
-        // 获取渠道账户
-        $channelAccounts = $this->collectionOrderRepository->getQuery()
-            ->select('channel_account_id as account_id', 'collection_channel_id as channel_id')
-            ->whereDate('created_at', $statDate)
-            ->whereNotNull('channel_account_id')
-            ->groupBy('channel_account_id', 'collection_channel_id')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'type'       => 'channel',
-                    'account_id' => $item->account_id,
-                    'channel_id' => $item->channel_id,
-                ];
-            })
-            ->toArray();
+        $results = Db::select($unionSql, [$statDate, $statDate, $statDate, $statDate]);
 
-        $channelAccountsPayment = $this->disbursementOrderRepository->getQuery()
-            ->select('channel_account_id as account_id', 'disbursement_channel_id as channel_id')
-            ->whereDate('created_at', $statDate)
-            ->whereNotNull('channel_account_id')
-            ->groupBy('channel_account_id', 'disbursement_channel_id')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'type'       => 'channel',
-                    'account_id' => $item->account_id,
-                    'channel_id' => $item->channel_id,
-                ];
-            })
-            ->toArray();
-
-        // 获取银行账户
-        $bankAccounts = $this->collectionOrderRepository->getQuery()
-            ->select('bank_account_id as account_id', 'collection_channel_id as channel_id')
-            ->whereDate('created_at', $statDate)
-            ->whereNotNull('bank_account_id')
-            ->whereNull('channel_account_id')
-            ->groupBy('bank_account_id', 'collection_channel_id')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'type'       => 'bank',
-                    'account_id' => $item->account_id,
-                    'channel_id' => $item->channel_id,
-                ];
-            })
-            ->toArray();
-
-        $bankAccountsPayment = $this->disbursementOrderRepository->getQuery()
-            ->select('bank_account_id as account_id', 'disbursement_channel_id as channel_id')
-            ->whereDate('created_at', $statDate)
-            ->whereNotNull('bank_account_id')
-            ->whereNull('channel_account_id')
-            ->groupBy('bank_account_id', 'disbursement_channel_id')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'type'       => 'bank',
-                    'account_id' => $item->account_id,
-                    'channel_id' => $item->channel_id,
-                ];
-            })
-            ->toArray();
-
-        // 合并并去重
-        $accounts = array_merge($channelAccounts, $channelAccountsPayment, $bankAccounts, $bankAccountsPayment);
-
-        // 按账户类型和ID去重
-        $uniqueAccounts = [];
-        foreach ($accounts as $account) {
-            $key = $account['type'] . '_' . $account['account_id'] . '_' . $account['channel_id'];
-            $uniqueAccounts[$key] = $account;
-        }
-
-        return array_values($uniqueAccounts);
+        // 直接转换结果，无需额外去重处理
+        return array_map(function ($item) {
+            return [
+                'type'       => $item->type,
+                'account_id' => (int)$item->account_id,
+                'channel_id' => (int)$item->channel_id,
+            ];
+        }, $results);
     }
 
     /**
@@ -231,7 +285,7 @@ final class ChannelAccountDailyStatsService extends IService
                 SUM(CASE WHEN status != ? THEN 1 ELSE 0 END) as failure_count,
                 SUM(CASE WHEN status = ? THEN {$amountField} ELSE 0 END) as amount_total,
                 AVG(CASE WHEN status = ? AND pay_time IS NOT NULL
-                    THEN TIMESTAMPDIFF(MICROSECOND, created_at, pay_time) / 1000
+                    THEN TIMESTAMPDIFF(SECOND, created_at, pay_time)
                     ELSE NULL END) as avg_process_time",
                 [$successStatus, $successStatus, $successStatus, $successStatus]
             )
