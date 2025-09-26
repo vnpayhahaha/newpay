@@ -15,7 +15,7 @@ class ChannelAccountDailyStatsCrontab
     {
         // 每分钟实时统计任务
         new Crontab('0 */1 * * * *', function () {
-            echo date('Y-m-d H:i:s') . "\n" . '每5分钟实时统计任务开始执行';
+            echo date('Y-m-d H:i:s') . "\n" . '每分钟实时统计任务开始执行';
             $this->service->minutelyStatsCron();
         });
 
