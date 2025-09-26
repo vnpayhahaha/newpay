@@ -146,11 +146,13 @@ final class ModelBankAccount extends BasicModel
         parent::boot();
         self::created(static function (ModelBankAccount $model) {
             var_dump('ModelBankAccount created=======');
-            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($model->toArray(), JSON_THROW_ON_ERROR));
+            $accountInfo = $this->with('channel:id,channel_code')->find($model->id);
+            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($accountInfo->toArray(), JSON_THROW_ON_ERROR));
         });
         self::updated(static function (ModelBankAccount $model) {
             var_dump('ModelBankAccount updated=======');
-            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($model->toArray(), JSON_THROW_ON_ERROR));
+            $accountInfo = $this->with('channel:id,channel_code')->find($model->id);
+            Redis::connection('synchronize')->set('Model:BankAccount:' . $model->id, json_encode($accountInfo->toArray(), JSON_THROW_ON_ERROR));
         });
     }
 }
