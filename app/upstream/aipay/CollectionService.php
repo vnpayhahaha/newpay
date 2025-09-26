@@ -58,15 +58,15 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
             return ['ok' => false, 'msg' => $e->getMessage()];
         }
         return [
-            'ok'     => true,
+            'ok'     => false,
             'msg'    => 'success',
             'origin' => $result,
             'data'   => [
-                '_upstream_order_no' => $result['data']['order_id'],
-                '_order_amount'      => $result['data']['amount'],
-                '_pay_upi'           => $result['data']['upi'],
-                '_pay_url'           => $result['data']['pay_url'],
-                '_utr'               => $result['data']['utr']
+                '_upstream_order_no' => $result['data']['order_id'] ?? '',
+                '_order_amount'      => $result['data']['amount'] ?? $amount,
+                '_pay_upi'           => $result['data']['upi'] ?? '',
+                '_pay_url'           => $result['data']['pay_url'] ?? '',
+                '_utr'               => $result['data']['utr'] ?? ''
             ]
         ];
     }
@@ -85,8 +85,8 @@ class CollectionService extends Base implements TransactionCollectionOrderInterf
     {
         // TODO: Implement notify() method.
         return [
-            'ok'     => false,
-            'msg'    => 'failed',
+            'ok'  => false,
+            'msg' => 'failed',
         ];
     }
 

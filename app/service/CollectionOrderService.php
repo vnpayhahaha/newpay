@@ -417,7 +417,7 @@ class CollectionOrderService extends BaseService
         $collectionOrder = $this->repository->create([
             'tenant_id'             => $data['tenant_id'],
             'tenant_order_no'       => $data['tenant_order_no'],
-            'upstream_order_no'     => $createOrderResult['data']['_upstream_order_no'],
+            'upstream_order_no'     => $createOrderResult['data']['_upstream_order_no'] ?? '',
             'amount'                => $data['amount'],
             'payable_amount'        => $createOrderResult['data']['_order_amount'] ?? $data['amount'],
             'fixed_fee'             => $calculate['fixed_fee'],
