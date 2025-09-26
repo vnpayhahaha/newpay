@@ -271,10 +271,16 @@ final class ChannelAccountDailyStatsService extends IService
         // 查询现有记录
         $existingRecord = $this->repository->findByAccountAndDate($channelAccountId, $bankAccountId, $statDate);
 
-        // 计算综合成功率
-        $totalTransactions = $collectionStats['transaction_count'] + $disbursementStats['transaction_count'];
-        $totalSuccess = $collectionStats['success_count'] + $disbursementStats['success_count'];
-        $successRate = $totalTransactions > 0 ? round(($totalSuccess / $totalTransactions) * 100, 2) : 0;
+        // 计算收款成功率和付款成功率
+        $collectionTotalCount = $collectionStats['success_count'] + $collectionStats['failure_count'];
+        $collectionSuccessRate = $collectionTotalCount > 0
+            ? round(($collectionStats['success_count'] / $collectionTotalCount) * 100, 2)
+            : 0;
+
+        $disbursementTotalCount = $disbursementStats['success_count'] + $disbursementStats['failure_count'];
+        $disbursementSuccessRate = $disbursementTotalCount > 0
+            ? round(($disbursementStats['success_count'] / $disbursementTotalCount) * 100, 2)
+            : 0;
 
         // 计算平均处理时间
         $avgProcessTime = 0;
@@ -299,7 +305,8 @@ final class ChannelAccountDailyStatsService extends IService
             'disbursement_failure_count'     => $disbursementStats['failure_count'],
             'receipt_amount'                 => $collectionStats['amount_total'],
             'payment_amount'                 => $disbursementStats['amount_total'],
-            'success_rate'                   => $successRate,
+            'collection_success_rate'        => $collectionSuccessRate,
+            'disbursement_success_rate'      => $disbursementSuccessRate,
             'avg_process_time'               => (int)$avgProcessTime,
             'updated_at'                     => Carbon::now(),
         ];
@@ -348,6 +355,7 @@ final class ChannelAccountDailyStatsService extends IService
             $todayReceiptCount = $account->today_receipt_count ?? 0;
             $todayPaymentAmount = $account->today_payment_amount ?? 0;
             $todayPaymentCount = $account->today_payment_count ?? 0;
+            $used_quota = $account->used_quota ?? 0;
 
             $limitChecks = [];
 
@@ -369,6 +377,10 @@ final class ChannelAccountDailyStatsService extends IService
             // 检查付款次数限制（配置为0表示不限制）
             if (isset($account->daily_max_payment_count) && $account->daily_max_payment_count > 0) {
                 $limitChecks['payment_count'] = $todayPaymentCount >= $account->daily_max_payment_count;
+            }
+
+            if (isset($account->limit_quota) && $account->limit_quota > 0) {
+                $limitChecks['used_quota'] = $used_quota >= $account->limit_quota;
             }
 
             return $this->determineLimitStatus($limitChecks, $accountType, $accountId, [

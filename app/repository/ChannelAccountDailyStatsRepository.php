@@ -42,12 +42,20 @@ final class ChannelAccountDailyStatsRepository extends IRepository
             $query->where('limit_status', $params['limit_status']);
         }
 
-        if (isset($params['success_rate_min']) && filled($params['success_rate_min'])) {
-            $query->where('success_rate', '>=', $params['success_rate_min']);
+        if (isset($params['collection_success_rate_min']) && filled($params['collection_success_rate_min'])) {
+            $query->where('collection_success_rate', '>=', $params['collection_success_rate_min']);
         }
 
-        if (isset($params['success_rate_max']) && filled($params['success_rate_max'])) {
-            $query->where('success_rate', '<=', $params['success_rate_max']);
+        if (isset($params['collection_success_rate_max']) && filled($params['collection_success_rate_max'])) {
+            $query->where('collection_success_rate', '<=', $params['collection_success_rate_max']);
+        }
+
+        if (isset($params['disbursement_success_rate_min']) && filled($params['disbursement_success_rate_min'])) {
+            $query->where('disbursement_success_rate', '>=', $params['disbursement_success_rate_min']);
+        }
+
+        if (isset($params['disbursement_success_rate_max']) && filled($params['disbursement_success_rate_max'])) {
+            $query->where('disbursement_success_rate', '<=', $params['disbursement_success_rate_max']);
         }
 
         if (isset($params['receipt_amount_min']) && filled($params['receipt_amount_min'])) {
