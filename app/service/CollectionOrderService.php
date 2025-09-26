@@ -591,6 +591,26 @@ class CollectionOrderService extends BaseService
         dump('回调通知队列=======');
         // 回调通知队列
         $collectionOrder = $this->repository->findById($collectionOrderId);
+        // 更新对应渠道账户 收款金额 和 收款次数 channelAccountRepository bankAccountRepository
+        if ($collectionOrder->channel_account_id > 0) {
+            $this->channelAccountRepository->getQuery()
+                ->where('id', $collectionOrder->channel_account_id)
+                ->update([
+                    'used_quota'           => Db::raw('used_quota+' . $collectionOrder->paid_amount),
+                    'today_receipt_amount' => Db::raw('today_receipt_amount+' . $collectionOrder->paid_amount),
+                    'today_receipt_count'  => Db::raw('today_receipt_count+1'),
+                ]);
+        }
+        if ($collectionOrder->bank_account_id > 0) {
+            $this->bankAccountRepository->getQuery()
+                ->where('id', $collectionOrder->bank_account_id)
+                ->update([
+                    'used_quota'           => Db::raw('used_quota+' . $collectionOrder->paid_amount),
+                    'today_receipt_amount' => Db::raw('today_receipt_amount+' . $collectionOrder->paid_amount),
+                    'today_receipt_count'  => Db::raw('today_receipt_count+1'),
+                ]);
+        }
+
         $this->notify($collectionOrder, [
             'tenant_id'         => $collectionOrder->tenant_id,
             'platform_order_no' => $collectionOrder->platform_order_no,

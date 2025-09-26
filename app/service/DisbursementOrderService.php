@@ -235,6 +235,24 @@ class DisbursementOrderService extends BaseService
         ]);
         // 回调通知队列
         $disbursementOrder = $this->repository->findById($disbursementOrderId);
+        // 更新对应渠道账户 收款金额 和 收款次数 channelAccountRepository bankAccountRepository
+        if ($disbursementOrder->channel_account_id > 0) {
+            $this->channelAccountRepository->getQuery()
+                ->where('id', $disbursementOrder->channel_account_id)
+                ->update([
+                    'today_payment_amount' => Db::raw('today_receipt_amount+' . $disbursementOrder->amount),
+                    'today_payment_count'  => Db::raw('today_receipt_count+1'),
+                ]);
+        }
+        if ($disbursementOrder->bank_account_id > 0) {
+            $this->bankAccountRepository->getQuery()
+                ->where('id', $disbursementOrder->bank_account_id)
+                ->update([
+                    'today_payment_amount' => Db::raw('today_receipt_amount+' . $disbursementOrder->amount),
+                    'today_payment_count'  => Db::raw('today_receipt_count+1'),
+                ]);
+        }
+
         $this->notify($disbursementOrder, [
             'tenant_id'         => $disbursementOrder->tenant_id,
             'platform_order_no' => $disbursementOrder->platform_order_no,
