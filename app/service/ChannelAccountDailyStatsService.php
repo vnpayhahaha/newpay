@@ -32,6 +32,14 @@ final class ChannelAccountDailyStatsService extends IService
     #[Inject]
     public DisbursementOrderRepository $disbursementOrderRepository;
 
+    // 常量定义
+    private const BATCH_SIZE = 50;
+    private const BATCH_SLEEP_MICROSECONDS = 100000;
+    private const ACCOUNT_STATUS_ENABLED = 1;
+    private const LIMIT_STATUS_NORMAL = 0;
+    private const LIMIT_STATUS_PARTIAL = 1;
+    private const LIMIT_STATUS_FULL = 2;
+
     // 缓存账户配置，避免重复查询
     private array $accountCache = [];
 
@@ -120,8 +128,7 @@ final class ChannelAccountDailyStatsService extends IService
         $this->preloadAccountCache($accountsToProcess);
 
         // 使用批量处理减少数据库压力
-        $batchSize = 50; // 每批处理50个账户
-        $batches = array_chunk($accountsToProcess, $batchSize);
+        $batches = array_chunk($accountsToProcess, self::BATCH_SIZE);
 
         foreach ($batches as $batchIndex => $batch) {
             Log::debug("处理账户批次", [
@@ -146,7 +153,7 @@ final class ChannelAccountDailyStatsService extends IService
 
             // 批次间短暂休息，避免数据库压力过大
             if ($batchIndex < count($batches) - 1) {
-                usleep(100000); // 休息100ms
+                usleep(self::BATCH_SLEEP_MICROSECONDS); // 休息100ms
             }
         }
 
@@ -174,10 +181,15 @@ final class ChannelAccountDailyStatsService extends IService
             }
         }
 
-        // 批量查询渠道账户
+        // 批量查询渠道账户 - 使用 IN 查询优化
         if (!empty($channelAccountIds)) {
+            $uniqueChannelIds = array_unique($channelAccountIds);
             $channelAccounts = $this->channelAccountRepository->getQuery()
-                ->whereIn('id', array_unique($channelAccountIds))
+                ->whereIn('id', $uniqueChannelIds)
+                ->select(['id', 'channel_id', 'daily_max_receipt', 'daily_max_receipt_count',
+                         'daily_max_payment', 'daily_max_payment_count', 'limit_quota',
+                         'today_receipt_amount', 'today_receipt_count', 'today_payment_amount',
+                         'today_payment_count', 'used_quota'])
                 ->get()
                 ->keyBy('id');
 
@@ -186,10 +198,15 @@ final class ChannelAccountDailyStatsService extends IService
             }
         }
 
-        // 批量查询银行账户
+        // 批量查询银行账户 - 使用 IN 查询优化
         if (!empty($bankAccountIds)) {
+            $uniqueBankIds = array_unique($bankAccountIds);
             $bankAccounts = $this->bankAccountRepository->getQuery()
-                ->whereIn('id', array_unique($bankAccountIds))
+                ->whereIn('id', $uniqueBankIds)
+                ->select(['id', 'channel_id', 'daily_max_receipt', 'daily_max_receipt_count',
+                         'daily_max_payment', 'daily_max_payment_count', 'limit_quota',
+                         'today_receipt_amount', 'today_receipt_count', 'today_payment_amount',
+                         'today_payment_count', 'used_quota'])
                 ->get()
                 ->keyBy('id');
 
@@ -200,7 +217,8 @@ final class ChannelAccountDailyStatsService extends IService
 
         Log::debug("预载入账户缓存完成", [
             'channel_accounts' => count($channelAccountIds),
-            'bank_accounts'    => count($bankAccountIds)
+            'bank_accounts'    => count($bankAccountIds),
+            'cached_items'     => count($this->accountCache)
         ]);
     }
 
@@ -209,7 +227,10 @@ final class ChannelAccountDailyStatsService extends IService
      */
     private function getActiveAccounts(string $statDate): array
     {
-        // 优化的 SQL 查询 - 在数据库层面去重，减少 PHP 处理
+        // 优化的 SQL 查询 - 使用索引友好的查询，在数据库层面去重
+        // 注意：确保在 collection_order 和 disbursement_order 表上创建如下复合索引：
+        // INDEX idx_created_channel_account (created_at, channel_account_id)
+        // INDEX idx_created_bank_account (created_at, bank_account_id)
         $unionSql = <<<SQL
             SELECT DISTINCT
                 account_id,
@@ -221,32 +242,50 @@ final class ChannelAccountDailyStatsService extends IService
                     collection_channel_id as channel_id,
                     'channel' as type
                 FROM collection_order
-                WHERE DATE(created_at) = ? AND channel_account_id IS NOT NULL)
+                WHERE created_at >= ? AND created_at < ?
+                  AND channel_account_id IS NOT NULL
+                  AND channel_account_id > 0)
                 UNION ALL
                 (SELECT DISTINCT
                     channel_account_id as account_id,
                     disbursement_channel_id as channel_id,
                     'channel' as type
                 FROM disbursement_order
-                WHERE DATE(created_at) = ? AND channel_account_id IS NOT NULL)
+                WHERE created_at >= ? AND created_at < ?
+                  AND channel_account_id IS NOT NULL
+                  AND channel_account_id > 0)
                 UNION ALL
                 (SELECT DISTINCT
                     bank_account_id as account_id,
                     collection_channel_id as channel_id,
                     'bank' as type
                 FROM collection_order
-                WHERE DATE(created_at) = ? AND bank_account_id IS NOT NULL AND channel_account_id IS NULL)
+                WHERE created_at >= ? AND created_at < ?
+                  AND bank_account_id IS NOT NULL
+                  AND bank_account_id > 0
+                  AND channel_account_id IS NULL)
                 UNION ALL
                 (SELECT DISTINCT
                     bank_account_id as account_id,
                     disbursement_channel_id as channel_id,
                     'bank' as type
                 FROM disbursement_order
-                WHERE DATE(created_at) = ? AND bank_account_id IS NOT NULL AND channel_account_id IS NULL)
+                WHERE created_at >= ? AND created_at < ?
+                  AND bank_account_id IS NOT NULL
+                  AND bank_account_id > 0
+                  AND channel_account_id IS NULL)
             ) AS combined_accounts
         SQL;
 
-        $results = Db::select($unionSql, [$statDate, $statDate, $statDate, $statDate]);
+        // 使用时间范围查询代替 DATE() 函数以提高性能
+        $startTime = $statDate . ' 00:00:00';
+        $endTime = $statDate . ' 23:59:59';
+        $results = Db::select($unionSql, [
+            $startTime, $endTime,
+            $startTime, $endTime,
+            $startTime, $endTime,
+            $startTime, $endTime
+        ]);
 
         // 直接转换结果，过滤无效账户ID
         return array_filter(array_map(function ($item) {
@@ -270,7 +309,7 @@ final class ChannelAccountDailyStatsService extends IService
 
         // 获取所有启用的渠道账户
         $channelAccounts = $this->channelAccountRepository->getQuery()
-            ->where('status', 1) // 假设1表示启用状态
+            ->where('status', self::ACCOUNT_STATUS_ENABLED)
             ->select('id as account_id', 'channel_id')
             ->get();
 
@@ -284,7 +323,7 @@ final class ChannelAccountDailyStatsService extends IService
 
         // 获取所有启用的银行账户
         $bankAccounts = $this->bankAccountRepository->getQuery()
-            ->where('status', 1) // 假设1表示启用状态
+            ->where('status', self::ACCOUNT_STATUS_ENABLED)
             ->select('id as account_id', 'channel_id')
             ->get();
 
@@ -340,7 +379,7 @@ final class ChannelAccountDailyStatsService extends IService
     }
 
     /**
-     * 获取订单统计数据
+     * 获取订单统计数据 - 优化版本
      */
     private function getOrderStats(array $accountInfo, string $statDate, string $type): array
     {
@@ -350,32 +389,55 @@ final class ChannelAccountDailyStatsService extends IService
         $amountField = $isCollection ? 'paid_amount' : 'amount';
         $accountField = $accountInfo['type'] === 'channel' ? 'channel_account_id' : 'bank_account_id';
 
-        $stats = $repository->getQuery()
-            ->selectRaw(
-                "COUNT(*) as transaction_count,
-                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as success_count,
-                SUM(CASE WHEN status != ? THEN 1 ELSE 0 END) as failure_count,
-                SUM(CASE WHEN status = ? THEN {$amountField} ELSE 0 END) as amount_total,
-                AVG(CASE WHEN status = ? AND pay_time IS NOT NULL
-                    THEN TIMESTAMPDIFF(SECOND, created_at, pay_time)
-                    ELSE NULL END) as avg_process_time",
-                [$successStatus, $successStatus, $successStatus, $successStatus]
-            )
-            ->whereDate('created_at', $statDate)
-            ->where($accountField, $accountInfo['account_id'])
-            ->first();
+        try {
+            // 使用时间范围查询替代 whereDate 以提高性能
+            $startTime = $statDate . ' 00:00:00';
+            $endTime = $statDate . ' 23:59:59';
 
-        return [
-            'transaction_count' => $stats->transaction_count ?? 0,
-            'success_count'     => $stats->success_count ?? 0,
-            'failure_count'     => $stats->failure_count ?? 0,
-            'amount_total'      => $stats->amount_total ?? 0,
-            'avg_process_time'  => $stats->avg_process_time ?? 0,
-        ];
+            $stats = $repository->getQuery()
+                ->selectRaw(
+                    "COUNT(*) as transaction_count,
+                    SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as success_count,
+                    SUM(CASE WHEN status != ? THEN 1 ELSE 0 END) as failure_count,
+                    SUM(CASE WHEN status = ? THEN {$amountField} ELSE 0 END) as amount_total,
+                    AVG(CASE WHEN status = ? AND pay_time IS NOT NULL
+                        THEN TIMESTAMPDIFF(SECOND, created_at, pay_time)
+                        ELSE NULL END) as avg_process_time",
+                    [$successStatus, $successStatus, $successStatus, $successStatus]
+                )
+                ->whereBetween('created_at', [$startTime, $endTime])
+                ->where($accountField, $accountInfo['account_id'])
+                ->first();
+
+            return [
+                'transaction_count' => (int)($stats->transaction_count ?? 0),
+                'success_count'     => (int)($stats->success_count ?? 0),
+                'failure_count'     => (int)($stats->failure_count ?? 0),
+                'amount_total'      => (float)($stats->amount_total ?? 0),
+                'avg_process_time'  => (float)($stats->avg_process_time ?? 0),
+            ];
+        } catch (Throwable $e) {
+            Log::error("获取订单统计数据失败", [
+                'account_info' => $accountInfo,
+                'stat_date'    => $statDate,
+                'type'         => $type,
+                'error'        => $e->getMessage(),
+                'trace'        => $e->getTraceAsString()
+            ]);
+
+            // 返回默认值以避免中断流程
+            return [
+                'transaction_count' => 0,
+                'success_count'     => 0,
+                'failure_count'     => 0,
+                'amount_total'      => 0,
+                'avg_process_time'  => 0,
+            ];
+        }
     }
 
     /**
-     * 更新或插入每日统计数据
+     * 更新或插入每日统计数据 - 优化版本
      */
     private function upsertDailyStats(array $accountInfo, string $statDate, array $collectionStats, array $disbursementStats): void
     {
@@ -384,79 +446,154 @@ final class ChannelAccountDailyStatsService extends IService
         $channelId = $accountInfo['channel_id'];
 
         // 数据验证：账户ID必须大于0
+        if (!$this->validateAccountId($accountId, $accountInfo, $statDate)) {
+            return;
+        }
+
+        try {
+            // 构建账户ID映射
+            [$channelAccountId, $bankAccountId] = $this->buildAccountIdMapping($accountType, $accountId);
+
+            // 查询现有记录
+            $existingRecord = $this->repository->findByAccountAndDate($channelAccountId, $bankAccountId, $statDate);
+
+            // 计算成功率
+            [$collectionSuccessRate, $disbursementSuccessRate] = $this->calculateSuccessRates($collectionStats, $disbursementStats);
+
+            // 构建统计数据
+            $data = $this->buildStatsData([
+                'channel_account_id'         => $channelAccountId,
+                'bank_account_id'            => $bankAccountId,
+                'channel_id'                 => $channelId,
+                'stat_date'                  => $statDate,
+                'collection_stats'           => $collectionStats,
+                'disbursement_stats'         => $disbursementStats,
+                'collection_success_rate'    => $collectionSuccessRate,
+                'disbursement_success_rate'  => $disbursementSuccessRate,
+                'account_type'               => $accountType,
+                'account_id'                 => $accountId,
+            ]);
+
+            // 保存或更新记录
+            $record = $this->saveStatsRecord($channelAccountId, $bankAccountId, $statDate, $data);
+
+            Log::debug($existingRecord ? "更新每日统计记录" : "创建每日统计记录", [
+                'record_id'    => $record->id,
+                'account_type' => $accountType,
+                'account_id'   => $accountId,
+                'stat_date'    => $statDate
+            ]);
+
+        } catch (Throwable $e) {
+            Log::error("保存每日统计数据失败", [
+                'account_info'        => $accountInfo,
+                'stat_date'           => $statDate,
+                'collection_stats'    => $collectionStats,
+                'disbursement_stats'  => $disbursementStats,
+                'error'               => $e->getMessage(),
+                'trace'               => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * 验证账户ID的有效性
+     */
+    private function validateAccountId(int $accountId, array $accountInfo, string $statDate): bool
+    {
         if (!$accountId || $accountId <= 0) {
             Log::warning("账户ID无效，跳过统计", [
                 'account_info' => $accountInfo,
                 'stat_date' => $statDate
             ]);
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // 构建查询条件和数据
+    /**
+     * 构建账户ID映射
+     */
+    private function buildAccountIdMapping(string $accountType, int $accountId): array
+    {
         if ($accountType === 'channel') {
             // 上游渠道账户
-            $channelAccountId = $accountId;
-            $bankAccountId = 0;
+            return [$accountId, 0];
         } else {
             // 银行账户
-            $channelAccountId = 0;
-            $bankAccountId = $accountId;
+            return [0, $accountId];
         }
+    }
 
-        // 查询现有记录
-        $existingRecord = $this->repository->findByAccountAndDate($channelAccountId, $bankAccountId, $statDate);
-
-        // 计算收款成功率和付款成功率
+    /**
+     * 计算成功率
+     */
+    private function calculateSuccessRates(array $collectionStats, array $disbursementStats): array
+    {
+        // 计算收款成功率
         $collectionTotalCount = $collectionStats['success_count'] + $collectionStats['failure_count'];
         $collectionSuccessRate = $collectionTotalCount > 0
             ? round(($collectionStats['success_count'] / $collectionTotalCount) * 100, 2)
             : 0;
 
+        // 计算付款成功率
         $disbursementTotalCount = $disbursementStats['success_count'] + $disbursementStats['failure_count'];
         $disbursementSuccessRate = $disbursementTotalCount > 0
             ? round(($disbursementStats['success_count'] / $disbursementTotalCount) * 100, 2)
             : 0;
 
+        return [$collectionSuccessRate, $disbursementSuccessRate];
+    }
+
+    /**
+     * 构建统计数据数组
+     */
+    private function buildStatsData(array $params): array
+    {
         $data = [
-            'channel_account_id'              => $channelAccountId,
-            'bank_account_id'                 => $bankAccountId,
-            'channel_id'                      => $channelId,
-            'stat_date'                       => $statDate,
-            'collection_transaction_count'    => $collectionStats['transaction_count'],
-            'disbursement_transaction_count'  => $disbursementStats['transaction_count'],
-            'collection_success_count'        => $collectionStats['success_count'],
-            'collection_failure_count'        => $collectionStats['failure_count'],
-            'disbursement_success_count'      => $disbursementStats['success_count'],
-            'disbursement_failure_count'      => $disbursementStats['failure_count'],
-            'receipt_amount'                  => $collectionStats['amount_total'],
-            'payment_amount'                  => $disbursementStats['amount_total'],
-            'collection_success_rate'         => $collectionSuccessRate,
-            'disbursement_success_rate'       => $disbursementSuccessRate,
-            'collection_avg_process_time'     => (int)($collectionStats['avg_process_time'] ?? 0),
-            'disbursement_avg_process_time'   => (int)($disbursementStats['avg_process_time'] ?? 0),
+            'channel_account_id'              => $params['channel_account_id'],
+            'bank_account_id'                 => $params['bank_account_id'],
+            'channel_id'                      => $params['channel_id'],
+            'stat_date'                       => $params['stat_date'],
+            'collection_transaction_count'    => $params['collection_stats']['transaction_count'],
+            'disbursement_transaction_count'  => $params['disbursement_stats']['transaction_count'],
+            'collection_success_count'        => $params['collection_stats']['success_count'],
+            'collection_failure_count'        => $params['collection_stats']['failure_count'],
+            'disbursement_success_count'      => $params['disbursement_stats']['success_count'],
+            'disbursement_failure_count'      => $params['disbursement_stats']['failure_count'],
+            'receipt_amount'                  => $params['collection_stats']['amount_total'],
+            'payment_amount'                  => $params['disbursement_stats']['amount_total'],
+            'collection_success_rate'         => $params['collection_success_rate'],
+            'disbursement_success_rate'       => $params['disbursement_success_rate'],
+            'collection_avg_process_time'     => (int)($params['collection_stats']['avg_process_time'] ?? 0),
+            'disbursement_avg_process_time'   => (int)($params['disbursement_stats']['avg_process_time'] ?? 0),
             'updated_at'                      => Carbon::now(),
         ];
 
         // 检查是否是当日统计（实时统计）
-        $isToday = $statDate === Carbon::today()->format('Y-m-d');
+        $isToday = $params['stat_date'] === Carbon::today()->format('Y-m-d');
 
         // 只有当日统计才计算限额状态
         if ($isToday) {
-            $data['limit_status'] = $this->calculateLimitStatus($accountType, $accountId);
+            $data['limit_status'] = $this->calculateLimitStatus($params['account_type'], $params['account_id']);
         }
 
-        // 使用updateOrCreate方法
+        return $data;
+    }
+
+    /**
+     * 保存统计记录
+     */
+    private function saveStatsRecord(int $channelAccountId, int $bankAccountId, string $statDate, array $data): object
+    {
         $conditions = [
             'channel_account_id' => $channelAccountId,
             'bank_account_id'    => $bankAccountId,
             'stat_date'          => $statDate
         ];
 
-        $record = $this->repository->updateOrCreateStats($conditions, $data);
-
-        Log::debug($existingRecord ? "更新每日统计记录" : "创建每日统计记录",
-            array_merge($data, ['record_id' => $record->id])
-        );
+        return $this->repository->updateOrCreateStats($conditions, $data);
     }
 
     /**
@@ -473,7 +610,7 @@ final class ChannelAccountDailyStatsService extends IService
 
             if (!$account) {
                 Log::warning("账户不存在", ['account_type' => $accountType, 'account_id' => $accountId]);
-                return 2; // 完全限额（安全考虑）
+                return self::LIMIT_STATUS_FULL; // 完全限额（安全考虑）
             }
 
             // 获取实时数据
@@ -481,50 +618,67 @@ final class ChannelAccountDailyStatsService extends IService
             $todayReceiptCount = $account->today_receipt_count ?? 0;
             $todayPaymentAmount = $account->today_payment_amount ?? 0;
             $todayPaymentCount = $account->today_payment_count ?? 0;
-            $used_quota = $account->used_quota ?? 0;
+            $usedQuota = $account->used_quota ?? 0;
 
-            $limitChecks = [];
-
-            // 检查收款金额限制（配置为0表示不限制）
-            if (isset($account->daily_max_receipt) && $account->daily_max_receipt > 0) {
-                $limitChecks['receipt_amount'] = $todayReceiptAmount >= $account->daily_max_receipt;
-            }
-
-            // 检查收款次数限制（配置为0表示不限制）
-            if (isset($account->daily_max_receipt_count) && $account->daily_max_receipt_count > 0) {
-                $limitChecks['receipt_count'] = $todayReceiptCount >= $account->daily_max_receipt_count;
-            }
-
-            // 检查付款金额限制（配置为0表示不限制）
-            if (isset($account->daily_max_payment) && $account->daily_max_payment > 0) {
-                $limitChecks['payment_amount'] = $todayPaymentAmount >= $account->daily_max_payment;
-            }
-
-            // 检查付款次数限制（配置为0表示不限制）
-            if (isset($account->daily_max_payment_count) && $account->daily_max_payment_count > 0) {
-                $limitChecks['payment_count'] = $todayPaymentCount >= $account->daily_max_payment_count;
-            }
-
-            if (isset($account->limit_quota) && $account->limit_quota > 0) {
-                $limitChecks['used_quota'] = $used_quota >= $account->limit_quota;
-            }
+            $limitChecks = $this->buildLimitChecks($account, [
+                'today_receipt_amount' => $todayReceiptAmount,
+                'today_receipt_count'  => $todayReceiptCount,
+                'today_payment_amount' => $todayPaymentAmount,
+                'today_payment_count'  => $todayPaymentCount,
+                'used_quota'           => $usedQuota
+            ]);
 
             return $this->determineLimitStatus($limitChecks, $accountType, $accountId, [
                 'today_receipt_amount' => $todayReceiptAmount,
                 'today_receipt_count'  => $todayReceiptCount,
                 'today_payment_amount' => $todayPaymentAmount,
                 'today_payment_count'  => $todayPaymentCount,
-                'used_quota'           => $used_quota
+                'used_quota'           => $usedQuota
             ]);
 
         } catch (Throwable $e) {
             Log::error("计算限额状态失败", [
                 'account_type' => $accountType,
                 'account_id'   => $accountId,
-                'error'        => $e->getMessage()
+                'trace'        => $e->getTraceAsString()
             ]);
-            return 2; // 发生错误时返回完全限额（安全考虑）
+            return self::LIMIT_STATUS_FULL; // 发生错误时返回完全限额（安全考虑）
         }
+    }
+
+    /**
+     * 构建限额检查数组
+     */
+    private function buildLimitChecks(object $account, array $todayData): array
+    {
+        $limitChecks = [];
+
+        // 检查收款金额限制（配置为0表示不限制）
+        if (isset($account->daily_max_receipt) && $account->daily_max_receipt > 0) {
+            $limitChecks['receipt_amount'] = $todayData['today_receipt_amount'] >= $account->daily_max_receipt;
+        }
+
+        // 检查收款次数限制（配置为0表示不限制）
+        if (isset($account->daily_max_receipt_count) && $account->daily_max_receipt_count > 0) {
+            $limitChecks['receipt_count'] = $todayData['today_receipt_count'] >= $account->daily_max_receipt_count;
+        }
+
+        // 检查付款金额限制（配置为0表示不限制）
+        if (isset($account->daily_max_payment) && $account->daily_max_payment > 0) {
+            $limitChecks['payment_amount'] = $todayData['today_payment_amount'] >= $account->daily_max_payment;
+        }
+
+        // 检查付款次数限制（配置为0表示不限制）
+        if (isset($account->daily_max_payment_count) && $account->daily_max_payment_count > 0) {
+            $limitChecks['payment_count'] = $todayData['today_payment_count'] >= $account->daily_max_payment_count;
+        }
+
+        // 检查使用额度限制
+        if (isset($account->limit_quota) && $account->limit_quota > 0) {
+            $limitChecks['used_quota'] = $todayData['used_quota'] >= $account->limit_quota;
+        }
+
+        return $limitChecks;
     }
 
     /**
@@ -534,7 +688,7 @@ final class ChannelAccountDailyStatsService extends IService
     {
         // 如果没有配置任何限制，返回正常
         if (empty($limitChecks)) {
-            return 0;
+            return self::LIMIT_STATUS_NORMAL;
         }
 
         $exceededChecks = array_filter($limitChecks);
@@ -554,11 +708,11 @@ final class ChannelAccountDailyStatsService extends IService
 
         // 根据超限指标数量判断限额状态
         if ($exceededCount == 0) {
-            return 0; // 正常
+            return self::LIMIT_STATUS_NORMAL; // 正常
         } elseif ($exceededCount == $totalChecks) {
-            return 2; // 全部限额
+            return self::LIMIT_STATUS_FULL; // 全部限额
         } else {
-            return 1; // 部分限额
+            return self::LIMIT_STATUS_PARTIAL; // 部分限额
         }
     }
 
