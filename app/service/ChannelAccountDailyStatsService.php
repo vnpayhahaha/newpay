@@ -102,20 +102,26 @@ final class ChannelAccountDailyStatsService extends IService
      */
     private function processAllAccountStats(string $statDate): void
     {
-        // 获取所有活跃的账户ID
+        // 获取所有活跃的账户ID（有交易的账户）
         $activeAccounts = $this->getActiveAccounts($statDate);
 
-        if (empty($activeAccounts)) {
-            Log::info("当日无活跃账户", ['stat_date' => $statDate]);
+        // 获取所有应该统计的账户（包括无交易的启用账户）
+        $allAccounts = $this->getAllEnabledAccounts($statDate);
+
+        // 合并账户列表，确保所有启用账户都有统计记录
+        $accountsToProcess = $this->mergeAccountLists($activeAccounts, $allAccounts);
+
+        if (empty($accountsToProcess)) {
+            Log::info("当日无需统计的账户", ['stat_date' => $statDate]);
             return;
         }
 
         // 批量预载入账户信息到缓存
-        $this->preloadAccountCache($activeAccounts);
+        $this->preloadAccountCache($accountsToProcess);
 
         // 使用批量处理减少数据库压力
         $batchSize = 50; // 每批处理50个账户
-        $batches = array_chunk($activeAccounts, $batchSize);
+        $batches = array_chunk($accountsToProcess, $batchSize);
 
         foreach ($batches as $batchIndex => $batch) {
             Log::debug("处理账户批次", [
@@ -146,7 +152,7 @@ final class ChannelAccountDailyStatsService extends IService
 
         Log::info("账户每日统计数据处理完成", [
             'stat_date'          => $statDate,
-            'processed_accounts' => count($activeAccounts),
+            'processed_accounts' => count($accountsToProcess),
             'processed_batches'  => count($batches)
         ]);
     }
@@ -253,6 +259,69 @@ final class ChannelAccountDailyStatsService extends IService
             // 过滤掉账户ID为0或负数的记录
             return $account['account_id'] > 0;
         });
+    }
+
+    /**
+     * 获取所有启用的账户（包括无交易的账户）
+     */
+    private function getAllEnabledAccounts(string $statDate): array
+    {
+        $accounts = [];
+
+        // 获取所有启用的渠道账户
+        $channelAccounts = $this->channelAccountRepository->getQuery()
+            ->where('status', 1) // 假设1表示启用状态
+            ->select('id as account_id', 'channel_id')
+            ->get();
+
+        foreach ($channelAccounts as $account) {
+            $accounts[] = [
+                'type' => 'channel',
+                'account_id' => $account->account_id,
+                'channel_id' => $account->channel_id,
+            ];
+        }
+
+        // 获取所有启用的银行账户
+        $bankAccounts = $this->bankAccountRepository->getQuery()
+            ->where('status', 1) // 假设1表示启用状态
+            ->select('id as account_id', 'channel_id')
+            ->get();
+
+        foreach ($bankAccounts as $account) {
+            $accounts[] = [
+                'type' => 'bank',
+                'account_id' => $account->account_id,
+                'channel_id' => $account->channel_id,
+            ];
+        }
+
+        return $accounts;
+    }
+
+    /**
+     * 合并账户列表，去重并确保所有账户都被包含
+     */
+    private function mergeAccountLists(array $activeAccounts, array $allAccounts): array
+    {
+        // 使用关联数组进行去重
+        $merged = [];
+
+        // 先添加有交易的账户
+        foreach ($activeAccounts as $account) {
+            $key = $account['type'] . '_' . $account['account_id'];
+            $merged[$key] = $account;
+        }
+
+        // 再添加所有启用账户，如果已存在则跳过
+        foreach ($allAccounts as $account) {
+            $key = $account['type'] . '_' . $account['account_id'];
+            if (!isset($merged[$key])) {
+                $merged[$key] = $account;
+            }
+        }
+
+        return array_values($merged);
     }
 
     /**
