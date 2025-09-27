@@ -7,7 +7,7 @@ use app\lib\annotation\OperationLog;
 use app\lib\annotation\Permission;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
-use app\service\ChannelCallbackRecordService;
+use app\service\ChannelRequestRecordService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
@@ -16,7 +16,7 @@ use support\Response;
 class ChannelRequestRecordController extends BasicController
 {
     #[Inject]
-    protected ChannelCallbackRecordService $service;
+    protected ChannelRequestRecordService $service;
 
     #[GetMapping('/channel_request_record/list')]
     #[Permission(code: 'channel:channel_request_record:list')]
