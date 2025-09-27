@@ -14,7 +14,7 @@ class TransactionRawDataConsumer implements Consumer
     public string $queue = TransactionRawData::TRANSACTION_RAW_DATA_QUEUE_NAME;
 
     // 连接名，对应 plugin/webman/redis-queue/redis.php 里的连接`
-    public string $connection = 'synchronize';
+    public string $connection = 'default';
 
     #[Inject]
     protected TransactionRawDataService $service;
@@ -40,41 +40,51 @@ class TransactionRawDataConsumer implements Consumer
     //        ]
     public function consume($data)
     {
+        var_dump('TransactionRawDataConsumer=====', $data);
+        if (!$data) {
+            Log::error('TransactionRawDataConsumer: 缺少参数', [$data]);
+            return false;
+        }
+        Log::info('TransactionRawDataConsumer: 开始消费', [$data]);
         if (!is_array($data)) {
+            Log::error('TransactionRawDataConsumer: 参数错误', [$data]);
             return false;
         }
         // 验证参数
-        $validator = validate($data, [
-            'channel_id'      => [
-                'required',
-                'integer',
-                'between:1,99999999999'
-            ],
-            'bank_account_id' => [
-                'required',
-                'integer',
-                'between:1,99999999999'
-            ],
-            'content'         => [
-                'required',
-                'string',
-                'max:65535',
-            ],
-            'source'          => 'required|string|max:255',
-        ]);
-        if ($validator->fails()) {
-            Log::error('TransactionRawDataConsumer: 参数验证失败', [$validator->errors()->first()]);
+        //             'channel_id'      => [
+        //                'required',
+        //                'integer',
+        //                'between:1,99999999999'
+        //            ],
+        //            'bank_account_id' => [
+        //                'required',
+        //                'integer',
+        //                'between:1,99999999999'
+        //            ],
+        //            'content'         => [
+        //                'required',
+        //                'string',
+        //                'max:65535',
+        //            ],
+        //            'source'          => 'required|string|max:255',
+        if (!isset($data['channel_id'], $data['bank_account_id'], $data['content'], $data['source'])) {
+            Log::error('TransactionRawDataConsumer: 参数错误', [$data]);
             return false;
         }
-        $validatedData = $validator->validate();
         // 验证hash是否存在
-        $hash = md5($validatedData['content']);
+        $hash = md5($data['content']);
         if ($find = $this->service->repository->getQuery()->where('hash', $hash)->first()) {
             $find->increment('repeat_count');
             Log::warning('TransactionRawDataConsumer: 数据已存在', [$find->toArray()]);
             return false;
         }
-        $this->service->create($validatedData);
+        $this->service->create($data);
         return true;
+    }
+
+    public function onConsumeFailure(\Throwable $e, $package)
+    {
+        Log::error('TransactionRawDataConsumer: 消费失败', [$e->getMessage(), $package]);
+        var_dump('TransactionRawDataConsumer: 消费失败', [$e->getMessage(), $package]);
     }
 }

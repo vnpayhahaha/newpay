@@ -50,6 +50,6 @@ return [
         'password' => env('REDIS_AUTH', null),
         'port'     => (int)env('REDIS_PORT', 6379),
         'database' => env('REDIS_QUEUE_DB_SYNC', 2),
-        'prefix'   => '',
+        'prefix'   => env('APP_NAME', ''),
     ],
 ];

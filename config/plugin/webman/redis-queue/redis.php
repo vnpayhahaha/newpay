@@ -27,7 +27,6 @@ return [
             'max_attempts'  => env('REDIS_QUEUE_MAX_ATTEMPTS', 5),
             'retry_seconds' => env('REDIS_QUEUE_RETRY_SECONDS', 10),
         ],
-        // Connection pool, supports only Swoole or Swow drivers.
         'pool'    => [
             'max_connections'    => 5,
             'min_connections'    => 1,
