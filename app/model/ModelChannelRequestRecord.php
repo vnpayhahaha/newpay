@@ -73,4 +73,10 @@ final class ModelChannelRequestRecord extends BasicModel
         'created_at'       => 'datetime',
         'updated_at'       => 'datetime',
     ];
+
+    // belongsTo channel
+    public function channel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id' );
+    }
 }

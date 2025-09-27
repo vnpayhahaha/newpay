@@ -67,4 +67,10 @@ final class ModelChannelCallbackRecord extends BasicModel
         'callback_time'       => 'datetime',
         'created_at'          => 'datetime',
     ];
+
+    // belongsTo channel
+    public function channel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelChannel::class, 'channel_id','id' );
+    }
 }
