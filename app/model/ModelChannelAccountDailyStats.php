@@ -20,7 +20,8 @@ use Carbon\Carbon;
 * @property float $payment_amount 当日已付款金额
 * @property float $collection_success_rate 收款交易成功率(%)
 * @property float $disbursement_success_rate 付款交易成功率(%)
-* @property int $avg_process_time 平均处理时间(s)
+* @property int $collection_avg_process_time 收款平均处理时间(s)
+* @property int $disbursement_avg_process_time 付款平均处理时间(s)
 * @property int $limit_status 限额状态:0正常 1部分限额 2完全限额
 * @property Carbon $created_at 创建时间
 * @property Carbon $updated_at 更新时间
@@ -58,7 +59,8 @@ final class ModelChannelAccountDailyStats extends BasicModel
         'payment_amount',
         'collection_success_rate',
         'disbursement_success_rate',
-        'avg_process_time',
+        'collection_avg_process_time',
+        'disbursement_avg_process_time',
         'limit_status',
         'created_at',
         'updated_at'

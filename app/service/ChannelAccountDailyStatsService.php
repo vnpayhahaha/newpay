@@ -242,14 +242,17 @@ final class ChannelAccountDailyStatsService extends IService
 
         $results = Db::select($unionSql, [$statDate, $statDate, $statDate, $statDate]);
 
-        // 直接转换结果，无需额外去重处理
-        return array_map(function ($item) {
+        // 直接转换结果，过滤无效账户ID
+        return array_filter(array_map(function ($item) {
             return [
                 'type'       => $item->type,
                 'account_id' => (int)$item->account_id,
                 'channel_id' => (int)$item->channel_id,
             ];
-        }, $results);
+        }, $results), function ($account) {
+            // 过滤掉账户ID为0或负数的记录
+            return $account['account_id'] > 0;
+        });
     }
 
     /**
@@ -311,6 +314,15 @@ final class ChannelAccountDailyStatsService extends IService
         $accountId = $accountInfo['account_id'];
         $channelId = $accountInfo['channel_id'];
 
+        // 数据验证：账户ID必须大于0
+        if (!$accountId || $accountId <= 0) {
+            Log::warning("账户ID无效，跳过统计", [
+                'account_info' => $accountInfo,
+                'stat_date' => $statDate
+            ]);
+            return;
+        }
+
         // 构建查询条件和数据
         if ($accountType === 'channel') {
             // 上游渠道账户
@@ -336,33 +348,24 @@ final class ChannelAccountDailyStatsService extends IService
             ? round(($disbursementStats['success_count'] / $disbursementTotalCount) * 100, 2)
             : 0;
 
-        // 计算平均处理时间
-        $avgProcessTime = 0;
-        if ($collectionStats['avg_process_time'] > 0 && $disbursementStats['avg_process_time'] > 0) {
-            $avgProcessTime = ($collectionStats['avg_process_time'] + $disbursementStats['avg_process_time']) / 2;
-        } elseif ($collectionStats['avg_process_time'] > 0) {
-            $avgProcessTime = $collectionStats['avg_process_time'];
-        } elseif ($disbursementStats['avg_process_time'] > 0) {
-            $avgProcessTime = $disbursementStats['avg_process_time'];
-        }
-
         $data = [
-            'channel_account_id'             => $channelAccountId,
-            'bank_account_id'                => $bankAccountId,
-            'channel_id'                     => $channelId,
-            'stat_date'                      => $statDate,
-            'collection_transaction_count'   => $collectionStats['transaction_count'],
-            'disbursement_transaction_count' => $disbursementStats['transaction_count'],
-            'collection_success_count'       => $collectionStats['success_count'],
-            'collection_failure_count'       => $collectionStats['failure_count'],
-            'disbursement_success_count'     => $disbursementStats['success_count'],
-            'disbursement_failure_count'     => $disbursementStats['failure_count'],
-            'receipt_amount'                 => $collectionStats['amount_total'],
-            'payment_amount'                 => $disbursementStats['amount_total'],
-            'collection_success_rate'        => $collectionSuccessRate,
-            'disbursement_success_rate'      => $disbursementSuccessRate,
-            'avg_process_time'               => (int)$avgProcessTime,
-            'updated_at'                     => Carbon::now(),
+            'channel_account_id'              => $channelAccountId,
+            'bank_account_id'                 => $bankAccountId,
+            'channel_id'                      => $channelId,
+            'stat_date'                       => $statDate,
+            'collection_transaction_count'    => $collectionStats['transaction_count'],
+            'disbursement_transaction_count'  => $disbursementStats['transaction_count'],
+            'collection_success_count'        => $collectionStats['success_count'],
+            'collection_failure_count'        => $collectionStats['failure_count'],
+            'disbursement_success_count'      => $disbursementStats['success_count'],
+            'disbursement_failure_count'      => $disbursementStats['failure_count'],
+            'receipt_amount'                  => $collectionStats['amount_total'],
+            'payment_amount'                  => $disbursementStats['amount_total'],
+            'collection_success_rate'         => $collectionSuccessRate,
+            'disbursement_success_rate'       => $disbursementSuccessRate,
+            'collection_avg_process_time'     => (int)($collectionStats['avg_process_time'] ?? 0),
+            'disbursement_avg_process_time'   => (int)($disbursementStats['avg_process_time'] ?? 0),
+            'updated_at'                      => Carbon::now(),
         ];
 
         // 检查是否是当日统计（实时统计）
@@ -442,6 +445,7 @@ final class ChannelAccountDailyStatsService extends IService
                 'today_receipt_count'  => $todayReceiptCount,
                 'today_payment_amount' => $todayPaymentAmount,
                 'today_payment_count'  => $todayPaymentCount,
+                'used_quota'           => $used_quota
             ]);
 
         } catch (Throwable $e) {
