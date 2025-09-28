@@ -74,4 +74,28 @@ final class ModelTenantNotificationRecord extends BasicModel
         'created_at'            => 'datetime',
         'updated_at'            => 'datetime',
     ];
+
+    // belongsTo tenant
+    public function tenant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenant::class, 'tenant_id', 'tenant_id');
+    }
+
+    // tenant_app
+    public function app(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelTenantApp::class, 'app_id', 'id');
+    }
+
+    // collection_order
+    public function collection_order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelCollectionOrder::class, 'collection_order_id', 'id');
+    }
+
+    // disbursement_order
+    public function disbursement_order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ModelDisbursementOrder::class, 'disbursement_order_id', 'id');
+    }
 }

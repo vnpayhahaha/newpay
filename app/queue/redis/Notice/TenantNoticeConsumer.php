@@ -222,6 +222,7 @@ class TenantNoticeConsumer implements Consumer
             'tenant_id'             => $requestData['tenant_id'] ?? '',
             'app_id'                => $requestData['app_id'] ?? '',
             'account_type'          => $requestData['account_type'] ?? 0,
+            'collection_order_id'   => $requestData['collection_order_id'] ?? 0,
             'disbursement_order_id' => $requestData['disbursement_order_id'] ?? 0,
             'notification_type'     => $requestData['notification_type'] ?? 0,
             'notification_url'      => $requestData['notification_url'] ?? '',
