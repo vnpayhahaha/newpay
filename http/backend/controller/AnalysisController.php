@@ -7,6 +7,7 @@ use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
 use app\service\CollectionOrderService;
 use app\service\DisbursementOrderService;
+use app\service\UserLoginLogService;
 use DI\Attribute\Inject;
 use support\Request;
 use support\Response;
@@ -18,6 +19,9 @@ class AnalysisController extends BasicController
     public CollectionOrderService $collectionOrderService;
     #[Inject]
     public DisbursementOrderService $disbursementOrderService;
+
+    #[Inject]
+    protected UserLoginLogService $userLoginLogService;
 
     // 一周订单统计
     #[GetMapping('/weekOrder/collection_order_num')]
@@ -254,6 +258,16 @@ class AnalysisController extends BasicController
                 ]
             ]
         ]);
+    }
+
+
+    // 统计近10天当前用户每天登陆次数
+    #[GetMapping('/login_times')]
+    public function getUserLoginTimes(Request $request): Response
+    {
+        $user = $request->user;
+        $loginStats = $this->userLoginLogService->statisticsLoginCountOfLast10Days($user->username);
+        return $this->success($loginStats);
     }
 
 }
