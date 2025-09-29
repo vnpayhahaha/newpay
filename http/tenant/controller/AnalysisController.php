@@ -3,8 +3,10 @@
 namespace http\tenant\controller;
 
 use app\controller\BasicController;
+use app\lib\enum\ResultCode;
 use app\router\Annotations\GetMapping;
 use app\router\Annotations\RestController;
+use app\service\TenantUserLoginLogService;
 use http\tenant\Service\CollectionOrderService;
 use http\tenant\Service\DisbursementOrderService;
 use DI\Attribute\Inject;
@@ -18,6 +20,8 @@ class AnalysisController extends BasicController
     public CollectionOrderService $collectionOrderService;
     #[Inject]
     public DisbursementOrderService $disbursementOrderService;
+    #[Inject]
+    protected TenantUserLoginLogService $tenantUserLoginLogService;
 
     // 一周订单统计
     #[GetMapping('/weekOrder/collection_order_num')]
@@ -254,6 +258,19 @@ class AnalysisController extends BasicController
                 ]
             ]
         ]);
+    }
+
+
+    #[GetMapping('/login_times')]
+    public function getTenantUserLoginTimes(Request $request): Response
+    {
+        $params = $request->all();
+        if (!isset($params['tenant_id']) || !filled($params['tenant_id'])) {
+            return $this->error(ResultCode::UNPROCESSABLE_ENTITY);
+        }
+        $user = $request->user;
+        $loginStats = $this->tenantUserLoginLogService->statisticsLoginCountOfLast10Days($params['tenant_id'], $user->username);
+        return $this->success($loginStats);
     }
 
 }
